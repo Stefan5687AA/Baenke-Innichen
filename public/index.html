@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bankkarte Innichen</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="toolbar">
+      <h1>Bankkarte Innichen</h1>
+      <div class="controls">
+        <label class="admin-toggle">
+          <input id="adminMode" type="checkbox" />
+          Admin-Modus
+        </label>
+        <button id="reloadBtn" type="button">Neu laden</button>
+      </div>
+    </header>
+
+    <main>
+      <div id="map" aria-label="Karte mit Bänken in Innichen"></div>
+      <aside class="legend">
+        <h2>Statusfarben</h2>
+        <ul>
+          <li><span class="dot ok"></span> In Ordnung</li>
+          <li><span class="dot to_check"></span> Zu kontrollieren</li>
+          <li><span class="dot repair"></span> Reparatur nötig</li>
+          <li><span class="dot removed"></span> Entfernt</li>
+        </ul>
+      </aside>
+    </main>
+
+    <section id="editorPanel" class="editor-panel" aria-live="polite" hidden>
+      <div class="panel-card">
+        <h2 id="panelTitle">Bank hinzufügen</h2>
+        <form id="benchForm">
+          <label>
+            Name
+            <input id="fieldName" name="name" type="text" required maxlength="200" />
+          </label>
+
+          <label>
+            Status
+            <select id="fieldStatus" name="status">
+              <option value="ok">In Ordnung</option>
+              <option value="to_check">Zu kontrollieren</option>
+              <option value="repair">Reparatur nötig</option>
+              <option value="removed">Entfernt</option>
+            </select>
+          </label>
+
+          <label>
+            Letzte Kontrolle
+            <input id="fieldInspection" name="last_inspection" type="date" />
+          </label>
+
+          <label class="full-width">
+            Notiz
+            <textarea id="fieldNotes" name="notes" rows="3"></textarea>
+          </label>
+
+          <label>
+            Aktiv
+            <select id="fieldActive" name="active">
+              <option value="1">Ja</option>
+              <option value="0">Nein</option>
+            </select>
+          </label>
+
+          <div class="panel-actions full-width">
+            <button type="submit" class="primary">Speichern</button>
+            <button type="button" id="cancelBtn">Abbrechen</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
