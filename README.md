@@ -20,9 +20,9 @@ Minimal internal web app for mapping public benches in Innichen.
   - red = `repair`
   - gray = `removed`
 - Popup details per bench
-- Admin mode:
-  - click map to create bench
-  - click marker to edit bench
+- Admin-Modus mit festem Formular-Panel (unten, mittig):
+  - Klick auf die Karte: temporärer Marker + "Bank hinzufügen"
+  - Klick auf bestehenden Marker: "Bank bearbeiten" mit vorausgefüllten Werten
 
 ## Project structure
 
@@ -130,5 +130,5 @@ Bench shape:
 
 ## Notes
 
-- This app is intentionally minimal and prompt-driven for admin editing.
+- Diese App ist absichtlich minimal gehalten und nutzt ein einfaches, formularbasiertes Admin-Panel.
 - Add authentication before using in non-internal contexts.
