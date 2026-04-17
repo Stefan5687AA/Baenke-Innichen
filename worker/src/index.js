@@ -79,6 +79,8 @@ async function updateBench(id, request, env) {
     UPDATE benches
     SET
       title = COALESCE(?, title),
+      lat = COALESCE(?, lat),
+      lng = COALESCE(?, lng),
       status = COALESCE(?, status),
       last_inspection = ?,
       notes = COALESCE(?, notes),
@@ -87,6 +89,8 @@ async function updateBench(id, request, env) {
     WHERE id = ?
   `).bind(
     payload.title ?? null,
+    Number.isFinite(payload.lat) ? payload.lat : null,
+    Number.isFinite(payload.lng) ? payload.lng : null,
     payload.status ?? null,
     payload.last_inspection ?? null,
     payload.notes ?? null,
@@ -120,6 +124,15 @@ function validatePayload(payload, requireLocation) {
 
   if (requireLocation && (!Number.isFinite(normalized.lat) || !Number.isFinite(normalized.lng))) {
     throw new HttpError(400, 'lat and lng are required numbers');
+  }
+
+  if (!requireLocation) {
+    if (typeof normalized.lat !== 'undefined' && !Number.isFinite(normalized.lat)) {
+      throw new HttpError(400, 'lat must be a number');
+    }
+    if (typeof normalized.lng !== 'undefined' && !Number.isFinite(normalized.lng)) {
+      throw new HttpError(400, 'lng must be a number');
+    }
   }
 
   if (requireLocation && !normalized.title) {

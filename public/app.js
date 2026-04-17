@@ -38,6 +38,7 @@ let editMode = null;
 let selectedBenchId = null;
 let selectedPoint = null;
 let tempMarker = null;
+let userLocationMarker = null;
 
 reloadBtn.addEventListener('click', loadBenches);
 adminToggle.addEventListener('change', () => {
@@ -110,16 +111,22 @@ async function loadBenches() {
 }
 
 function addBenchMarker(bench) {
-  const marker = L.marker([bench.lat, bench.lng], { icon: markerIcon(bench.status) }).addTo(map);
+  const marker = L.marker([bench.lat, bench.lng], { icon: markerIcon(bench.status), draggable: false }).addTo(map);
   marker.bindPopup(popupHtml(bench));
 
   marker.on('click', () => {
     if (!adminToggle.checked) return;
+    marker.setPopupContent(popupEditorHtml(bench));
+  });
 
-    selectedBenchId = bench.id;
-    selectedPoint = { lat: bench.lat, lng: bench.lng };
-    clearTempMarker();
-    openEditPanel(bench);
+  marker.on('popupopen', () => {
+    if (!adminToggle.checked) return;
+    bindPopupEditorEvents(marker, bench);
+  });
+
+  marker.on('popupclose', () => {
+    marker.dragging.disable();
+    marker.setLatLng([bench.lat, bench.lng]);
   });
 
   markers.set(bench.id, marker);
@@ -219,6 +226,185 @@ async function upsertBench(path, method, payload) {
 
   await loadBenches();
   closePanel();
+  return true;
+}
+
+async function readErrorMessage(response) {
+  try {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const body = await response.json();
+      if (body?.error) return body.error;
+      return `HTTP ${response.status}`;
+    }
+
+    const text = (await response.text()).trim();
+    if (text) return text;
+  } catch {
+    // ignore parsing errors and fall back to HTTP status
+  }
+
+  return `HTTP ${response.status}`;
+}
+
+async function archiveBench(benchId) {
+  if (!confirm('Bank wirklich löschen? (wird als entfernt/inaktiv markiert)')) return;
+
+  await upsertBench(`/api/benches/${benchId}`, 'PUT', {
+    status: 'removed',
+    active: false
+  });
+}
+
+function popupEditorHtml(bench) {
+  return `
+    <form class="popup-editor" data-bench-id="${bench.id}">
+      <label>
+        Titel
+        <input name="title" type="text" maxlength="200" value="${escapeHtml(bench.title || '')}" required />
+      </label>
+
+      <label>
+        Status
+        <select name="status">
+          <option value="ok" ${bench.status === 'ok' ? 'selected' : ''}>In Ordnung</option>
+          <option value="to_check" ${bench.status === 'to_check' ? 'selected' : ''}>Zu kontrollieren</option>
+          <option value="repair" ${bench.status === 'repair' ? 'selected' : ''}>Reparatur nötig</option>
+          <option value="removed" ${bench.status === 'removed' ? 'selected' : ''}>Entfernt</option>
+        </select>
+      </label>
+
+      <label>
+        Letzte Kontrolle
+        <input name="last_inspection" type="date" value="${escapeHtml(bench.last_inspection || '')}" />
+      </label>
+
+      <label>
+        Aktiv
+        <select name="active">
+          <option value="1" ${bench.active ? 'selected' : ''}>Ja</option>
+          <option value="0" ${bench.active ? '' : 'selected'}>Nein</option>
+        </select>
+      </label>
+
+      <label>
+        Notiz
+        <textarea name="notes" rows="3">${escapeHtml(bench.notes || '')}</textarea>
+      </label>
+
+      <div class="popup-actions">
+        <button type="button" data-action="move">Position ändern</button>
+        <button type="button" data-action="delete">Löschen</button>
+      </div>
+
+      <div class="popup-actions">
+        <button type="submit" class="primary">Speichern</button>
+        <button type="button" data-action="cancel">Abbrechen</button>
+      </div>
+
+      <div class="popup-move" hidden>
+        <small>Marker per Drag & Drop verschieben.</small>
+        <div class="popup-actions">
+          <button type="button" class="primary" data-action="save-position">Position speichern</button>
+          <button type="button" data-action="cancel-position">Position abbrechen</button>
+        </div>
+      </div>
+    </form>
+  `;
+}
+
+function bindPopupEditorEvents(marker, bench) {
+  const popupElement = marker.getPopup()?.getElement();
+  if (!popupElement) return;
+
+  const form = popupElement.querySelector('.popup-editor');
+  if (!form) return;
+
+  const movePanel = form.querySelector('.popup-move');
+  const moveButton = form.querySelector('[data-action="move"]');
+  const cancelButton = form.querySelector('[data-action="cancel"]');
+  const deleteButton = form.querySelector('[data-action="delete"]');
+  const savePositionButton = form.querySelector('[data-action="save-position"]');
+  const cancelPositionButton = form.querySelector('[data-action="cancel-position"]');
+  const originalPosition = { lat: bench.lat, lng: bench.lng };
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const payload = {
+      title: String(formData.get('title') || '').trim(),
+      status: String(formData.get('status') || 'ok'),
+      last_inspection: String(formData.get('last_inspection') || '') || null,
+      notes: String(formData.get('notes') || '').trim(),
+      active: String(formData.get('active')) === '1'
+    };
+
+    if (!payload.title) {
+      alert('Bitte einen Namen eingeben.');
+      return;
+    }
+
+    await upsertBench(`/api/benches/${bench.id}`, 'PUT', payload);
+  });
+
+  moveButton?.addEventListener('click', () => {
+    marker.dragging.enable();
+    movePanel.hidden = false;
+  });
+
+  savePositionButton?.addEventListener('click', async () => {
+    const latLng = marker.getLatLng();
+    await upsertBench(`/api/benches/${bench.id}`, 'PUT', {
+      lat: Number(latLng.lat.toFixed(6)),
+      lng: Number(latLng.lng.toFixed(6))
+    });
+  });
+
+  cancelPositionButton?.addEventListener('click', () => {
+    marker.dragging.disable();
+    marker.setLatLng([originalPosition.lat, originalPosition.lng]);
+    movePanel.hidden = true;
+  });
+
+  deleteButton?.addEventListener('click', async () => {
+    await archiveBench(bench.id);
+  });
+
+  cancelButton?.addEventListener('click', () => {
+    marker.dragging.disable();
+    marker.setLatLng([originalPosition.lat, originalPosition.lng]);
+    marker.closePopup();
+  });
+}
+
+function showUserLocation() {
+  if (!navigator.geolocation) return;
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = Number(position.coords.latitude.toFixed(6));
+      const lng = Number(position.coords.longitude.toFixed(6));
+
+      if (userLocationMarker) {
+        map.removeLayer(userLocationMarker);
+      }
+
+      userLocationMarker = L.circleMarker([lat, lng], {
+        radius: 8,
+        color: '#1d4ed8',
+        fillColor: '#60a5fa',
+        fillOpacity: 0.9,
+        weight: 2
+      })
+        .addTo(map)
+        .bindPopup('Dein Standort');
+    },
+    () => {
+      // Standortfreigabe verweigert oder nicht verfügbar – App läuft normal weiter.
+    },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+  );
 }
 
 async function readErrorMessage(response) {
@@ -270,3 +456,4 @@ function resolveApiBaseUrl() {
 }
 
 loadBenches();
+showUserLocation();

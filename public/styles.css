@@ -104,6 +104,40 @@ main {
   min-width: 210px;
 }
 
+.popup-editor {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.popup-editor label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.86rem;
+}
+
+.popup-editor input,
+.popup-editor select,
+.popup-editor textarea {
+  border: 1px solid #c5d0db;
+  border-radius: 7px;
+  padding: 0.38rem 0.46rem;
+  font: inherit;
+}
+
+.popup-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.popup-actions button {
+  width: 100%;
+}
+
+.popup-move small {
+  color: #475569;
+}
+
 .editor-panel {
   position: fixed;
   left: 50%;

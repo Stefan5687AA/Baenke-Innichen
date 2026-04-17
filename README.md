@@ -22,7 +22,8 @@ Minimal internal web app for mapping public benches in Innichen.
 - Popup details per bench
 - Admin-Modus mit festem Formular-Panel (unten, mittig):
   - Klick auf die Karte: temporärer Marker + "Bank hinzufügen"
-  - Klick auf bestehenden Marker: "Bank bearbeiten" mit vorausgefüllten Werten
+  - Klick auf bestehenden Marker: Bearbeiten direkt im Popup (inkl. Position ändern und Löschen/Archivieren)
+- Eigener Standort kann (nach Browser-Freigabe) als Marker auf der Karte angezeigt werden
 
 ## Project structure
 
