@@ -22,7 +22,8 @@ Minimal internal web app for mapping public benches in Innichen.
 - Popup details per bench
 - Admin-Modus mit festem Formular-Panel (unten, mittig):
   - Klick auf die Karte: temporärer Marker + "Bank hinzufügen"
-  - Klick auf bestehenden Marker: "Bank bearbeiten" mit vorausgefüllten Werten
+  - Klick auf bestehenden Marker: Bearbeiten direkt im Popup (inkl. Position ändern und Löschen/Archivieren)
+- Eigener Standort kann (nach Browser-Freigabe) als Marker auf der Karte angezeigt werden
 
 ## Project structure
 
@@ -82,6 +83,8 @@ npm run worker:dev
 ```
 
 If frontend and API run on different origins in local dev, set up a simple proxy or update fetch URLs in `public/app.js`.
+By default, this project now auto-targets `http://127.0.0.1:8787` when opened on `localhost`/`127.0.0.1`.
+You can override the API base with `window.__BENCH_API_BASE_URL` before `app.js` loads.
 
 ## 6) Deploy API Worker
 
@@ -103,7 +106,7 @@ After deploy, note your Worker URL (example: `https://innichen-benches-api.<subd
 
 Pick one:
 
-- **Simple**: edit `fetch('/api/benches')` in `public/app.js` to your Worker URL.
+- **Simple**: set `window.__BENCH_API_BASE_URL` before loading `public/app.js` (or adapt `resolveApiBaseUrl()`).
 - **Recommended**: configure a Pages redirect or Cloudflare route so `/api/*` points to the Worker.
 
 ## API overview

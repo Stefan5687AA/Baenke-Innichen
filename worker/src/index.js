@@ -1,4 +1,10 @@
 const ALLOWED_STATUSES = ['ok', 'to_check', 'repair', 'removed'];
+class HttpError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
 
 export default {
   async fetch(request, env) {
@@ -28,6 +34,9 @@ export default {
 
       return json({ error: 'Not found' }, 404);
     } catch (error) {
+      if (error instanceof HttpError) {
+        return json({ error: error.message }, error.status);
+      }
       return json({ error: 'Server error', detail: error.message }, 500);
     }
   }
@@ -70,6 +79,8 @@ async function updateBench(id, request, env) {
     UPDATE benches
     SET
       title = COALESCE(?, title),
+      lat = COALESCE(?, lat),
+      lng = COALESCE(?, lng),
       status = COALESCE(?, status),
       last_inspection = ?,
       notes = COALESCE(?, notes),
@@ -78,6 +89,8 @@ async function updateBench(id, request, env) {
     WHERE id = ?
   `).bind(
     payload.title ?? null,
+    Number.isFinite(payload.lat) ? payload.lat : null,
+    Number.isFinite(payload.lng) ? payload.lng : null,
     payload.status ?? null,
     payload.last_inspection ?? null,
     payload.notes ?? null,
@@ -95,6 +108,10 @@ async function updateBench(id, request, env) {
 }
 
 function validatePayload(payload, requireLocation) {
+  if (!payload || typeof payload !== 'object') {
+    throw new HttpError(400, 'invalid payload');
+  }
+
   const normalized = {
     title: payload.title?.trim(),
     lat: payload.lat,
@@ -105,16 +122,37 @@ function validatePayload(payload, requireLocation) {
     active: payload.active
   };
 
-  if (requireLocation && (typeof normalized.lat !== 'number' || typeof normalized.lng !== 'number')) {
-    throw new Error('lat and lng are required numbers');
+  if (requireLocation && (!Number.isFinite(normalized.lat) || !Number.isFinite(normalized.lng))) {
+    throw new HttpError(400, 'lat and lng are required numbers');
+  }
+
+  if (!requireLocation) {
+    if (typeof normalized.lat !== 'undefined' && !Number.isFinite(normalized.lat)) {
+      throw new HttpError(400, 'lat must be a number');
+    }
+    if (typeof normalized.lng !== 'undefined' && !Number.isFinite(normalized.lng)) {
+      throw new HttpError(400, 'lng must be a number');
+    }
+  }
+
+  if (requireLocation && !normalized.title) {
+    throw new HttpError(400, 'title is required');
   }
 
   if (normalized.title && normalized.title.length > 200) {
-    throw new Error('title too long');
+    throw new HttpError(400, 'title too long');
   }
 
   if (normalized.status && !ALLOWED_STATUSES.includes(normalized.status)) {
-    throw new Error('invalid status');
+    throw new HttpError(400, 'invalid status');
+  }
+
+  if (normalized.last_inspection && !/^\d{4}-\d{2}-\d{2}$/.test(normalized.last_inspection)) {
+    throw new HttpError(400, 'invalid last_inspection date format');
+  }
+
+  if (typeof normalized.active !== 'undefined' && typeof normalized.active !== 'boolean') {
+    throw new HttpError(400, 'active must be a boolean');
   }
 
   return normalized;
