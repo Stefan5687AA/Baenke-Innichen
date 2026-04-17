@@ -1,4 +1,5 @@
 const INNICHEN_CENTER = [46.7326, 12.2817];
+const API_BASE_URL = resolveApiBaseUrl();
 
 const map = L.map('map').setView(INNICHEN_CENTER, 14);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -90,7 +91,7 @@ map.on('click', (event) => {
 });
 
 async function loadBenches() {
-  const response = await fetch('/api/benches');
+  const response = await fetch(apiUrl('/api/benches'));
   if (!response.ok) {
     alert('Bänke konnten nicht geladen werden.');
     return;
@@ -200,7 +201,7 @@ function popupHtml(bench) {
 async function upsertBench(path, method, payload) {
   let response;
   try {
-    response = await fetch(path, {
+    response = await fetch(apiUrl(path), {
       method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -245,6 +246,27 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+}
+
+function apiUrl(path) {
+  return `${API_BASE_URL}${path}`;
+}
+
+function resolveApiBaseUrl() {
+  // Optional override for custom setups:
+  // window.__BENCH_API_BASE_URL = 'https://<worker-url>';
+  const configured = window.__BENCH_API_BASE_URL;
+  if (typeof configured === 'string' && configured.trim()) {
+    return configured.trim().replace(/\/$/, '');
+  }
+
+  const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  if (isLocalHost) {
+    return 'http://127.0.0.1:8787';
+  }
+
+  // Production default: same-origin via /api/* route/proxy.
+  return '';
 }
 
 loadBenches();
