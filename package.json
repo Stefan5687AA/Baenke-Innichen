@@ -1,0 +1,15 @@
+{
+  "name": "innichen-bench-mapper",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "npx serve public",
+    "worker:dev": "wrangler dev --config worker/wrangler.toml",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.toml",
+    "d1:migrate:local": "wrangler d1 execute innichen-benches --local --file=schema.sql --config worker/wrangler.toml",
+    "d1:migrate:remote": "wrangler d1 execute innichen-benches --remote --file=schema.sql --config worker/wrangler.toml"
+  },
+  "devDependencies": {
+    "wrangler": "^4.12.0"
+  }
+}
