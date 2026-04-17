@@ -5,4 +5,4 @@ compatibility_date = "2026-04-17"
 [[d1_databases]]
 binding = "DB"
 database_name = "innichen-benches"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "cbfba12a-7d28-43f1-a538-136315c35308"
