@@ -1,4 +1,4 @@
-const ALLOWED_STATUSES = ['ok', 'to_check', 'repair', 'removed'];
+const ALLOWED_STATUSES = ['good', 'ok', 'to_check', 'repair', 'removed'];
 class HttpError extends Error {
   constructor(status, message) {
     super(message);
@@ -68,7 +68,7 @@ async function createBench(request, env) {
     payload.active ? 1 : 0
   );
 
-  const result = await stmt.run();
+  const result = await runStatement(stmt, payload.status);
   return json({ id: result.meta.last_row_id, ...payload }, 201);
 }
 
@@ -98,7 +98,7 @@ async function updateBench(id, request, env) {
     id
   );
 
-  const result = await stmt.run();
+  const result = await runStatement(stmt, payload.status);
   if (result.meta.changes === 0) {
     return json({ error: 'Bench not found' }, 404);
   }
@@ -163,6 +163,27 @@ function normalizeBench(row) {
     ...row,
     active: Boolean(row.active)
   };
+}
+
+async function runStatement(stmt, status) {
+  try {
+    return await stmt.run();
+  } catch (error) {
+    throw mapDatabaseError(error, status);
+  }
+}
+
+function mapDatabaseError(error, status) {
+  const message = String(error?.message || error);
+
+  if (message.includes('CHECK constraint failed') && status === 'good') {
+    return new HttpError(
+      409,
+      'Lokale Datenbank verwendet noch das alte Status-Schema. Bitte zuerst die Status-Migration ausführen.'
+    );
+  }
+
+  return error;
 }
 
 function json(payload, status = 200) {

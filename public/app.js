@@ -1,29 +1,45 @@
 const INNICHEN_CENTER = [46.7326, 12.2817];
 const API_BASE_URL = resolveApiBaseUrl();
+const OVERDUE_MONTHS = 10;
+const mapElement = document.getElementById('map');
+const leaflet = window.L;
 
-const map = L.map('map').setView(INNICHEN_CENTER, 14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+if (!mapElement) {
+  throw new Error('Map container #map not found.');
+}
+
+if (!leaflet) {
+  mapElement.textContent = 'Leaflet konnte nicht geladen werden.';
+  throw new Error('Leaflet failed to load.');
+}
+
+const map = leaflet.map(mapElement).setView(INNICHEN_CENTER, 14);
+leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
 const markers = new Map();
+const markerStates = new Map();
 const statusColors = {
-  ok: '#16a34a',
-  to_check: '#eab308',
+  good: '#16a34a',
+  ok: '#f97316',
+  to_check: '#f97316',
   repair: '#dc2626',
   removed: '#9ca3af'
 };
 
 const statusLabels = {
+  good: 'Guter Zustand',
   ok: 'In Ordnung',
   to_check: 'Zu kontrollieren',
-  repair: 'Reparatur nötig',
+  repair: 'Reparatur n\u00F6tig',
   removed: 'Entfernt'
 };
 
 const adminToggle = document.getElementById('adminMode');
 const reloadBtn = document.getElementById('reloadBtn');
+const addCurrentLocationBtn = document.getElementById('addCurrentLocationBtn');
 const panel = document.getElementById('editorPanel');
 const panelTitle = document.getElementById('panelTitle');
 const benchForm = document.getElementById('benchForm');
@@ -39,12 +55,27 @@ let selectedBenchId = null;
 let selectedPoint = null;
 let tempMarker = null;
 let userLocationMarker = null;
+let userLocation = null;
+let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', loadBenches);
 adminToggle.addEventListener('change', () => {
   if (!adminToggle.checked) {
     closePanel();
+    resetAllMarkerEditStates();
   }
+});
+
+addCurrentLocationBtn?.addEventListener('click', async () => {
+  const currentPosition = await ensureUserLocation();
+  if (!currentPosition) {
+    alert('Standort ist nicht verf\u00FCgbar. Bitte Standortfreigabe erlauben oder die Bank per Klick auf die Karte hinzuf\u00FCgen.');
+    return;
+  }
+
+  selectedPoint = currentPosition;
+  setTempMarker(currentPosition);
+  openAddPanel();
 });
 
 cancelBtn.addEventListener('click', closePanel);
@@ -66,6 +97,11 @@ benchForm.addEventListener('submit', async (event) => {
   }
 
   if (editMode === 'add') {
+    if (!selectedPoint) {
+      alert('Bitte zuerst einen Standort f\u00FCr die neue Bank ausw\u00E4hlen.');
+      return;
+    }
+
     await upsertBench('/api/benches', 'POST', {
       ...payload,
       lat: selectedPoint.lat,
@@ -92,18 +128,28 @@ map.on('click', (event) => {
 });
 
 async function loadBenches() {
-  const response = await fetch(apiUrl('/api/benches'));
-  if (!response.ok) {
-    alert('Bänke konnten nicht geladen werden.');
+  let response;
+  try {
+    response = await fetch(apiUrl('/api/benches'));
+  } catch (error) {
+    handleBenchLoadError(`Netzwerkfehler: ${error.message}`);
     return;
   }
 
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    handleBenchLoadError(detail);
+    return;
+  }
+
+  hasShownLoadError = false;
   const benches = await response.json();
 
   for (const marker of markers.values()) {
     map.removeLayer(marker);
   }
   markers.clear();
+  markerStates.clear();
 
   for (const bench of benches) {
     addBenchMarker(bench);
@@ -111,48 +157,73 @@ async function loadBenches() {
 }
 
 function addBenchMarker(bench) {
-  const marker = L.marker([bench.lat, bench.lng], { icon: markerIcon(bench.status), draggable: false }).addTo(map);
-  marker.bindPopup(popupHtml(bench));
+  const marker = leaflet.marker([bench.lat, bench.lng], {
+    icon: markerIcon(bench),
+    draggable: false
+  }).addTo(map);
 
-  marker.on('click', () => {
-    if (!adminToggle.checked) return;
-    marker.setPopupContent(popupEditorHtml(bench));
+  marker.bindPopup(popupHtml(bench), {
+    closeOnClick: false,
+    autoClose: false
   });
 
   marker.on('popupopen', () => {
-    if (!adminToggle.checked) return;
-    bindPopupEditorEvents(marker, bench);
+    renderMarkerPopup(marker, bench);
+  });
+
+  marker.on('dragend', () => {
+    const state = getMarkerState(bench.id);
+    if (!state.isMoving) {
+      marker.setLatLng([bench.lat, bench.lng]);
+      return;
+    }
+
+    const latLng = marker.getLatLng();
+    state.pendingPosition = {
+      lat: Number(latLng.lat.toFixed(6)),
+      lng: Number(latLng.lng.toFixed(6))
+    };
+
+    disableMarkerDragging(marker);
+    renderMarkerPopup(marker, bench);
+    marker.openPopup();
   });
 
   marker.on('popupclose', () => {
-    marker.dragging.disable();
-    marker.setLatLng([bench.lat, bench.lng]);
+    const state = getMarkerState(bench.id);
+    if (state.isMoving) {
+      return;
+    }
+
+    disableMarkerDragging(marker);
+    if (!state.pendingPosition) {
+      marker.setLatLng([bench.lat, bench.lng]);
+    }
   });
 
   markers.set(bench.id, marker);
 }
 
+function renderMarkerPopup(marker, bench) {
+  const state = getMarkerState(bench.id);
+  if (adminToggle.checked) {
+    marker.setPopupContent(popupEditorHtml(bench, state));
+    bindPopupEditorEvents(marker, bench);
+    return;
+  }
+
+  marker.setPopupContent(popupHtml(bench));
+}
+
 function openAddPanel() {
   editMode = 'add';
   selectedBenchId = null;
-  panelTitle.textContent = 'Bank hinzufügen';
+  panelTitle.textContent = 'Bank hinzuf\u00FCgen';
   fieldName.value = '';
-  fieldStatus.value = 'ok';
+  fieldStatus.value = 'good';
   fieldInspection.value = new Date().toISOString().slice(0, 10);
   fieldNotes.value = '';
   fieldActive.value = '1';
-  panel.hidden = false;
-  fieldName.focus();
-}
-
-function openEditPanel(bench) {
-  editMode = 'edit';
-  panelTitle.textContent = 'Bank bearbeiten';
-  fieldName.value = bench.title || '';
-  fieldStatus.value = bench.status || 'ok';
-  fieldInspection.value = bench.last_inspection || '';
-  fieldNotes.value = bench.notes || '';
-  fieldActive.value = bench.active ? '1' : '0';
   panel.hidden = false;
   fieldName.focus();
 }
@@ -169,7 +240,7 @@ function closePanel() {
 function setTempMarker(point) {
   clearTempMarker();
 
-  tempMarker = L.circleMarker([point.lat, point.lng], {
+  tempMarker = leaflet.circleMarker([point.lat, point.lng], {
     radius: 10,
     color: '#2563eb',
     fillColor: '#60a5fa',
@@ -184,24 +255,46 @@ function clearTempMarker() {
   tempMarker = null;
 }
 
-function markerIcon(status) {
-  const color = statusColors[status] ?? '#6b7280';
-  return L.divIcon({
-    className: 'bench-marker',
-    html: `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,0.2)"></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8]
+function markerIcon(bench) {
+  const color = statusColors[bench.status] ?? '#6b7280';
+  const overdueBadge = isBenchOverdue(bench)
+    ? '<span class="bench-marker-badge" aria-hidden="true">!</span>'
+    : '';
+
+  return leaflet.divIcon({
+    className: 'bench-marker-icon',
+    html: `
+      <span class="bench-marker-pin" style="background:${color}">
+        ${overdueBadge}
+      </span>
+    `,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+    popupAnchor: [0, -12]
   });
 }
 
 function popupHtml(bench) {
+  const overdueHint = isBenchOverdue(bench)
+    ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
+    : '';
+
   return `
-    <strong>${escapeHtml(bench.title)}</strong><br>
-    <small>ID: ${bench.id}</small><br>
-    Status: <b>${statusLabels[bench.status] ?? escapeHtml(bench.status)}</b><br>
-    Letzte Kontrolle: ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'}<br>
-    Aktiv: ${bench.active ? 'Ja' : 'Nein'}<br>
-    Notiz: ${bench.notes ? escapeHtml(bench.notes) : '—'}
+    <div class="popup-card">
+      <div class="popup-header">
+        <strong>${escapeHtml(bench.title)}</strong>
+        <small>ID: ${bench.id}</small>
+      </div>
+      <div class="popup-meta">
+        <span><b>Status:</b> ${statusLabels[bench.status] ?? escapeHtml(bench.status)}</span>
+        <span><b>Letzte Kontrolle:</b> ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'}</span>
+        <span><b>Aktiv:</b> ${bench.active ? 'Ja' : 'Nein'}</span>
+      </div>
+      <div class="popup-notes">
+        <b>Notiz:</b> ${bench.notes ? escapeHtml(bench.notes) : '-'}
+      </div>
+      ${overdueHint}
+    </div>
   `;
 }
 
@@ -234,21 +327,23 @@ async function readErrorMessage(response) {
     const contentType = response.headers.get('content-type') || '';
     if (contentType.includes('application/json')) {
       const body = await response.json();
+      if (body?.error && body?.detail) return `${body.error}: ${body.detail}`;
       if (body?.error) return body.error;
+      if (body?.detail) return body.detail;
       return `HTTP ${response.status}`;
     }
 
     const text = (await response.text()).trim();
     if (text) return text;
   } catch {
-    // ignore parsing errors and fall back to HTTP status
+    // Ignore parsing errors and fall back to HTTP status.
   }
 
   return `HTTP ${response.status}`;
 }
 
 async function archiveBench(benchId) {
-  if (!confirm('Bank wirklich löschen? (wird als entfernt/inaktiv markiert)')) return;
+  if (!confirm('Bank wirklich l\u00F6schen? (wird als entfernt/inaktiv markiert)')) return;
 
   await upsertBench(`/api/benches/${benchId}`, 'PUT', {
     status: 'removed',
@@ -256,7 +351,14 @@ async function archiveBench(benchId) {
   });
 }
 
-function popupEditorHtml(bench) {
+function popupEditorHtml(bench, state) {
+  const pendingPositionText = state.pendingPosition
+    ? `Neue Position: ${state.pendingPosition.lat}, ${state.pendingPosition.lng}`
+    : 'Noch keine neue Position ausgew\u00E4hlt.';
+  const overdueHint = isBenchOverdue(bench)
+    ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
+    : '';
+
   return `
     <form class="popup-editor" data-bench-id="${bench.id}">
       <label>
@@ -267,9 +369,9 @@ function popupEditorHtml(bench) {
       <label>
         Status
         <select name="status">
+          <option value="good" ${bench.status === 'good' ? 'selected' : ''}>Guter Zustand</option>
           <option value="ok" ${bench.status === 'ok' ? 'selected' : ''}>In Ordnung</option>
-          <option value="to_check" ${bench.status === 'to_check' ? 'selected' : ''}>Zu kontrollieren</option>
-          <option value="repair" ${bench.status === 'repair' ? 'selected' : ''}>Reparatur nötig</option>
+          <option value="repair" ${bench.status === 'repair' ? 'selected' : ''}>Reparatur n\u00F6tig</option>
           <option value="removed" ${bench.status === 'removed' ? 'selected' : ''}>Entfernt</option>
         </select>
       </label>
@@ -292,9 +394,11 @@ function popupEditorHtml(bench) {
         <textarea name="notes" rows="3">${escapeHtml(bench.notes || '')}</textarea>
       </label>
 
+      ${overdueHint}
+
       <div class="popup-actions">
-        <button type="button" data-action="move">Position ändern</button>
-        <button type="button" data-action="delete">Löschen</button>
+        <button type="button" data-action="move">Position \u00E4ndern</button>
+        <button type="button" data-action="delete">L\u00F6schen</button>
       </div>
 
       <div class="popup-actions">
@@ -302,8 +406,9 @@ function popupEditorHtml(bench) {
         <button type="button" data-action="cancel">Abbrechen</button>
       </div>
 
-      <div class="popup-move" hidden>
-        <small>Marker per Drag & Drop verschieben.</small>
+      <div class="popup-move" ${state.isMoving ? '' : 'hidden'}>
+        <small>Marker per Drag and Drop verschieben.</small>
+        <small class="popup-position-preview">${escapeHtml(pendingPositionText)}</small>
         <div class="popup-actions">
           <button type="button" class="primary" data-action="save-position">Position speichern</button>
           <button type="button" data-action="cancel-position">Position abbrechen</button>
@@ -320,13 +425,13 @@ function bindPopupEditorEvents(marker, bench) {
   const form = popupElement.querySelector('.popup-editor');
   if (!form) return;
 
-  const movePanel = form.querySelector('.popup-move');
   const moveButton = form.querySelector('[data-action="move"]');
   const cancelButton = form.querySelector('[data-action="cancel"]');
   const deleteButton = form.querySelector('[data-action="delete"]');
   const savePositionButton = form.querySelector('[data-action="save-position"]');
   const cancelPositionButton = form.querySelector('[data-action="cancel-position"]');
   const originalPosition = { lat: bench.lat, lng: bench.lng };
+  const state = getMarkerState(bench.id);
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -334,7 +439,7 @@ function bindPopupEditorEvents(marker, bench) {
     const formData = new FormData(form);
     const payload = {
       title: String(formData.get('title') || '').trim(),
-      status: String(formData.get('status') || 'ok'),
+      status: String(formData.get('status') || 'good'),
       last_inspection: String(formData.get('last_inspection') || '') || null,
       notes: String(formData.get('notes') || '').trim(),
       active: String(formData.get('active')) === '1'
@@ -349,22 +454,28 @@ function bindPopupEditorEvents(marker, bench) {
   });
 
   moveButton?.addEventListener('click', () => {
+    state.isMoving = true;
+    state.originalPosition = { ...originalPosition };
+    state.pendingPosition = state.pendingPosition ?? { ...originalPosition };
+    marker.setLatLng([state.pendingPosition.lat, state.pendingPosition.lng]);
     marker.dragging.enable();
-    movePanel.hidden = false;
+    renderMarkerPopup(marker, bench);
+    marker.openPopup();
   });
 
   savePositionButton?.addEventListener('click', async () => {
-    const latLng = marker.getLatLng();
-    await upsertBench(`/api/benches/${bench.id}`, 'PUT', {
-      lat: Number(latLng.lat.toFixed(6)),
-      lng: Number(latLng.lng.toFixed(6))
-    });
+    const nextPosition = state.pendingPosition ?? {
+      lat: Number(marker.getLatLng().lat.toFixed(6)),
+      lng: Number(marker.getLatLng().lng.toFixed(6))
+    };
+
+    await upsertBench(`/api/benches/${bench.id}`, 'PUT', nextPosition);
   });
 
   cancelPositionButton?.addEventListener('click', () => {
-    marker.dragging.disable();
-    marker.setLatLng([originalPosition.lat, originalPosition.lng]);
-    movePanel.hidden = true;
+    resetMarkerEditState(marker, bench.id, originalPosition);
+    renderMarkerPopup(marker, bench);
+    marker.openPopup();
   });
 
   deleteButton?.addEventListener('click', async () => {
@@ -372,57 +483,116 @@ function bindPopupEditorEvents(marker, bench) {
   });
 
   cancelButton?.addEventListener('click', () => {
-    marker.dragging.disable();
-    marker.setLatLng([originalPosition.lat, originalPosition.lng]);
+    resetMarkerEditState(marker, bench.id, originalPosition);
     marker.closePopup();
   });
 }
 
-function showUserLocation() {
-  if (!navigator.geolocation) return;
-
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      const lat = Number(position.coords.latitude.toFixed(6));
-      const lng = Number(position.coords.longitude.toFixed(6));
-
-      if (userLocationMarker) {
-        map.removeLayer(userLocationMarker);
-      }
-
-      userLocationMarker = L.circleMarker([lat, lng], {
-        radius: 8,
-        color: '#1d4ed8',
-        fillColor: '#60a5fa',
-        fillOpacity: 0.9,
-        weight: 2
-      })
-        .addTo(map)
-        .bindPopup('Dein Standort');
-    },
-    () => {
-      // Standortfreigabe verweigert oder nicht verfügbar – App läuft normal weiter.
-    },
-    { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
-  );
-}
-
-async function readErrorMessage(response) {
-  try {
-    const contentType = response.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-      const body = await response.json();
-      if (body?.error) return body.error;
-      return `HTTP ${response.status}`;
-    }
-
-    const text = (await response.text()).trim();
-    if (text) return text;
-  } catch {
-    // ignore parsing errors and fall back to HTTP status
+async function ensureUserLocation() {
+  if (userLocation) {
+    return userLocation;
   }
 
-  return `HTTP ${response.status}`;
+  if (!navigator.geolocation) {
+    return null;
+  }
+
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const point = {
+          lat: Number(position.coords.latitude.toFixed(6)),
+          lng: Number(position.coords.longitude.toFixed(6))
+        };
+
+        userLocation = point;
+        renderUserLocation(point);
+        resolve(point);
+      },
+      () => {
+        resolve(null);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  });
+}
+
+function renderUserLocation(point) {
+  if (userLocationMarker) {
+    map.removeLayer(userLocationMarker);
+  }
+
+  userLocationMarker = leaflet.circleMarker([point.lat, point.lng], {
+    radius: 8,
+    color: '#1d4ed8',
+    fillColor: '#60a5fa',
+    fillOpacity: 0.9,
+    weight: 2
+  })
+    .addTo(map)
+    .bindPopup('Dein Standort');
+}
+
+function showUserLocation() {
+  ensureUserLocation().catch(() => {
+    // App continues normally if location is unavailable.
+  });
+}
+
+function getMarkerState(benchId) {
+  if (!markerStates.has(benchId)) {
+    markerStates.set(benchId, {
+      isMoving: false,
+      pendingPosition: null,
+      originalPosition: null
+    });
+  }
+
+  return markerStates.get(benchId);
+}
+
+function resetMarkerEditState(marker, benchId, originalPosition) {
+  const state = getMarkerState(benchId);
+  state.isMoving = false;
+  state.pendingPosition = null;
+  state.originalPosition = null;
+  disableMarkerDragging(marker);
+  marker.setLatLng([originalPosition.lat, originalPosition.lng]);
+}
+
+function resetAllMarkerEditStates() {
+  for (const [benchId, marker] of markers.entries()) {
+    const state = getMarkerState(benchId);
+    if (!state.pendingPosition || !state.originalPosition) continue;
+
+    resetMarkerEditState(marker, benchId, state.originalPosition);
+  }
+}
+
+function disableMarkerDragging(marker) {
+  if (marker.dragging?.enabled()) {
+    marker.dragging.disable();
+  }
+}
+
+function isBenchOverdue(bench) {
+  if (!bench.last_inspection) return false;
+
+  const inspectionDate = new Date(`${bench.last_inspection}T00:00:00`);
+  if (Number.isNaN(inspectionDate.getTime())) return false;
+
+  const threshold = new Date();
+  threshold.setMonth(threshold.getMonth() - OVERDUE_MONTHS);
+  threshold.setHours(0, 0, 0, 0);
+
+  return inspectionDate <= threshold;
+}
+
+function handleBenchLoadError(detail) {
+  console.error('Bench loading failed:', detail);
+  if (hasShownLoadError) return;
+  hasShownLoadError = true;
+  alert(`B\u00E4nke konnten nicht geladen werden. ${detail}`);
 }
 
 function escapeHtml(value) {
@@ -439,8 +609,6 @@ function apiUrl(path) {
 }
 
 function resolveApiBaseUrl() {
-  // Optional override for custom setups:
-  // window.__BENCH_API_BASE_URL = 'https://<worker-url>';
   const configured = window.__BENCH_API_BASE_URL;
   if (typeof configured === 'string' && configured.trim()) {
     return configured.trim().replace(/\/$/, '');
@@ -448,10 +616,9 @@ function resolveApiBaseUrl() {
 
   const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
   if (isLocalHost) {
-    return 'http://127.0.0.1:8787';
+    return `${window.location.protocol}//${window.location.hostname}:8787`;
   }
 
-  // Production default: same-origin via /api/* route/proxy.
   return '';
 }
 

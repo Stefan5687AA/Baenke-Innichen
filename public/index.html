@@ -15,18 +15,19 @@
           <input id="adminMode" type="checkbox" />
           Admin-Modus
         </label>
+        <button id="addCurrentLocationBtn" type="button">Bank hinzuf&uuml;gen</button>
         <button id="reloadBtn" type="button">Neu laden</button>
       </div>
     </header>
 
     <main>
-      <div id="map" aria-label="Karte mit Bänken in Innichen"></div>
+      <div id="map" aria-label="Karte mit B&auml;nken in Innichen"></div>
       <aside class="legend">
         <h2>Statusfarben</h2>
         <ul>
+          <li><span class="dot good"></span> Guter Zustand</li>
           <li><span class="dot ok"></span> In Ordnung</li>
-          <li><span class="dot to_check"></span> Zu kontrollieren</li>
-          <li><span class="dot repair"></span> Reparatur nötig</li>
+          <li><span class="dot repair"></span> Reparatur n&ouml;tig</li>
           <li><span class="dot removed"></span> Entfernt</li>
         </ul>
       </aside>
@@ -34,7 +35,7 @@
 
     <section id="editorPanel" class="editor-panel" aria-live="polite" hidden>
       <div class="panel-card">
-        <h2 id="panelTitle">Bank hinzufügen</h2>
+        <h2 id="panelTitle">Bank hinzuf&uuml;gen</h2>
         <form id="benchForm">
           <label>
             Name
@@ -44,9 +45,9 @@
           <label>
             Status
             <select id="fieldStatus" name="status">
+              <option value="good">Guter Zustand</option>
               <option value="ok">In Ordnung</option>
-              <option value="to_check">Zu kontrollieren</option>
-              <option value="repair">Reparatur nötig</option>
+              <option value="repair">Reparatur n&ouml;tig</option>
               <option value="removed">Entfernt</option>
             </select>
           </label>
