@@ -614,12 +614,12 @@ function resolveApiBaseUrl() {
     return configured.trim().replace(/\/$/, '');
   }
 
-  const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-  if (isLocalHost) {
-    return `${window.location.protocol}//${window.location.hostname}:8787`;
+  const localHosts = ['localhost', '127.0.0.1', '::1'];
+  if (localHosts.includes(window.location.hostname)) {
+    return 'http://127.0.0.1:8787';
   }
 
-  return '';
+  return 'https://baenke-innichen.stefan-e58.workers.dev';
 }
 
 loadBenches();
