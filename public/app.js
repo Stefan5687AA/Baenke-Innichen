@@ -198,20 +198,44 @@ function popupHtml(bench) {
 }
 
 async function upsertBench(path, method, payload) {
-  const response = await fetch(path, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+  let response;
+  try {
+    response = await fetch(path, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    alert(`Fehler beim Speichern der Bank. Netzwerkfehler: ${error.message}`);
+    return;
+  }
 
   if (!response.ok) {
-    const detail = await response.text();
-    alert(`Speichern fehlgeschlagen. ${detail}`);
+    const detail = await readErrorMessage(response);
+    alert(`Fehler beim Speichern der Bank. ${detail}`);
     return;
   }
 
   await loadBenches();
   closePanel();
+}
+
+async function readErrorMessage(response) {
+  try {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const body = await response.json();
+      if (body?.error) return body.error;
+      return `HTTP ${response.status}`;
+    }
+
+    const text = (await response.text()).trim();
+    if (text) return text;
+  } catch {
+    // ignore parsing errors and fall back to HTTP status
+  }
+
+  return `HTTP ${response.status}`;
 }
 
 function escapeHtml(value) {
