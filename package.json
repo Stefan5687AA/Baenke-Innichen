@@ -9,9 +9,11 @@
     "d1:migrate:local": "wrangler d1 execute innichen-benches --local --file=schema.sql --config worker/wrangler.toml",
     "d1:migrate:remote": "wrangler d1 execute innichen-benches --remote --file=schema.sql --config worker/wrangler.toml",
     "d1:migrate:status:local": "wrangler d1 execute innichen-benches --local --file=worker/migrations/001_expand_statuses.sql --config worker/wrangler.toml",
-    "d1:migrate:status:remote": "wrangler d1 execute innichen-benches --remote --file=worker/migrations/001_expand_statuses.sql --config worker/wrangler.toml"
+    "d1:migrate:status:remote": "wrangler d1 execute innichen-benches --remote --file=worker/migrations/001_expand_statuses.sql --config worker/wrangler.toml",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "devDependencies": {
-    "wrangler": "^4.12.0"
+    "wrangler": "^4.83.0"
   }
 }
