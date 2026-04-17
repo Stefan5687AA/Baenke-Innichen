@@ -407,6 +407,24 @@ function showUserLocation() {
   );
 }
 
+async function readErrorMessage(response) {
+  try {
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      const body = await response.json();
+      if (body?.error) return body.error;
+      return `HTTP ${response.status}`;
+    }
+
+    const text = (await response.text()).trim();
+    if (text) return text;
+  } catch {
+    // ignore parsing errors and fall back to HTTP status
+  }
+
+  return `HTTP ${response.status}`;
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
