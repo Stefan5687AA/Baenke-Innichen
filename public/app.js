@@ -64,7 +64,9 @@ let selectedImagePreviewUrl = null;
 let currentImageUrl = null;
 let hasShownLoadError = false;
 
-reloadBtn.addEventListener('click', loadBenches);
+reloadBtn.addEventListener('click', () => {
+  window.location.reload();
+});
 adminToggle.addEventListener('change', () => {
   if (!adminToggle.checked) {
     closePanel();
@@ -189,7 +191,8 @@ function addBenchMarker(bench) {
 
   marker.bindPopup(popupHtml(bench), {
     closeOnClick: false,
-    autoClose: false
+    autoClose: false,
+    autoPan: false
   });
 
   marker.on('popupopen', () => {
@@ -443,6 +446,8 @@ function popupEditorHtml(bench, state) {
           Foto
           <input name="image" type="file" accept="image/*" />
         </label>
+        <button type="button" class="danger compact" data-action="remove-photo" ${bench.image_url ? '' : 'hidden'}>Foto l&ouml;schen</button>
+        <small class="photo-remove-note" data-role="photo-remove-note" hidden>Foto wird beim Speichern gel&ouml;scht.</small>
       </div>
 
       <label>
@@ -516,14 +521,17 @@ function bindPopupEditorEvents(marker, bench) {
   const todayInspectionButton = form.querySelector('[data-action="today-inspection"]');
   const cancelButton = form.querySelector('[data-action="cancel"]');
   const deleteButton = form.querySelector('[data-action="delete"]');
+  const removePhotoButton = form.querySelector('[data-action="remove-photo"]');
   const savePositionButton = form.querySelector('[data-action="save-position"]');
   const cancelPositionButton = form.querySelector('[data-action="cancel-position"]');
   const imageInput = form.querySelector('input[name="image"]');
   const imagePreviewElement = form.querySelector('[data-role="image-preview"]');
+  const photoRemoveNote = form.querySelector('[data-role="photo-remove-note"]');
   const originalPosition = { lat: bench.lat, lng: bench.lng };
   const state = getMarkerState(bench.id);
   let popupImageFile = null;
   let popupImagePreviewUrl = null;
+  let shouldRemovePhoto = false;
   const cleanupPopupImagePreview = () => {
     if (!popupImagePreviewUrl) return;
     URL.revokeObjectURL(popupImagePreviewUrl);
@@ -535,12 +543,32 @@ function bindPopupEditorEvents(marker, bench) {
     cleanupPopupImagePreview();
 
     if (popupImageFile) {
+      shouldRemovePhoto = false;
+      photoRemoveNote.hidden = true;
+      removePhotoButton.hidden = false;
       popupImagePreviewUrl = URL.createObjectURL(popupImageFile);
       showImagePreview(imagePreviewElement, popupImagePreviewUrl);
       return;
     }
 
+    shouldRemovePhoto = false;
+    photoRemoveNote.hidden = true;
+    removePhotoButton.hidden = !bench.image_url;
     showImagePreview(imagePreviewElement, bench.image_url || null);
+  });
+
+  removePhotoButton?.addEventListener('click', () => {
+    popupImageFile = null;
+    shouldRemovePhoto = true;
+    cleanupPopupImagePreview();
+
+    if (imageInput) {
+      imageInput.value = '';
+    }
+
+    showImagePreview(imagePreviewElement, null);
+    removePhotoButton.hidden = true;
+    photoRemoveNote.hidden = false;
   });
 
   todayInspectionButton?.addEventListener('click', () => {
@@ -574,6 +602,8 @@ function bindPopupEditorEvents(marker, bench) {
 
     if (imageUrl) {
       payload.image_url = imageUrl;
+    } else if (shouldRemovePhoto) {
+      payload.image_url = null;
     } else if (bench.image_url) {
       payload.image_url = bench.image_url;
     }

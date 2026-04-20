@@ -142,6 +142,7 @@ async function updateBench(id, request, env) {
   const body = await readJsonBody(request);
   const payload = validatePayload(body, false);
   const preparedPayload = applyBusinessRules(payload, false);
+  const hasImageUrlUpdate = typeof preparedPayload.image_url !== 'undefined';
 
   const stmt = env.DB.prepare(`
     UPDATE benches
@@ -153,7 +154,7 @@ async function updateBench(id, request, env) {
       last_inspection = ?,
       notes = COALESCE(?, notes),
       active = COALESCE(?, active),
-      image_url = COALESCE(?, image_url),
+      image_url = CASE WHEN ? THEN ? ELSE image_url END,
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).bind(
@@ -166,9 +167,8 @@ async function updateBench(id, request, env) {
     typeof preparedPayload.active === 'boolean'
       ? (preparedPayload.active ? 1 : 0)
       : null,
-    typeof preparedPayload.image_url === 'string'
-      ? preparedPayload.image_url
-      : null,
+    hasImageUrlUpdate ? 1 : 0,
+    hasImageUrlUpdate ? preparedPayload.image_url : null,
     id
   );
 
