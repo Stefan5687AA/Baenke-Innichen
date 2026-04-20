@@ -32,6 +32,10 @@ export default {
         return await createBench(request, env);
       }
 
+      if (url.pathname === '/api/upload' && request.method === 'POST') {
+        return await uploadImage(request, env);
+      }
+
       const benchIdMatch = url.pathname.match(/^\/api\/benches\/(\d+)$/);
       if (benchIdMatch && request.method === 'PUT') {
         return await updateBench(Number(benchIdMatch[1]), request, env);
@@ -66,12 +70,12 @@ async function listBenches(url, env) {
 
   const query = includeInactive
     ? `
-      SELECT id, title, lat, lng, status, last_inspection, notes, active
+      SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
       FROM benches
       ORDER BY id DESC
     `
     : `
-      SELECT id, title, lat, lng, status, last_inspection, notes, active
+      SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
       FROM benches
       WHERE active = 1
       ORDER BY id DESC
@@ -84,7 +88,6 @@ async function listBenches(url, env) {
 async function createBench(request, env) {
   const body = await readJsonBody(request);
   const payload = validatePayload(body, true);
-
   const preparedPayload = applyBusinessRules(payload, true);
 
   const stmt = env.DB.prepare(`
@@ -95,9 +98,10 @@ async function createBench(request, env) {
       status,
       last_inspection,
       notes,
-      active
+      active,
+      image_url
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
     preparedPayload.title,
     preparedPayload.lat,
@@ -105,13 +109,14 @@ async function createBench(request, env) {
     preparedPayload.status,
     preparedPayload.last_inspection,
     preparedPayload.notes,
-    preparedPayload.active ? 1 : 0
+    preparedPayload.active ? 1 : 0,
+    preparedPayload.image_url ?? null
   );
 
   const result = await runStatement(stmt, preparedPayload.status);
 
   const created = await env.DB.prepare(`
-    SELECT id, title, lat, lng, status, last_inspection, notes, active
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
     FROM benches
     WHERE id = ?
   `)
@@ -123,7 +128,7 @@ async function createBench(request, env) {
 
 async function updateBench(id, request, env) {
   const existing = await env.DB.prepare(`
-    SELECT id, title, lat, lng, status, last_inspection, notes, active
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
     FROM benches
     WHERE id = ?
   `)
@@ -148,6 +153,7 @@ async function updateBench(id, request, env) {
       last_inspection = ?,
       notes = COALESCE(?, notes),
       active = COALESCE(?, active),
+      image_url = COALESCE(?, image_url),
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).bind(
@@ -160,6 +166,9 @@ async function updateBench(id, request, env) {
     typeof preparedPayload.active === 'boolean'
       ? (preparedPayload.active ? 1 : 0)
       : null,
+    typeof preparedPayload.image_url === 'string'
+      ? preparedPayload.image_url
+      : null,
     id
   );
 
@@ -170,7 +179,7 @@ async function updateBench(id, request, env) {
   }
 
   const updated = await env.DB.prepare(`
-    SELECT id, title, lat, lng, status, last_inspection, notes, active
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
     FROM benches
     WHERE id = ?
   `)
@@ -178,6 +187,34 @@ async function updateBench(id, request, env) {
     .first();
 
   return json(normalizeBench(updated));
+}
+
+async function uploadImage(request, env) {
+  const formData = await request.formData();
+  const file = formData.get('file');
+
+  if (!(file instanceof File)) {
+    throw new HttpError(400, 'Invalid upload', 'No file received');
+  }
+
+  if (!file.type || !file.type.startsWith('image/')) {
+    throw new HttpError(400, 'Invalid upload', 'Only image files are allowed');
+  }
+
+  const extension = file.name.includes('.')
+    ? file.name.split('.').pop().toLowerCase()
+    : 'jpg';
+
+  const key = `bench-images/${crypto.randomUUID()}.${extension}`;
+
+  await env.BUCKET.put(key, await file.arrayBuffer(), {
+    httpMetadata: {
+      contentType: file.type
+    }
+  });
+
+const publicUrl = `https://pub-483266975888471db0d51fff35148e9d.r2.dev/${key}`;
+  return json({ url: publicUrl, key }, 201);
 }
 
 async function readJsonBody(request) {
@@ -200,7 +237,11 @@ function validatePayload(payload, requireLocation) {
     status: payload.status,
     last_inspection: payload.last_inspection ?? undefined,
     notes: typeof payload.notes === 'string' ? payload.notes.trim() : payload.notes,
-    active: payload.active
+    active: payload.active,
+    image_url:
+      typeof payload.image_url === 'string'
+        ? payload.image_url.trim()
+        : payload.image_url
   };
 
   if (requireLocation) {
@@ -257,6 +298,16 @@ function validatePayload(payload, requireLocation) {
     throw new HttpError(400, 'active must be a boolean');
   }
 
+  if (typeof normalized.image_url !== 'undefined' && normalized.image_url !== null) {
+    if (typeof normalized.image_url !== 'string') {
+      throw new HttpError(400, 'image_url must be a string');
+    }
+
+    if (normalized.image_url.length > 2000) {
+      throw new HttpError(400, 'image_url too long');
+    }
+  }
+
   return normalized;
 }
 
@@ -271,6 +322,10 @@ function applyBusinessRules(payload, isCreate) {
 
   if (typeof next.active === 'undefined') {
     next.active = isCreate ? true : undefined;
+  }
+
+  if (typeof next.image_url === 'undefined') {
+    next.image_url = isCreate ? null : undefined;
   }
 
   if (next.status === 'removed') {
@@ -295,7 +350,8 @@ function normalizeBench(row) {
     ...row,
     lat: Number(row.lat),
     lng: Number(row.lng),
-    active: Boolean(row.active)
+    active: Boolean(row.active),
+    image_url: row.image_url ?? null
   };
 }
 

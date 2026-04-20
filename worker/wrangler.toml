@@ -6,3 +6,7 @@ compatibility_date = "2026-04-17"
 binding = "DB"
 database_name = "innichen-benches"
 database_id = "5261e5f6-5c68-4668-a47c-14019a265813"
+
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "baenke-innichen-images"
