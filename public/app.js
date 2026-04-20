@@ -616,7 +616,7 @@ function resolveApiBaseUrl() {
 
   const localHosts = ['localhost', '127.0.0.1', '::1'];
   if (localHosts.includes(window.location.hostname)) {
-    return 'http://127.0.0.1:8787';
+    return 'http://127.0.0.1:8788';
   }
 
   return 'https://baenke-innichen.stefan-e58.workers.dev';
