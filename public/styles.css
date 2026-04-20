@@ -229,6 +229,105 @@ main {
   box-shadow: var(--shadow-soft);
 }
 
+.bench-list-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 920;
+  width: min(380px, calc(100% - 24px));
+  max-height: min(560px, calc(100% - 24px));
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 0.75rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(213, 222, 232, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
+.bench-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.bench-list-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.compact-square {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+  border-radius: 10px;
+  font-size: 1.15rem;
+}
+
+.bench-sort {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-soft);
+  font-size: 0.85rem;
+}
+
+.bench-sort select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  background: var(--surface-strong);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.bench-list {
+  display: grid;
+  gap: 0.5rem;
+  overflow: auto;
+  padding-right: 0.15rem;
+}
+
+.bench-list-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  min-height: 0;
+  padding: 0.65rem;
+  text-align: left;
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+.bench-list-item:hover {
+  transform: none;
+}
+
+.bench-list-main {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.bench-list-main strong,
+.bench-list-main small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bench-list-main small,
+.bench-list-empty {
+  color: var(--text-soft);
+  font-size: 0.82rem;
+}
+
 .legend {
   position: absolute;
   left: 12px;
@@ -719,6 +818,14 @@ main {
     max-width: calc(100% - 16px);
     padding: 0.55rem 0.62rem;
     border-radius: 12px;
+  }
+
+  .bench-list-panel {
+    top: 8px;
+    right: 8px;
+    width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    padding: 0.75rem;
   }
 
   .legend h2 {

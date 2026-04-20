@@ -13,10 +13,11 @@
       <div class="controls">
         <label class="icon-toggle" title="Admin-Modus">
           <input id="adminMode" type="checkbox" />
-          <span aria-hidden="true">⚙</span>
+          <span aria-hidden="true">&#9881;</span>
           <span class="sr-only">Admin-Modus</span>
         </label>
-        <button id="reloadBtn" class="icon-button" type="button" aria-label="Neu laden" title="Neu laden">↻</button>
+        <button id="benchListBtn" class="icon-button" type="button" aria-label="B&auml;nkeliste" title="B&auml;nkeliste">&#9776;</button>
+        <button id="reloadBtn" class="icon-button" type="button" aria-label="Neu laden" title="Neu laden">&#8635;</button>
       </div>
     </header>
 
@@ -32,6 +33,22 @@
             <li><span class="dot removed"></span> Entfernt</li>
           </ul>
         </aside>
+
+        <section id="benchListPanel" class="bench-list-panel" aria-live="polite" hidden>
+          <div class="bench-list-header">
+            <h2>B&auml;nke</h2>
+            <button id="closeBenchListBtn" class="icon-button compact-square" type="button" aria-label="Liste schlie&szlig;en" title="Liste schlie&szlig;en">&times;</button>
+          </div>
+          <label class="bench-sort">
+            Sortieren
+            <select id="benchSortSelect">
+              <option value="inspection-desc">Zuletzt kontrolliert: neueste zuerst</option>
+              <option value="inspection-asc">Zuletzt kontrolliert: &auml;lteste zuerst</option>
+              <option value="status">Statusfarbe</option>
+            </select>
+          </label>
+          <div id="benchList" class="bench-list"></div>
+        </section>
 
         <button id="addCurrentLocationBtn" class="map-add-button" type="button" hidden>Bank hinzuf&uuml;gen</button>
 

@@ -39,6 +39,11 @@ const statusLabels = {
 
 const adminToggle = document.getElementById('adminMode');
 const reloadBtn = document.getElementById('reloadBtn');
+const benchListBtn = document.getElementById('benchListBtn');
+const benchListPanel = document.getElementById('benchListPanel');
+const closeBenchListBtn = document.getElementById('closeBenchListBtn');
+const benchSortSelect = document.getElementById('benchSortSelect');
+const benchList = document.getElementById('benchList');
 const addCurrentLocationBtn = document.getElementById('addCurrentLocationBtn');
 const panel = document.getElementById('editorPanel');
 const panelTitle = document.getElementById('panelTitle');
@@ -63,6 +68,10 @@ const positionEditHint = document.getElementById('positionEditHint');
 const savePositionBtn = document.getElementById('savePositionBtn');
 const cancelPositionBtn = document.getElementById('cancelPositionBtn');
 
+const statusSortOrder = ['repair', 'ok', 'to_check', 'good', 'removed'];
+const MAX_IMAGE_SIZE = 1600;
+const IMAGE_QUALITY = 0.72;
+
 let editMode = null;
 let selectedBenchId = null;
 let selectedPoint = null;
@@ -76,11 +85,22 @@ let shouldRemoveCurrentImage = false;
 let currentEditBench = null;
 let currentEditMarker = null;
 let activePositionEdit = null;
+let currentBenches = [];
 let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', () => {
   window.location.reload();
 });
+benchListBtn?.addEventListener('click', () => {
+  benchListPanel.hidden = !benchListPanel.hidden;
+  if (!benchListPanel.hidden) {
+    renderBenchList();
+  }
+});
+closeBenchListBtn?.addEventListener('click', () => {
+  benchListPanel.hidden = true;
+});
+benchSortSelect?.addEventListener('change', renderBenchList);
 adminToggle.addEventListener('change', () => {
   updateAdminControls();
   if (!adminToggle.checked) {
@@ -208,7 +228,7 @@ map.on('click', (event) => {
 async function loadBenches() {
   let response;
   try {
-    response = await fetch(apiUrl('/api/benches'));
+    response = await fetch(apiUrl('/api/benches?active=all'));
   } catch (error) {
     handleBenchLoadError(`Netzwerkfehler: ${error.message}`);
     return;
@@ -222,6 +242,7 @@ async function loadBenches() {
 
   hasShownLoadError = false;
   const benches = await response.json();
+  currentBenches = benches;
 
   for (const marker of markers.values()) {
     map.removeLayer(marker);
@@ -229,9 +250,11 @@ async function loadBenches() {
   markers.clear();
   markerStates.clear();
 
-  for (const bench of benches) {
+  for (const bench of benches.filter((bench) => bench.active)) {
     addBenchMarker(bench);
   }
+
+  renderBenchList();
 }
 
 function addBenchMarker(bench) {
@@ -241,8 +264,8 @@ function addBenchMarker(bench) {
   }).addTo(map);
 
   marker.bindPopup(popupHtml(bench), {
-    closeOnClick: false,
-    autoClose: false,
+    closeOnClick: true,
+    autoClose: true,
     autoPan: false
   });
 
@@ -429,8 +452,8 @@ async function upsertBench(path, method, payload) {
     return;
   }
 
-  await loadBenches();
   closePanel();
+  await loadBenches();
   return true;
 }
 
@@ -442,8 +465,9 @@ async function uploadSelectedImageIfNeeded(file) {
     return false;
   }
 
+  const uploadFile = await compressImageFile(file);
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append('file', uploadFile);
 
   let response;
   try {
@@ -476,6 +500,61 @@ async function uploadSelectedImageIfNeeded(file) {
   }
 
   return body.url;
+}
+
+async function compressImageFile(file) {
+  if (!file.type || !file.type.startsWith('image/') || file.type === 'image/gif') {
+    return file;
+  }
+
+  const imageUrl = URL.createObjectURL(file);
+
+  try {
+    const image = await loadImage(imageUrl);
+    const scale = Math.min(1, MAX_IMAGE_SIZE / Math.max(image.naturalWidth, image.naturalHeight));
+
+    if (scale >= 1 && file.size < 700_000) {
+      return file;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const context = canvas.getContext('2d');
+
+    if (!context) {
+      return file;
+    }
+
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    const blob = await canvasToBlob(canvas, 'image/jpeg', IMAGE_QUALITY);
+
+    if (!blob || blob.size >= file.size) {
+      return file;
+    }
+
+    const baseName = file.name.replace(/\.[^.]+$/, '') || 'bankfoto';
+    return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' });
+  } catch {
+    return file;
+  } finally {
+    URL.revokeObjectURL(imageUrl);
+  }
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = url;
+  });
+}
+
+function canvasToBlob(canvas, type, quality) {
+  return new Promise((resolve) => {
+    canvas.toBlob(resolve, type, quality);
+  });
 }
 
 async function readErrorMessage(response) {
@@ -862,6 +941,82 @@ function resetAllMarkerEditStates() {
 
     resetMarkerEditState(marker, benchId, state.originalPosition);
   }
+}
+
+function renderBenchList() {
+  if (!benchList || !benchSortSelect) return;
+
+  const benches = sortedBenches(currentBenches, benchSortSelect.value);
+
+  if (!benches.length) {
+    benchList.innerHTML = '<p class="bench-list-empty">Keine B&auml;nke gefunden.</p>';
+    return;
+  }
+
+  benchList.innerHTML = benches.map((bench) => `
+    <button class="bench-list-item" type="button" data-bench-id="${bench.id}">
+      <span class="dot ${escapeHtml(bench.status || 'removed')}"></span>
+      <span class="bench-list-main">
+        <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
+        <small>${statusLabels[bench.status] ?? escapeHtml(bench.status || '-')} · Kontrolle: ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'} · ${bench.active ? 'Aktiv' : 'Inaktiv'}</small>
+      </span>
+    </button>
+  `).join('');
+
+  benchList.querySelectorAll('.bench-list-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      const benchId = Number(item.dataset.benchId);
+      const bench = currentBenches.find((candidate) => candidate.id === benchId);
+      const marker = markers.get(benchId);
+
+      if (!bench) return;
+      benchListPanel.hidden = true;
+
+      if (marker) {
+        map.panTo([bench.lat, bench.lng], { animate: true });
+        if (adminToggle.checked) {
+          openEditPanel(bench, marker);
+          return;
+        }
+
+        marker.openPopup();
+        return;
+      }
+
+      if (adminToggle.checked) {
+        alert('Diese Bank ist inaktiv und wird nicht auf der Karte angezeigt.');
+      }
+    });
+  });
+}
+
+function sortedBenches(benches, sortMode) {
+  const next = [...benches];
+
+  if (sortMode === 'inspection-asc') {
+    return next.sort((a, b) => inspectionSortValue(a) - inspectionSortValue(b));
+  }
+
+  if (sortMode === 'status') {
+    return next.sort((a, b) => {
+      const statusDiff = statusSortValue(a) - statusSortValue(b);
+      if (statusDiff !== 0) return statusDiff;
+      return String(a.title || '').localeCompare(String(b.title || ''), 'de');
+    });
+  }
+
+  return next.sort((a, b) => inspectionSortValue(b) - inspectionSortValue(a));
+}
+
+function inspectionSortValue(bench) {
+  if (!bench.last_inspection) return 0;
+  const time = new Date(`${bench.last_inspection}T00:00:00`).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
+
+function statusSortValue(bench) {
+  const index = statusSortOrder.indexOf(bench.status);
+  return index === -1 ? statusSortOrder.length : index;
 }
 
 function disableMarkerDragging(marker) {
