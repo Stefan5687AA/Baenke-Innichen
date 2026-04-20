@@ -24,6 +24,10 @@
   box-sizing: border-box;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   min-height: 100%;
@@ -82,6 +86,18 @@ button.primary {
   background: linear-gradient(135deg, var(--primary), var(--primary-strong));
   border-color: transparent;
   color: #fff;
+}
+
+button.success {
+  background: var(--success);
+  border-color: transparent;
+  color: #fff;
+}
+
+button.compact {
+  min-height: 40px;
+  padding: 0.55rem 0.75rem;
+  border-radius: 10px;
 }
 
 body > .toolbar,
@@ -144,9 +160,7 @@ body > main {
 }
 
 main {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 260px;
-  gap: 14px;
+  position: relative;
   min-height: calc(100vh - 126px);
   padding-bottom: 18px;
 }
@@ -162,18 +176,23 @@ main {
 }
 
 .legend {
-  align-self: start;
-  padding: 1.15rem 1.05rem;
-  border: 1px solid rgba(213, 222, 232, 0.9);
-  border-radius: 24px;
-  background: var(--surface);
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 700;
+  max-width: min(300px, calc(100% - 24px));
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgba(213, 222, 232, 0.78);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-soft);
 }
 
 .legend h2 {
-  margin: 0 0 0.85rem;
-  font-size: 1rem;
+  margin: 0 0 0.55rem;
+  font-size: 0.86rem;
+  line-height: 1.1;
 }
 
 .legend ul {
@@ -181,23 +200,25 @@ main {
   padding-left: 0;
   list-style: none;
   display: grid;
-  gap: 0.7rem;
+  gap: 0.45rem 0.7rem;
 }
 
 .legend li {
   display: flex;
   align-items: center;
   color: var(--text-soft);
-  font-size: 0.95rem;
+  font-size: 0.82rem;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .dot {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.68rem;
+  height: 0.68rem;
   display: inline-block;
   flex: 0 0 auto;
   border-radius: 999px;
-  margin-right: 0.55rem;
+  margin-right: 0.4rem;
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
@@ -262,7 +283,7 @@ main {
 .popup-card,
 .popup-editor {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.55rem;
 }
 
 .photo-field {
@@ -309,9 +330,16 @@ main {
 
 .popup-editor label {
   display: grid;
-  gap: 0.38rem;
+  gap: 0.32rem;
   font-size: 0.9rem;
   color: var(--text-soft);
+}
+
+.inspection-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 0.45rem;
 }
 
 .popup-editor input,
@@ -334,7 +362,7 @@ main {
 
 .popup-editor textarea,
 #fieldNotes {
-  min-height: 100px;
+  min-height: 82px;
   resize: vertical;
 }
 
@@ -433,15 +461,6 @@ main {
     width: min(100vw - 16px, 100%);
   }
 
-  main {
-    grid-template-columns: 1fr;
-  }
-
-  .legend {
-    order: -1;
-    border-radius: 20px;
-  }
-
   .legend ul {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -483,16 +502,58 @@ main {
   }
 
   #benchForm {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
+  #benchForm label,
+  .popup-editor label {
+    font-size: 0.84rem;
+  }
+
+  #benchForm .photo-field {
+    grid-column: 1 / -1;
+  }
+
+  .photo-field {
+    gap: 0.42rem;
+  }
+
+  .photo-preview {
+    max-height: 112px;
+  }
+
+  .popup-photo {
+    max-height: 150px;
+  }
+
+  .popup-editor textarea,
+  #fieldNotes {
+    min-height: 64px;
+  }
+
+  .popup-editor input,
+  .popup-editor select,
+  .popup-editor textarea,
+  #fieldName,
+  #fieldInspection,
+  #fieldStatus,
+  #fieldActive,
+  #fieldImage,
+  #fieldNotes {
+    min-height: 40px;
+    border-radius: 10px;
+    padding: 0.52rem 0.62rem;
   }
 
   .panel-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-content: stretch;
   }
 
   .panel-actions button {
-    flex: 1 1 100%;
+    width: 100%;
   }
 }
 
@@ -519,13 +580,25 @@ main {
   }
 
   .legend {
-    padding: 0.9rem;
-    border-radius: 18px;
+    top: 8px;
+    right: 8px;
+    max-width: calc(100% - 16px);
+    padding: 0.55rem 0.62rem;
+    border-radius: 12px;
+  }
+
+  .legend h2 {
+    margin-bottom: 0.4rem;
+    font-size: 0.78rem;
   }
 
   .legend ul {
-    grid-template-columns: 1fr;
-    gap: 0.6rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem 0.55rem;
+  }
+
+  .legend li {
+    font-size: 0.74rem;
   }
 
   .leaflet-popup-content {
@@ -534,12 +607,9 @@ main {
     margin: 0.85rem;
   }
 
-  .popup-actions {
-    grid-template-columns: 1fr;
-  }
-
   .popup-actions button {
-    min-height: 46px;
+    min-height: 40px;
+    padding: 0.52rem 0.58rem;
   }
 
   .popup-move {

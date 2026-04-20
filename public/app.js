@@ -47,6 +47,7 @@ const cancelBtn = document.getElementById('cancelBtn');
 const fieldName = document.getElementById('fieldName');
 const fieldStatus = document.getElementById('fieldStatus');
 const fieldInspection = document.getElementById('fieldInspection');
+const todayInspectionBtn = document.getElementById('todayInspectionBtn');
 const fieldNotes = document.getElementById('fieldNotes');
 const fieldActive = document.getElementById('fieldActive');
 const fieldImage = document.getElementById('fieldImage');
@@ -84,6 +85,10 @@ addCurrentLocationBtn?.addEventListener('click', async () => {
 });
 
 cancelBtn.addEventListener('click', closePanel);
+todayInspectionBtn?.addEventListener('click', () => {
+  fieldInspection.value = todayDateString();
+});
+
 fieldImage?.addEventListener('change', () => {
   const file = fieldImage.files?.[0] ?? null;
   setSelectedImage(file);
@@ -242,11 +247,10 @@ function openAddPanel() {
   resetImageField();
   fieldName.value = '';
   fieldStatus.value = 'good';
-  fieldInspection.value = new Date().toISOString().slice(0, 10);
+  fieldInspection.value = todayDateString();
   fieldNotes.value = '';
   fieldActive.value = '1';
   panel.hidden = false;
-  fieldName.focus();
 }
 
 function closePanel() {
@@ -458,7 +462,10 @@ function popupEditorHtml(bench, state) {
 
       <label>
         Letzte Kontrolle
-        <input name="last_inspection" type="date" value="${escapeHtml(bench.last_inspection || '')}" />
+        <span class="inspection-row">
+          <input name="last_inspection" type="date" value="${escapeHtml(bench.last_inspection || '')}" />
+          <button type="button" class="success compact" data-action="today-inspection">Heute</button>
+        </span>
       </label>
 
       <label>
@@ -483,7 +490,7 @@ function popupEditorHtml(bench, state) {
 
       <div class="popup-actions">
         <button type="submit" class="primary">Speichern</button>
-        <button type="button" data-action="cancel">Abbrechen</button>
+        <button type="button" data-action="cancel">Schlie&szlig;en</button>
       </div>
 
       <div class="popup-move" ${state.isMoving ? '' : 'hidden'}>
@@ -491,7 +498,7 @@ function popupEditorHtml(bench, state) {
         <small class="popup-position-preview">${escapeHtml(pendingPositionText)}</small>
         <div class="popup-actions">
           <button type="button" class="primary" data-action="save-position">Position speichern</button>
-          <button type="button" data-action="cancel-position">Position abbrechen</button>
+          <button type="button" data-action="cancel-position">Abbrechen</button>
         </div>
       </div>
     </form>
@@ -506,6 +513,7 @@ function bindPopupEditorEvents(marker, bench) {
   if (!form) return;
 
   const moveButton = form.querySelector('[data-action="move"]');
+  const todayInspectionButton = form.querySelector('[data-action="today-inspection"]');
   const cancelButton = form.querySelector('[data-action="cancel"]');
   const deleteButton = form.querySelector('[data-action="delete"]');
   const savePositionButton = form.querySelector('[data-action="save-position"]');
@@ -533,6 +541,13 @@ function bindPopupEditorEvents(marker, bench) {
     }
 
     showImagePreview(imagePreviewElement, bench.image_url || null);
+  });
+
+  todayInspectionButton?.addEventListener('click', () => {
+    const inspectionInput = form.querySelector('input[name="last_inspection"]');
+    if (inspectionInput) {
+      inspectionInput.value = todayDateString();
+    }
   });
 
   form.addEventListener('submit', async (event) => {
@@ -749,6 +764,14 @@ function isBenchOverdue(bench) {
   threshold.setHours(0, 0, 0, 0);
 
   return inspectionDate <= threshold;
+}
+
+function todayDateString() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function handleBenchLoadError(detail) {
