@@ -265,6 +265,25 @@ main {
   gap: 0.7rem;
 }
 
+.photo-field {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.photo-preview,
+.popup-photo {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-muted);
+}
+
+.popup-photo {
+  max-height: 220px;
+}
+
 .popup-header {
   display: grid;
   gap: 0.2rem;
@@ -302,6 +321,7 @@ main {
 #fieldInspection,
 #fieldStatus,
 #fieldActive,
+#fieldImage,
 #fieldNotes {
   width: 100%;
   min-height: 44px;

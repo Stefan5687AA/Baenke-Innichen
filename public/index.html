@@ -37,6 +37,14 @@
       <div class="panel-card">
         <h2 id="panelTitle">Bank hinzuf&uuml;gen</h2>
         <form id="benchForm">
+          <div class="photo-field full-width">
+            <img id="imagePreview" class="photo-preview" alt="Ausgew&auml;hltes Bankfoto" hidden />
+            <label>
+              Foto
+              <input id="fieldImage" name="image" type="file" accept="image/*" />
+            </label>
+          </div>
+
           <label>
             Name
             <input id="fieldName" name="name" type="text" required maxlength="200" />
@@ -79,9 +87,6 @@
     </section>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script>
-  window.__BENCH_API_BASE_URL = 'https://baenke-innichen.stefan-e58.workers.dev';
-</script>
     <script src="./app.js" type="module"></script>
   </body>
 </html>

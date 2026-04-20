@@ -49,6 +49,8 @@ const fieldStatus = document.getElementById('fieldStatus');
 const fieldInspection = document.getElementById('fieldInspection');
 const fieldNotes = document.getElementById('fieldNotes');
 const fieldActive = document.getElementById('fieldActive');
+const fieldImage = document.getElementById('fieldImage');
+const imagePreview = document.getElementById('imagePreview');
 
 let editMode = null;
 let selectedBenchId = null;
@@ -56,6 +58,9 @@ let selectedPoint = null;
 let tempMarker = null;
 let userLocationMarker = null;
 let userLocation = null;
+let selectedImageFile = null;
+let selectedImagePreviewUrl = null;
+let currentImageUrl = null;
 let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', loadBenches);
@@ -79,6 +84,10 @@ addCurrentLocationBtn?.addEventListener('click', async () => {
 });
 
 cancelBtn.addEventListener('click', closePanel);
+fieldImage?.addEventListener('change', () => {
+  const file = fieldImage.files?.[0] ?? null;
+  setSelectedImage(file);
+});
 
 benchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -96,12 +105,23 @@ benchForm.addEventListener('submit', async (event) => {
     return;
   }
 
-  if (editMode === 'add') {
-    if (!selectedPoint) {
-      alert('Bitte zuerst einen Standort f\u00FCr die neue Bank ausw\u00E4hlen.');
-      return;
-    }
+  if (editMode === 'add' && !selectedPoint) {
+    alert('Bitte zuerst einen Standort f\u00FCr die neue Bank ausw\u00E4hlen.');
+    return;
+  }
 
+  const imageUrl = await uploadSelectedImageIfNeeded(selectedImageFile);
+  if (imageUrl === false) {
+    return;
+  }
+
+  if (imageUrl) {
+    payload.image_url = imageUrl;
+  } else if (currentImageUrl) {
+    payload.image_url = currentImageUrl;
+  }
+
+  if (editMode === 'add') {
     await upsertBench('/api/benches', 'POST', {
       ...payload,
       lat: selectedPoint.lat,
@@ -219,6 +239,7 @@ function openAddPanel() {
   editMode = 'add';
   selectedBenchId = null;
   panelTitle.textContent = 'Bank hinzuf\u00FCgen';
+  resetImageField();
   fieldName.value = '';
   fieldStatus.value = 'good';
   fieldInspection.value = new Date().toISOString().slice(0, 10);
@@ -234,6 +255,7 @@ function closePanel() {
   selectedPoint = null;
   panel.hidden = true;
   benchForm.reset();
+  resetImageField();
   clearTempMarker();
 }
 
@@ -278,9 +300,13 @@ function popupHtml(bench) {
   const overdueHint = isBenchOverdue(bench)
     ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
     : '';
+  const imageHtml = bench.image_url
+    ? `<img class="popup-photo" src="${escapeHtml(bench.image_url)}" alt="Foto von ${escapeHtml(bench.title)}" />`
+    : '';
 
   return `
     <div class="popup-card">
+      ${imageHtml}
       <div class="popup-header">
         <strong>${escapeHtml(bench.title)}</strong>
         <small>ID: ${bench.id}</small>
@@ -322,6 +348,50 @@ async function upsertBench(path, method, payload) {
   return true;
 }
 
+async function uploadSelectedImageIfNeeded(file) {
+  if (!file) return null;
+
+  if (!file.type || !file.type.startsWith('image/')) {
+    alert('Bitte eine Bilddatei ausw\u00E4hlen.');
+    return false;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  let response;
+  try {
+    response = await fetch(apiUrl('/api/upload'), {
+      method: 'POST',
+      body: formData
+    });
+  } catch (error) {
+    alert(`Foto konnte nicht hochgeladen werden. Netzwerkfehler: ${error.message}`);
+    return false;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    alert(`Foto konnte nicht hochgeladen werden. ${detail}`);
+    return false;
+  }
+
+  let body;
+  try {
+    body = await response.json();
+  } catch {
+    alert('Foto konnte nicht hochgeladen werden. Ung\u00FCltige Serverantwort.');
+    return false;
+  }
+
+  if (!body?.url || typeof body.url !== 'string') {
+    alert('Foto konnte nicht hochgeladen werden. Die Serverantwort enth\u00E4lt keine Bild-URL.');
+    return false;
+  }
+
+  return body.url;
+}
+
 async function readErrorMessage(response) {
   try {
     const contentType = response.headers.get('content-type') || '';
@@ -358,9 +428,19 @@ function popupEditorHtml(bench, state) {
   const overdueHint = isBenchOverdue(bench)
     ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
     : '';
+  const previewHidden = bench.image_url ? '' : 'hidden';
+  const previewSrc = bench.image_url ? `src="${escapeHtml(bench.image_url)}"` : '';
 
   return `
     <form class="popup-editor" data-bench-id="${bench.id}">
+      <div class="photo-field">
+        <img class="photo-preview" data-role="image-preview" ${previewSrc} alt="Ausgew&auml;hltes Bankfoto" ${previewHidden} />
+        <label>
+          Foto
+          <input name="image" type="file" accept="image/*" />
+        </label>
+      </div>
+
       <label>
         Titel
         <input name="title" type="text" maxlength="200" value="${escapeHtml(bench.title || '')}" required />
@@ -430,8 +510,30 @@ function bindPopupEditorEvents(marker, bench) {
   const deleteButton = form.querySelector('[data-action="delete"]');
   const savePositionButton = form.querySelector('[data-action="save-position"]');
   const cancelPositionButton = form.querySelector('[data-action="cancel-position"]');
+  const imageInput = form.querySelector('input[name="image"]');
+  const imagePreviewElement = form.querySelector('[data-role="image-preview"]');
   const originalPosition = { lat: bench.lat, lng: bench.lng };
   const state = getMarkerState(bench.id);
+  let popupImageFile = null;
+  let popupImagePreviewUrl = null;
+  const cleanupPopupImagePreview = () => {
+    if (!popupImagePreviewUrl) return;
+    URL.revokeObjectURL(popupImagePreviewUrl);
+    popupImagePreviewUrl = null;
+  };
+
+  imageInput?.addEventListener('change', () => {
+    popupImageFile = imageInput.files?.[0] ?? null;
+    cleanupPopupImagePreview();
+
+    if (popupImageFile) {
+      popupImagePreviewUrl = URL.createObjectURL(popupImageFile);
+      showImagePreview(imagePreviewElement, popupImagePreviewUrl);
+      return;
+    }
+
+    showImagePreview(imagePreviewElement, bench.image_url || null);
+  });
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -450,7 +552,21 @@ function bindPopupEditorEvents(marker, bench) {
       return;
     }
 
-    await upsertBench(`/api/benches/${bench.id}`, 'PUT', payload);
+    const imageUrl = await uploadSelectedImageIfNeeded(popupImageFile);
+    if (imageUrl === false) {
+      return;
+    }
+
+    if (imageUrl) {
+      payload.image_url = imageUrl;
+    } else if (bench.image_url) {
+      payload.image_url = bench.image_url;
+    }
+
+    const saved = await upsertBench(`/api/benches/${bench.id}`, 'PUT', payload);
+    if (saved) {
+      cleanupPopupImagePreview();
+    }
   });
 
   moveButton?.addEventListener('click', () => {
@@ -483,6 +599,7 @@ function bindPopupEditorEvents(marker, bench) {
   });
 
   cancelButton?.addEventListener('click', () => {
+    cleanupPopupImagePreview();
     resetMarkerEditState(marker, bench.id, originalPosition);
     marker.closePopup();
   });
@@ -531,6 +648,52 @@ function renderUserLocation(point) {
   })
     .addTo(map)
     .bindPopup('Dein Standort');
+}
+
+function setSelectedImage(file) {
+  selectedImageFile = file;
+
+  if (selectedImagePreviewUrl) {
+    URL.revokeObjectURL(selectedImagePreviewUrl);
+    selectedImagePreviewUrl = null;
+  }
+
+  if (file) {
+    selectedImagePreviewUrl = URL.createObjectURL(file);
+    showImagePreview(imagePreview, selectedImagePreviewUrl);
+    return;
+  }
+
+  showImagePreview(imagePreview, currentImageUrl);
+}
+
+function resetImageField(imageUrl = null) {
+  if (selectedImagePreviewUrl) {
+    URL.revokeObjectURL(selectedImagePreviewUrl);
+    selectedImagePreviewUrl = null;
+  }
+
+  selectedImageFile = null;
+  currentImageUrl = imageUrl;
+
+  if (fieldImage) {
+    fieldImage.value = '';
+  }
+
+  showImagePreview(imagePreview, imageUrl);
+}
+
+function showImagePreview(element, url) {
+  if (!element) return;
+
+  if (url) {
+    element.src = url;
+    element.hidden = false;
+    return;
+  }
+
+  element.removeAttribute('src');
+  element.hidden = true;
 }
 
 function showUserLocation() {

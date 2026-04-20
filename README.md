@@ -107,10 +107,10 @@ You can override the API base with `window.__BENCH_API_BASE_URL` before `app.js`
 ## 6) Deploy API Worker
 
 ```bash
-npm run worker:deploy
+npm run deploy
 ```
 
-After deploy, note your Worker URL (example: `https://innichen-benches-api.<subdomain>.workers.dev`).
+This deploys the Worker from `worker/wrangler.toml`. The live API URL should be `https://baenke-innichen.<subdomain>.workers.dev`.
 
 ## 7) Deploy frontend to Cloudflare Pages
 
