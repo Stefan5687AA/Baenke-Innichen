@@ -82,6 +82,7 @@ reloadBtn.addEventListener('click', () => {
   window.location.reload();
 });
 adminToggle.addEventListener('change', () => {
+  updateAdminControls();
   if (!adminToggle.checked) {
     closePanel();
     resetAllMarkerEditStates();
@@ -89,6 +90,11 @@ adminToggle.addEventListener('change', () => {
 });
 
 addCurrentLocationBtn?.addEventListener('click', async () => {
+  if (!adminToggle.checked) {
+    alert('Bitte zuerst den Admin-Modus aktivieren.');
+    return;
+  }
+
   const currentPosition = await ensureUserLocation();
   if (!currentPosition) {
     alert('Standort ist nicht verf\u00FCgbar. Bitte Standortfreigabe erlauben oder die Bank per Klick auf die Karte hinzuf\u00FCgen.');
@@ -990,6 +996,12 @@ function apiUrl(path) {
   return `${API_BASE_URL}${path}`;
 }
 
+function updateAdminControls() {
+  if (addCurrentLocationBtn) {
+    addCurrentLocationBtn.hidden = !adminToggle.checked;
+  }
+}
+
 function resolveApiBaseUrl() {
   const configured = window.__BENCH_API_BASE_URL;
   if (typeof configured === 'string' && configured.trim()) {
@@ -1006,3 +1018,4 @@ function resolveApiBaseUrl() {
 
 loadBenches();
 showUserLocation();
+updateAdminControls();

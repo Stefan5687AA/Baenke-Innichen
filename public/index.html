@@ -11,12 +11,12 @@
     <header class="toolbar">
       <h1>Bankkarte Innichen</h1>
       <div class="controls">
-        <label class="admin-toggle">
+        <label class="icon-toggle" title="Admin-Modus">
           <input id="adminMode" type="checkbox" />
-          Admin-Modus
+          <span aria-hidden="true">⚙</span>
+          <span class="sr-only">Admin-Modus</span>
         </label>
-        <button id="addCurrentLocationBtn" type="button">Bank hinzuf&uuml;gen</button>
-        <button id="reloadBtn" type="button">Neu laden</button>
+        <button id="reloadBtn" class="icon-button" type="button" aria-label="Neu laden" title="Neu laden">↻</button>
       </div>
     </header>
 
@@ -32,6 +32,8 @@
             <li><span class="dot removed"></span> Entfernt</li>
           </ul>
         </aside>
+
+        <button id="addCurrentLocationBtn" class="map-add-button" type="button" hidden>Bank hinzuf&uuml;gen</button>
 
         <section id="editorPanel" class="editor-panel" aria-live="polite" hidden>
           <div class="panel-card">

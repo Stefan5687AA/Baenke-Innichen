@@ -30,7 +30,7 @@
 
 html,
 body {
-  min-height: 100%;
+  height: 100%;
 }
 
 body {
@@ -40,6 +40,9 @@ body {
     radial-gradient(circle at top right, rgba(22, 163, 74, 0.08), transparent 18%),
     var(--bg);
   color: var(--text);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 button,
@@ -114,16 +117,15 @@ body > main {
 }
 
 .toolbar {
-  position: sticky;
-  top: 0;
+  flex: 0 0 auto;
   z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  margin-top: 12px;
-  margin-bottom: 14px;
-  padding: 1rem 1.1rem;
+  gap: 0.85rem;
+  margin-top: max(8px, env(safe-area-inset-top));
+  margin-bottom: 10px;
+  padding: 0.8rem 0.95rem;
   border: 1px solid rgba(213, 222, 232, 0.9);
   border-radius: var(--radius);
   background: var(--surface);
@@ -133,9 +135,9 @@ body > main {
 
 .toolbar h1 {
   margin: 0;
-  font-size: clamp(1.15rem, 1rem + 0.6vw, 1.55rem);
+  font-size: clamp(1.05rem, 0.96rem + 0.45vw, 1.35rem);
   line-height: 1.2;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .controls {
@@ -146,44 +148,85 @@ body > main {
   gap: 0.75rem;
 }
 
-.admin-toggle {
+.icon-toggle,
+.icon-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  min-height: 44px;
-  padding: 0.45rem 0.8rem;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  min-height: 46px;
+  padding: 0;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.7);
-  color: var(--text-soft);
+  color: var(--text);
   font-weight: 600;
+  font-size: 1.35rem;
 }
 
-.admin-toggle input {
-  width: 18px;
-  height: 18px;
+.icon-toggle {
+  cursor: pointer;
+  position: relative;
+}
+
+.icon-toggle input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
   margin: 0;
+  cursor: pointer;
+}
+
+.icon-toggle:has(input:checked) {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 main {
-  min-height: calc(100vh - 126px);
-  padding-bottom: 18px;
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
 }
 
 .map-shell {
   position: relative;
+  flex: 1 1 auto;
   height: 100%;
-  min-height: 62vh;
+  min-height: 0;
 }
 
 #map {
   width: 100%;
-  min-height: 62vh;
   height: 100%;
   border: 1px solid rgba(213, 222, 232, 0.9);
   border-radius: 24px;
   overflow: hidden;
   box-shadow: var(--shadow);
+}
+
+.map-add-button {
+  position: absolute;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 850;
+  width: min(280px, calc(100% - 32px));
+  box-shadow: var(--shadow-soft);
 }
 
 .legend {
@@ -549,31 +592,23 @@ main {
 
 @media (max-width: 720px) {
   .toolbar {
-    align-items: stretch;
-    padding: 0.95rem;
+    align-items: center;
+    padding: 0.75rem 0.85rem;
   }
 
   .controls {
-    justify-content: stretch;
-  }
-
-  .controls > * {
-    flex: 1 1 100%;
-  }
-
-  .controls button,
-  .admin-toggle {
-    width: 100%;
     justify-content: center;
   }
 
-  #map {
-    min-height: 54vh;
-    border-radius: 20px;
+  .icon-toggle,
+  .icon-button {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
   }
 
-  .map-shell {
-    min-height: 54vh;
+  #map {
+    border-radius: 20px;
   }
 
   .editor-panel {
@@ -660,9 +695,9 @@ main {
 
 @media (max-width: 520px) {
   .toolbar {
-    margin-top: 8px;
-    margin-bottom: 10px;
-    padding: 0.85rem;
+    margin-top: max(8px, env(safe-area-inset-top));
+    margin-bottom: 8px;
+    padding: 0.7rem 0.75rem;
     border-radius: 16px;
   }
 
@@ -671,17 +706,11 @@ main {
   }
 
   main {
-    gap: 10px;
-    min-height: calc(100vh - 108px);
+    min-height: 0;
   }
 
   #map {
-    min-height: 50vh;
     border-radius: 18px;
-  }
-
-  .map-shell {
-    min-height: 50vh;
   }
 
   .legend {
