@@ -71,12 +71,6 @@ const cancelPositionBtn = document.getElementById('cancelPositionBtn');
 const statusSortOrder = ['repair', 'ok', 'to_check', 'good', 'removed'];
 const MAX_IMAGE_SIZE = 1600;
 const IMAGE_QUALITY = 0.72;
-const userLocationIcon = leaflet.icon({
-  iconUrl: './user-location.svg',
-  iconSize: [46, 46],
-  iconAnchor: [23, 42],
-  popupAnchor: [0, -36]
-});
 
 let editMode = null;
 let selectedBenchId = null;
@@ -856,7 +850,7 @@ async function ensureUserLocation() {
       () => {
         resolve(null);
       },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   });
 }
@@ -866,9 +860,12 @@ function renderUserLocation(point) {
     map.removeLayer(userLocationMarker);
   }
 
-  userLocationMarker = leaflet.marker([point.lat, point.lng], {
-    icon: userLocationIcon,
-    keyboard: false
+  userLocationMarker = leaflet.circleMarker([point.lat, point.lng], {
+    radius: 8,
+    color: '#1d4ed8',
+    fillColor: '#60a5fa',
+    fillOpacity: 0.9,
+    weight: 2
   })
     .addTo(map)
     .bindPopup('Dein Standort');
