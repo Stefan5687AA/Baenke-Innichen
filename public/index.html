@@ -32,64 +32,82 @@
             <li><span class="dot removed"></span> Entfernt</li>
           </ul>
         </aside>
+
+        <section id="editorPanel" class="editor-panel" aria-live="polite" hidden>
+          <div class="panel-card">
+            <h2 id="panelTitle">Bank hinzuf&uuml;gen</h2>
+            <form id="benchForm" novalidate>
+              <div class="photo-field full-width">
+                <img id="imagePreview" class="photo-preview" alt="Ausgew&auml;hltes Bankfoto" hidden />
+                <label>
+                  Foto
+                  <input id="fieldImage" name="image" type="file" accept="image/*" />
+                </label>
+                <button id="removeImageBtn" class="danger compact" type="button" hidden>Foto l&ouml;schen</button>
+                <small id="removeImageNote" class="photo-remove-note" hidden>Foto wird beim Speichern gel&ouml;scht.</small>
+              </div>
+
+              <label>
+                Name
+                <input id="fieldName" name="name" type="text" required maxlength="200" />
+              </label>
+
+              <label>
+                Status
+                <select id="fieldStatus" name="status">
+                  <option value="good">Guter Zustand</option>
+                  <option value="ok">In Ordnung</option>
+                  <option value="repair">Reparatur n&ouml;tig</option>
+                  <option value="removed">Entfernt</option>
+                </select>
+              </label>
+
+              <label>
+                Letzte Kontrolle
+                <span class="inspection-row">
+                  <input id="fieldInspection" name="last_inspection" type="date" />
+                  <button id="todayInspectionBtn" class="success compact" type="button">Heute</button>
+                </span>
+              </label>
+
+              <label class="full-width">
+                Notiz
+                <textarea id="fieldNotes" name="notes" rows="3"></textarea>
+              </label>
+
+              <label>
+                Aktiv
+                <select id="fieldActive" name="active">
+                  <option value="1">Ja</option>
+                  <option value="0">Nein</option>
+                </select>
+              </label>
+
+              <div class="panel-actions edit-only full-width" id="editPanelActions" hidden>
+                <button type="button" id="movePositionBtn">Position &auml;ndern</button>
+                <button type="button" id="deleteBenchBtn">L&ouml;schen</button>
+              </div>
+
+              <div class="panel-actions full-width">
+                <button type="submit" class="primary">Speichern</button>
+                <button type="button" id="cancelBtn">Schlie&szlig;en</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <div id="positionEditBar" class="position-edit-bar" hidden>
+          <div class="position-edit-text">
+            <strong id="positionEditTitle">Position &auml;ndern</strong>
+            <span id="positionEditHint">Marker verschieben und speichern.</span>
+          </div>
+          <div class="position-edit-actions">
+            <button type="button" class="primary" id="savePositionBtn">Position speichern</button>
+            <button type="button" id="cancelPositionBtn">Abbrechen</button>
+          </div>
+        </div>
       </div>
     </main>
-
-    <section id="editorPanel" class="editor-panel" aria-live="polite" hidden>
-      <div class="panel-card">
-        <h2 id="panelTitle">Bank hinzuf&uuml;gen</h2>
-        <form id="benchForm">
-          <div class="photo-field full-width">
-            <img id="imagePreview" class="photo-preview" alt="Ausgew&auml;hltes Bankfoto" hidden />
-            <label>
-              Foto
-              <input id="fieldImage" name="image" type="file" accept="image/*" />
-            </label>
-          </div>
-
-          <label>
-            Name
-            <input id="fieldName" name="name" type="text" required maxlength="200" />
-          </label>
-
-          <label>
-            Status
-            <select id="fieldStatus" name="status">
-              <option value="good">Guter Zustand</option>
-              <option value="ok">In Ordnung</option>
-              <option value="repair">Reparatur n&ouml;tig</option>
-              <option value="removed">Entfernt</option>
-            </select>
-          </label>
-
-          <label>
-            Letzte Kontrolle
-            <span class="inspection-row">
-              <input id="fieldInspection" name="last_inspection" type="date" />
-              <button id="todayInspectionBtn" class="success compact" type="button">Heute</button>
-            </span>
-          </label>
-
-          <label class="full-width">
-            Notiz
-            <textarea id="fieldNotes" name="notes" rows="3"></textarea>
-          </label>
-
-          <label>
-            Aktiv
-            <select id="fieldActive" name="active">
-              <option value="1">Ja</option>
-              <option value="0">Nein</option>
-            </select>
-          </label>
-
-          <div class="panel-actions full-width">
-            <button type="submit" class="primary">Speichern</button>
-            <button type="button" id="cancelBtn">Abbrechen</button>
-          </div>
-        </form>
-      </div>
-    </section>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="./app.js" type="module"></script>

@@ -52,6 +52,16 @@ const fieldNotes = document.getElementById('fieldNotes');
 const fieldActive = document.getElementById('fieldActive');
 const fieldImage = document.getElementById('fieldImage');
 const imagePreview = document.getElementById('imagePreview');
+const removeImageBtn = document.getElementById('removeImageBtn');
+const removeImageNote = document.getElementById('removeImageNote');
+const editPanelActions = document.getElementById('editPanelActions');
+const movePositionBtn = document.getElementById('movePositionBtn');
+const deleteBenchBtn = document.getElementById('deleteBenchBtn');
+const positionEditBar = document.getElementById('positionEditBar');
+const positionEditTitle = document.getElementById('positionEditTitle');
+const positionEditHint = document.getElementById('positionEditHint');
+const savePositionBtn = document.getElementById('savePositionBtn');
+const cancelPositionBtn = document.getElementById('cancelPositionBtn');
 
 let editMode = null;
 let selectedBenchId = null;
@@ -62,6 +72,10 @@ let userLocation = null;
 let selectedImageFile = null;
 let selectedImagePreviewUrl = null;
 let currentImageUrl = null;
+let shouldRemoveCurrentImage = false;
+let currentEditBench = null;
+let currentEditMarker = null;
+let activePositionEdit = null;
 let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', () => {
@@ -96,6 +110,35 @@ fieldImage?.addEventListener('change', () => {
   setSelectedImage(file);
 });
 
+removeImageBtn?.addEventListener('click', () => {
+  shouldRemoveCurrentImage = true;
+  selectedImageFile = null;
+  cleanupSelectedImagePreview();
+
+  if (fieldImage) {
+    fieldImage.value = '';
+  }
+
+  showImagePreview(imagePreview, null);
+  removeImageBtn.hidden = true;
+  removeImageNote.hidden = false;
+});
+
+movePositionBtn?.addEventListener('click', () => {
+  if (!currentEditBench || !currentEditMarker) return;
+  startPositionEdit(currentEditBench, currentEditMarker);
+});
+
+deleteBenchBtn?.addEventListener('click', async () => {
+  if (!currentEditBench) return;
+  await archiveBench(currentEditBench.id);
+});
+
+savePositionBtn?.addEventListener('click', saveActivePositionEdit);
+cancelPositionBtn?.addEventListener('click', () => {
+  cancelActivePositionEdit({ reopenPanel: true });
+});
+
 benchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -124,6 +167,8 @@ benchForm.addEventListener('submit', async (event) => {
 
   if (imageUrl) {
     payload.image_url = imageUrl;
+  } else if (shouldRemoveCurrentImage) {
+    payload.image_url = null;
   } else if (currentImageUrl) {
     payload.image_url = currentImageUrl;
   }
@@ -195,6 +240,12 @@ function addBenchMarker(bench) {
     autoPan: false
   });
 
+  marker.on('click', () => {
+    if (!adminToggle.checked) return;
+    marker.closePopup();
+    openEditPanel(bench, marker);
+  });
+
   marker.on('popupopen', () => {
     renderMarkerPopup(marker, bench);
   });
@@ -212,9 +263,7 @@ function addBenchMarker(bench) {
       lng: Number(latLng.lng.toFixed(6))
     };
 
-    disableMarkerDragging(marker);
-    renderMarkerPopup(marker, bench);
-    marker.openPopup();
+    renderPositionEditBar();
   });
 
   marker.on('popupclose', () => {
@@ -235,8 +284,7 @@ function addBenchMarker(bench) {
 function renderMarkerPopup(marker, bench) {
   const state = getMarkerState(bench.id);
   if (adminToggle.checked) {
-    marker.setPopupContent(popupEditorHtml(bench, state));
-    bindPopupEditorEvents(marker, bench);
+    marker.closePopup();
     return;
   }
 
@@ -244,8 +292,11 @@ function renderMarkerPopup(marker, bench) {
 }
 
 function openAddPanel() {
+  cancelActivePositionEdit();
   editMode = 'add';
   selectedBenchId = null;
+  currentEditBench = null;
+  currentEditMarker = null;
   panelTitle.textContent = 'Bank hinzuf\u00FCgen';
   resetImageField();
   fieldName.value = '';
@@ -253,13 +304,35 @@ function openAddPanel() {
   fieldInspection.value = todayDateString();
   fieldNotes.value = '';
   fieldActive.value = '1';
+  editPanelActions.hidden = true;
+  panel.hidden = false;
+}
+
+function openEditPanel(bench, marker) {
+  cancelActivePositionEdit();
+  editMode = 'edit';
+  selectedBenchId = bench.id;
+  selectedPoint = null;
+  currentEditBench = bench;
+  currentEditMarker = marker;
+  panelTitle.textContent = 'Bank bearbeiten';
+  resetImageField(bench.image_url || null);
+  fieldName.value = bench.title || '';
+  fieldStatus.value = bench.status || 'good';
+  fieldInspection.value = bench.last_inspection || '';
+  fieldNotes.value = bench.notes || '';
+  fieldActive.value = bench.active ? '1' : '0';
+  editPanelActions.hidden = false;
   panel.hidden = false;
 }
 
 function closePanel() {
+  cancelActivePositionEdit();
   editMode = null;
   selectedBenchId = null;
   selectedPoint = null;
+  currentEditBench = null;
+  currentEditMarker = null;
   panel.hidden = true;
   benchForm.reset();
   resetImageField();
@@ -697,35 +770,43 @@ function renderUserLocation(point) {
 
 function setSelectedImage(file) {
   selectedImageFile = file;
-
-  if (selectedImagePreviewUrl) {
-    URL.revokeObjectURL(selectedImagePreviewUrl);
-    selectedImagePreviewUrl = null;
-  }
+  cleanupSelectedImagePreview();
 
   if (file) {
+    shouldRemoveCurrentImage = false;
+    removeImageNote.hidden = true;
+    removeImageBtn.hidden = false;
     selectedImagePreviewUrl = URL.createObjectURL(file);
     showImagePreview(imagePreview, selectedImagePreviewUrl);
     return;
   }
 
+  shouldRemoveCurrentImage = false;
+  removeImageNote.hidden = true;
+  removeImageBtn.hidden = !currentImageUrl;
   showImagePreview(imagePreview, currentImageUrl);
 }
 
 function resetImageField(imageUrl = null) {
-  if (selectedImagePreviewUrl) {
-    URL.revokeObjectURL(selectedImagePreviewUrl);
-    selectedImagePreviewUrl = null;
-  }
+  cleanupSelectedImagePreview();
 
   selectedImageFile = null;
+  shouldRemoveCurrentImage = false;
   currentImageUrl = imageUrl;
 
   if (fieldImage) {
     fieldImage.value = '';
   }
 
+  removeImageBtn.hidden = !imageUrl;
+  removeImageNote.hidden = true;
   showImagePreview(imagePreview, imageUrl);
+}
+
+function cleanupSelectedImagePreview() {
+  if (!selectedImagePreviewUrl) return;
+  URL.revokeObjectURL(selectedImagePreviewUrl);
+  selectedImagePreviewUrl = null;
 }
 
 function showImagePreview(element, url) {
@@ -794,6 +875,91 @@ function isBenchOverdue(bench) {
   threshold.setHours(0, 0, 0, 0);
 
   return inspectionDate <= threshold;
+}
+
+function startPositionEdit(bench, marker) {
+  const state = getMarkerState(bench.id);
+  const currentLatLng = marker.getLatLng();
+  const currentPosition = {
+    lat: Number(currentLatLng.lat.toFixed(6)),
+    lng: Number(currentLatLng.lng.toFixed(6))
+  };
+
+  activePositionEdit = {
+    bench,
+    marker,
+    originalPosition: state.originalPosition || currentPosition
+  };
+
+  state.isMoving = true;
+  state.originalPosition = { ...activePositionEdit.originalPosition };
+  state.pendingPosition = state.pendingPosition ?? { ...currentPosition };
+  selectedPoint = null;
+  clearTempMarker();
+  panel.hidden = true;
+  marker.setLatLng([state.pendingPosition.lat, state.pendingPosition.lng]);
+  marker.dragging.enable();
+  marker.getElement()?.classList.add('is-moving');
+  map.panTo([state.pendingPosition.lat, state.pendingPosition.lng], { animate: true });
+  renderPositionEditBar();
+}
+
+async function saveActivePositionEdit() {
+  if (!activePositionEdit) return;
+
+  const { bench, marker } = activePositionEdit;
+  const state = getMarkerState(bench.id);
+  const latLng = marker.getLatLng();
+  const nextPosition = state.pendingPosition ?? {
+    lat: Number(latLng.lat.toFixed(6)),
+    lng: Number(latLng.lng.toFixed(6))
+  };
+
+  clearActivePositionEdit(false);
+  await upsertBench(`/api/benches/${bench.id}`, 'PUT', nextPosition);
+}
+
+function cancelActivePositionEdit({ reopenPanel = false } = {}) {
+  if (!activePositionEdit) return;
+  const { bench, marker } = activePositionEdit;
+  clearActivePositionEdit(true);
+
+  if (reopenPanel) {
+    openEditPanel(bench, marker);
+  }
+}
+
+function clearActivePositionEdit(restorePosition) {
+  if (!activePositionEdit) return;
+
+  const { bench, marker, originalPosition } = activePositionEdit;
+  if (restorePosition) {
+    marker.setLatLng([originalPosition.lat, originalPosition.lng]);
+  }
+
+  const state = getMarkerState(bench.id);
+  state.isMoving = false;
+  state.pendingPosition = null;
+  state.originalPosition = null;
+  disableMarkerDragging(marker);
+  marker.getElement()?.classList.remove('is-moving');
+  positionEditBar.hidden = true;
+  activePositionEdit = null;
+}
+
+function renderPositionEditBar() {
+  if (!activePositionEdit) return;
+
+  const { bench, marker } = activePositionEdit;
+  const latLng = marker.getLatLng();
+  const position = {
+    lat: Number(latLng.lat.toFixed(6)),
+    lng: Number(latLng.lng.toFixed(6))
+  };
+
+  positionEditTitle.textContent = `Position \u00E4ndern: ${bench.title || `Bank ${bench.id}`}`;
+  positionEditHint.textContent = `Marker verschieben. Aktuell: ${position.lat}, ${position.lng}`;
+  positionEditBar.hidden = false;
 }
 
 function todayDateString() {

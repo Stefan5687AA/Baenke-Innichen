@@ -190,7 +190,7 @@ main {
   position: absolute;
   left: 12px;
   bottom: max(12px, env(safe-area-inset-bottom));
-  z-index: 700;
+  z-index: 500;
   max-width: min(300px, calc(100% - 24px));
   padding: 0.75rem 0.85rem;
   border: 1px solid rgba(213, 222, 232, 0.78);
@@ -255,6 +255,17 @@ main {
   border-radius: 999px;
   border: 2px solid #fff;
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.18), 0 5px 16px rgba(15, 23, 42, 0.18);
+}
+
+.bench-marker-icon.is-moving .bench-marker-pin {
+  width: 30px;
+  height: 30px;
+  background: #facc15 !important;
+  border-color: #111827;
+  box-shadow:
+    0 0 0 6px rgba(250, 204, 21, 0.35),
+    0 0 0 12px rgba(37, 99, 235, 0.18),
+    0 10px 24px rgba(15, 23, 42, 0.28);
 }
 
 .bench-marker-badge {
@@ -429,13 +440,16 @@ main {
 }
 
 .editor-panel {
-  position: fixed;
+  position: absolute;
   left: 50%;
-  bottom: 16px;
+  bottom: 14px;
   transform: translateX(-50%);
-  width: min(920px, calc(100vw - 24px));
-  z-index: 1200;
+  width: min(920px, calc(100% - 24px));
+  max-height: calc(100% - 28px);
+  z-index: 900;
   padding: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .panel-card {
@@ -445,6 +459,49 @@ main {
   box-shadow: var(--shadow);
   padding: 1.15rem;
   backdrop-filter: blur(12px);
+}
+
+.position-edit-bar {
+  position: absolute;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.85rem;
+  width: min(760px, calc(100% - 24px));
+  padding: 0.8rem;
+  border: 1px solid rgba(184, 197, 212, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
+.position-edit-text {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.position-edit-text strong,
+.position-edit-text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.position-edit-text span {
+  color: var(--text-soft);
+  font-size: 0.86rem;
+}
+
+.position-edit-actions {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 0.55rem;
 }
 
 .panel-card h2 {
@@ -520,8 +577,9 @@ main {
   }
 
   .editor-panel {
-    width: calc(100vw - 12px);
+    width: calc(100% - 12px);
     bottom: 6px;
+    max-height: calc(100% - 12px);
   }
 
   .panel-card {
@@ -581,6 +639,21 @@ main {
   }
 
   .panel-actions button {
+    width: 100%;
+  }
+
+  .position-edit-bar {
+    grid-template-columns: 1fr;
+    width: calc(100% - 12px);
+    bottom: max(6px, env(safe-area-inset-bottom));
+    gap: 0.6rem;
+  }
+
+  .position-edit-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .position-edit-actions button {
     width: 100%;
   }
 }
