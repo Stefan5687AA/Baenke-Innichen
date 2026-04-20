@@ -41,6 +41,10 @@ export default {
         return await updateBench(Number(benchIdMatch[1]), request, env);
       }
 
+      if (benchIdMatch && request.method === 'DELETE') {
+        return await deleteBench(Number(benchIdMatch[1]), env);
+      }
+
       return json({ error: 'Not found' }, 404);
     } catch (error) {
       console.error('Worker error:', error);
@@ -187,6 +191,21 @@ async function updateBench(id, request, env) {
     .first();
 
   return json(normalizeBench(updated));
+}
+
+async function deleteBench(id, env) {
+  const result = await env.DB.prepare(`
+    DELETE FROM benches
+    WHERE id = ?
+  `)
+    .bind(id)
+    .run();
+
+  if (result.meta.changes === 0) {
+    return json({ error: 'Bench not found' }, 404);
+  }
+
+  return json({ ok: true });
 }
 
 async function uploadImage(request, env) {
@@ -394,7 +413,7 @@ function json(payload, status = 200) {
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type'
   };
 }

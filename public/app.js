@@ -71,6 +71,12 @@ const cancelPositionBtn = document.getElementById('cancelPositionBtn');
 const statusSortOrder = ['repair', 'ok', 'to_check', 'good', 'removed'];
 const MAX_IMAGE_SIZE = 1600;
 const IMAGE_QUALITY = 0.72;
+const userLocationIcon = leaflet.icon({
+  iconUrl: './user-location.svg',
+  iconSize: [46, 46],
+  iconAnchor: [23, 42],
+  popupAnchor: [0, -36]
+});
 
 let editMode = null;
 let selectedBenchId = null;
@@ -242,7 +248,7 @@ async function loadBenches() {
 
   hasShownLoadError = false;
   const benches = await response.json();
-  currentBenches = benches;
+  currentBenches = benches.filter((bench) => bench.active && bench.status !== 'removed');
 
   for (const marker of markers.values()) {
     map.removeLayer(marker);
@@ -250,7 +256,7 @@ async function loadBenches() {
   markers.clear();
   markerStates.clear();
 
-  for (const bench of benches.filter((bench) => bench.active)) {
+  for (const bench of currentBenches) {
     addBenchMarker(bench);
   }
 
@@ -578,12 +584,30 @@ async function readErrorMessage(response) {
 }
 
 async function archiveBench(benchId) {
-  if (!confirm('Bank wirklich l\u00F6schen? (wird als entfernt/inaktiv markiert)')) return;
+  if (!confirm('Bank wirklich dauerhaft l\u00F6schen?')) return;
 
-  await upsertBench(`/api/benches/${benchId}`, 'PUT', {
-    status: 'removed',
-    active: false
-  });
+  await deleteBench(benchId);
+}
+
+async function deleteBench(benchId) {
+  let response;
+  try {
+    response = await fetch(apiUrl(`/api/benches/${benchId}`), {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    alert(`Fehler beim L\u00F6schen der Bank. Netzwerkfehler: ${error.message}`);
+    return;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    alert(`Fehler beim L\u00F6schen der Bank. ${detail}`);
+    return;
+  }
+
+  closePanel();
+  await loadBenches();
 }
 
 function popupEditorHtml(bench, state) {
@@ -842,12 +866,9 @@ function renderUserLocation(point) {
     map.removeLayer(userLocationMarker);
   }
 
-  userLocationMarker = leaflet.circleMarker([point.lat, point.lng], {
-    radius: 8,
-    color: '#1d4ed8',
-    fillColor: '#60a5fa',
-    fillOpacity: 0.9,
-    weight: 2
+  userLocationMarker = leaflet.marker([point.lat, point.lng], {
+    icon: userLocationIcon,
+    keyboard: false
   })
     .addTo(map)
     .bindPopup('Dein Standort');
@@ -958,7 +979,10 @@ function renderBenchList() {
       <span class="dot ${escapeHtml(bench.status || 'removed')}"></span>
       <span class="bench-list-main">
         <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
-        <small>${statusLabels[bench.status] ?? escapeHtml(bench.status || '-')} · Kontrolle: ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'} · ${bench.active ? 'Aktiv' : 'Inaktiv'}</small>
+        <small>
+          <span>${statusLabels[bench.status] ?? escapeHtml(bench.status || '-')}</span>
+          <span>Kontrolle: ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'}</span>
+        </small>
       </span>
     </button>
   `).join('');
