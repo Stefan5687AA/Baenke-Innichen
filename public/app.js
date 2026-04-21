@@ -18,8 +18,13 @@ const map = leaflet.map(mapElement).setView(INNICHEN_CENTER, 14);
 createMapPane('municipalityMaskPane', 350);
 createMapPane('municipalityBoundaryPane', 360);
 
-const municipalityRenderer = leaflet.canvas({
-  padding: 1
+const municipalityMaskRenderer = leaflet.canvas({
+  padding: 1,
+  pane: 'municipalityMaskPane'
+});
+const municipalityBoundaryRenderer = leaflet.canvas({
+  padding: 1,
+  pane: 'municipalityBoundaryPane'
 });
 const standardTileLayer = leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
@@ -350,7 +355,7 @@ function renderMunicipalityBoundary(feature) {
 
   municipalityBoundaryLayer = leaflet.geoJSON(feature, {
     pane: 'municipalityBoundaryPane',
-    renderer: municipalityRenderer,
+    renderer: municipalityBoundaryRenderer,
     interactive: false,
     style: {
       color: '#047857',
@@ -378,7 +383,7 @@ function createMunicipalityMaskLayer(geometry) {
 
   return leaflet.polygon([webMercatorWorldRing, ...exteriorRings], {
     pane: 'municipalityMaskPane',
-    renderer: municipalityRenderer,
+    renderer: municipalityMaskRenderer,
     interactive: false,
     stroke: false,
     fillColor: '#0f172a',
