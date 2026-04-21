@@ -96,6 +96,9 @@ const removeImageNote = document.getElementById('removeImageNote');
 const editPanelActions = document.getElementById('editPanelActions');
 const movePositionBtn = document.getElementById('movePositionBtn');
 const deleteBenchBtn = document.getElementById('deleteBenchBtn');
+const historySection = document.getElementById('historySection');
+const historyCount = document.getElementById('historyCount');
+const historyList = document.getElementById('historyList');
 const positionEditBar = document.getElementById('positionEditBar');
 const positionEditTitle = document.getElementById('positionEditTitle');
 const positionEditHint = document.getElementById('positionEditHint');
@@ -499,6 +502,7 @@ function openAddPanel() {
   fieldNotes.value = '';
   fieldActive.value = '1';
   editPanelActions.hidden = true;
+  clearBenchHistory();
   panel.hidden = false;
 }
 
@@ -517,6 +521,7 @@ function openEditPanel(bench, marker) {
   fieldNotes.value = bench.notes || '';
   fieldActive.value = bench.active ? '1' : '0';
   editPanelActions.hidden = false;
+  loadBenchHistory(bench.id);
   panel.hidden = false;
 }
 
@@ -530,6 +535,7 @@ function closePanel() {
   panel.hidden = true;
   benchForm.reset();
   resetImageField();
+  clearBenchHistory();
   clearTempMarker();
 }
 
@@ -626,6 +632,81 @@ async function upsertBench(path, method, payload) {
   closePanel();
   await loadBenches();
   return true;
+}
+
+async function loadBenchHistory(benchId) {
+  if (!historySection || !historyList) return;
+
+  historySection.hidden = false;
+  historyList.innerHTML = '<p class="history-empty">Verlauf wird geladen...</p>';
+  if (historyCount) historyCount.textContent = '';
+
+  let response;
+  try {
+    response = await fetch(apiUrl(`/api/benches/${benchId}/history`));
+  } catch (error) {
+    historyList.innerHTML = `<p class="history-empty">Verlauf konnte nicht geladen werden: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    historyList.innerHTML = `<p class="history-empty">Verlauf konnte nicht geladen werden: ${escapeHtml(detail)}</p>`;
+    return;
+  }
+
+  const entries = await response.json();
+  renderBenchHistory(entries);
+}
+
+function renderBenchHistory(entries) {
+  if (!historySection || !historyList) return;
+
+  historySection.hidden = false;
+  if (historyCount) {
+    historyCount.textContent = `${entries.length}`;
+  }
+
+  if (!entries.length) {
+    historyList.innerHTML = '<p class="history-empty">Noch keine Änderungen gespeichert.</p>';
+    return;
+  }
+
+  historyList.innerHTML = entries.map((entry) => `
+    <article class="history-item">
+      <div class="history-item-top">
+        <strong>${escapeHtml(historyActionLabel(entry.action))}</strong>
+        <span>${escapeHtml(formatHistoryDate(entry.created_at))}</span>
+      </div>
+      <small>${escapeHtml(entry.actor || 'Admin')}</small>
+      ${historyChangeSummary(entry)}
+    </article>
+  `).join('');
+}
+
+function historyChangeSummary(entry) {
+  const changes = Array.isArray(entry.details?.changes)
+    ? entry.details.changes
+    : [];
+
+  if (!changes.length) return '';
+
+  return `
+    <ul class="history-changes">
+      ${changes.slice(0, 5).map((change) => `
+        <li>
+          <span>${escapeHtml(change.label || change.field)}</span>
+          <b>${escapeHtml(formatHistoryValue(change.to))}</b>
+        </li>
+      `).join('')}
+    </ul>
+  `;
+}
+
+function clearBenchHistory() {
+  if (historySection) historySection.hidden = true;
+  if (historyList) historyList.innerHTML = '';
+  if (historyCount) historyCount.textContent = '0';
 }
 
 async function uploadSelectedImageIfNeeded(file) {
@@ -1358,6 +1439,48 @@ function formatInspectionDate(value) {
     month: '2-digit',
     year: 'numeric'
   });
+}
+
+function formatHistoryDate(value) {
+  if (!value) return 'Unbekannter Zeitpunkt';
+
+  const normalized = String(value).includes('T')
+    ? String(value)
+    : `${String(value).replace(' ', 'T')}Z`;
+  const date = new Date(normalized);
+
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function formatHistoryValue(value) {
+  if (value === null || value === undefined || value === '') return '-';
+  if (value === true) return 'Ja';
+  if (value === false) return 'Nein';
+  if (typeof value === 'string' && value.startsWith('http')) return 'Foto-Link';
+  return String(value);
+}
+
+function historyActionLabel(action) {
+  const labels = {
+    created: 'Erstellt',
+    baseline: 'Bestand übernommen',
+    updated: 'Bearbeitet',
+    status_updated: 'Status geändert',
+    inspection_updated: 'Kontrolle gesetzt',
+    position_updated: 'Position geändert',
+    photo_updated: 'Foto geändert',
+    deleted: 'Gelöscht'
+  };
+
+  return labels[action] || 'Bearbeitet';
 }
 
 function disableMarkerDragging(marker) {

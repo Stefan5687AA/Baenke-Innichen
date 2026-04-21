@@ -44,6 +44,11 @@ export default {
         return await createManualGithubBackup(request, env);
       }
 
+      const benchHistoryMatch = url.pathname.match(/^\/api\/benches\/(\d+)\/history$/);
+      if (benchHistoryMatch && request.method === 'GET') {
+        return await listBenchHistory(Number(benchHistoryMatch[1]), env);
+      }
+
       const benchIdMatch = url.pathname.match(/^\/api\/benches\/(\d+)$/);
       if (benchIdMatch && request.method === 'PUT') {
         const response = await updateBench(Number(benchIdMatch[1]), request, env);
@@ -143,6 +148,15 @@ async function createBench(request, env) {
     .bind(result.meta.last_row_id)
     .first();
 
+  await recordBenchHistory(env, created.id, 'created', [
+    changeDetail('title', null, created.title),
+    changeDetail('status', null, created.status),
+    changeDetail('last_inspection', null, created.last_inspection),
+    changeDetail('lat', null, created.lat),
+    changeDetail('lng', null, created.lng),
+    changeDetail('image_url', null, created.image_url)
+  ].filter(Boolean));
+
   return json(normalizeBench(created), 201);
 }
 
@@ -217,10 +231,23 @@ async function updateBench(id, request, env) {
     .bind(id)
     .first();
 
+  const changes = buildBenchChanges(existing, updated);
+  if (changes.length) {
+    await recordBenchHistory(env, id, inferHistoryAction(changes), changes);
+  }
+
   return json(normalizeBench(updated));
 }
 
 async function deleteBench(id, env) {
+  const existing = await env.DB.prepare(`
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
+    FROM benches
+    WHERE id = ?
+  `)
+    .bind(id)
+    .first();
+
   const result = await env.DB.prepare(`
     UPDATE benches
     SET
@@ -245,7 +272,23 @@ async function deleteBench(id, env) {
     .bind(id)
     .first();
 
+  await recordBenchHistory(env, id, 'deleted', buildBenchChanges(existing, deleted));
+
   return json({ ok: true, bench: normalizeBench(deleted) });
+}
+
+async function listBenchHistory(id, env) {
+  const { results } = await env.DB.prepare(`
+    SELECT id, bench_id, action, actor, details, created_at
+    FROM bench_history
+    WHERE bench_id = ?
+    ORDER BY created_at DESC, id DESC
+    LIMIT 80
+  `)
+    .bind(id)
+    .all();
+
+  return json(results.map(normalizeHistoryEntry));
 }
 
 async function uploadImage(request, env) {
@@ -348,6 +391,11 @@ async function buildBackupPayload(env, reason) {
   `).all();
 
   const benches = results.map(normalizeBench);
+  const { results: historyResults } = await env.DB.prepare(`
+    SELECT id, bench_id, action, actor, details, created_at
+    FROM bench_history
+    ORDER BY id ASC
+  `).all();
 
   return {
     app: 'Baenke-Innichen',
@@ -357,7 +405,8 @@ async function buildBackupPayload(env, reason) {
     count: benches.length,
     active_count: benches.filter((bench) => bench.active && !bench.deleted_at).length,
     deleted_count: benches.filter((bench) => Boolean(bench.deleted_at)).length,
-    benches
+    benches,
+    history: historyResults.map(normalizeHistoryEntry)
   };
 }
 
@@ -589,6 +638,103 @@ function normalizeBench(row) {
     active: Boolean(row.active),
     image_url: row.image_url ?? null
   };
+}
+
+function normalizeHistoryEntry(row) {
+  return {
+    ...row,
+    bench_id: Number(row.bench_id),
+    details: parseJsonDetails(row.details)
+  };
+}
+
+function parseJsonDetails(value) {
+  if (!value) return null;
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+async function recordBenchHistory(env, benchId, action, changes) {
+  const filteredChanges = changes.filter(Boolean);
+  const details = filteredChanges.length
+    ? JSON.stringify({ changes: filteredChanges })
+    : null;
+
+  await env.DB.prepare(`
+    INSERT INTO bench_history (bench_id, action, actor, details)
+    VALUES (?, ?, ?, ?)
+  `)
+    .bind(benchId, action, 'Admin', details)
+    .run();
+}
+
+function buildBenchChanges(before, after) {
+  if (!before || !after) return [];
+
+  return [
+    changeDetail('title', before.title, after.title),
+    changeDetail('status', before.status, after.status),
+    changeDetail('last_inspection', before.last_inspection, after.last_inspection),
+    changeDetail('notes', before.notes, after.notes),
+    changeDetail('active', Boolean(before.active), Boolean(after.active)),
+    changeDetail('image_url', before.image_url, after.image_url),
+    changeDetail('lat', before.lat, after.lat),
+    changeDetail('lng', before.lng, after.lng),
+    changeDetail('deleted_at', before.deleted_at, after.deleted_at)
+  ].filter(Boolean);
+}
+
+function changeDetail(field, beforeValue, afterValue) {
+  const before = normalizeComparableValue(beforeValue);
+  const after = normalizeComparableValue(afterValue);
+
+  if (before === after) return null;
+
+  return {
+    field,
+    label: historyFieldLabel(field),
+    from: before,
+    to: after
+  };
+}
+
+function normalizeComparableValue(value) {
+  if (value === undefined || value === null || value === '') return null;
+  if (typeof value === 'number') return Number(value.toFixed(6));
+  if (typeof value === 'boolean') return value;
+  return String(value);
+}
+
+function inferHistoryAction(changes) {
+  const fields = new Set(changes.map((change) => change.field));
+
+  if (fields.has('deleted_at')) return 'deleted';
+  if (fields.has('image_url')) return 'photo_updated';
+  if (fields.has('last_inspection')) return 'inspection_updated';
+  if (fields.has('lat') || fields.has('lng')) return 'position_updated';
+  if (fields.has('status')) return 'status_updated';
+
+  return 'updated';
+}
+
+function historyFieldLabel(field) {
+  const labels = {
+    title: 'Name',
+    status: 'Status',
+    last_inspection: 'Letzte Kontrolle',
+    notes: 'Notiz',
+    active: 'Aktiv',
+    image_url: 'Foto',
+    lat: 'Breite',
+    lng: 'Länge',
+    deleted_at: 'Gelöscht'
+  };
+
+  return labels[field] || field;
 }
 
 async function runStatement(stmt, status) {
