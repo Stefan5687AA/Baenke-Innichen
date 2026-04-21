@@ -1,15 +1,15 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-21T09:22:30.744Z",
+  "generated_at": "2026-04-21T11:43:05.981Z",
   "reason": "manual",
   "source": "cloudflare-d1:innichen-benches",
-  "count": 23,
-  "active_count": 23,
+  "count": 21,
+  "active_count": 21,
   "deleted_count": 0,
   "benches": [
     {
       "id": 1,
-      "title": "Bank mit Tisch",
+      "title": "Sitzbank + Tisch",
       "lat": 46.740543,
       "lng": 12.296576,
       "status": "repair",
@@ -18,12 +18,12 @@
       "active": true,
       "image_url": null,
       "created_at": "2026-04-20 09:13:48",
-      "updated_at": "2026-04-20 09:14:54",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 2,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.738283,
       "lng": 12.30356,
       "status": "good",
@@ -32,7 +32,7 @@
       "active": true,
       "image_url": null,
       "created_at": "2026-04-20 09:27:58",
-      "updated_at": "2026-04-20 09:27:58",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
@@ -46,7 +46,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/8c0ef313-7153-48d6-84e5-ebb661309032.jpg",
       "created_at": "2026-04-20 09:49:48",
-      "updated_at": "2026-04-20 15:04:23",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
@@ -60,12 +60,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/3b26a201-060b-407e-ad32-1a917fdbb161.jpg",
       "created_at": "2026-04-20 09:49:55",
-      "updated_at": "2026-04-20 15:03:55",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 5,
-      "title": "Gewalt gegen Frauen Bank",
+      "title": "Sitzbank",
       "lat": 46.732891,
       "lng": 12.281827,
       "status": "good",
@@ -74,12 +74,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/19e9e19a-ea53-457e-995c-fd5a6373bcfc.jpg",
       "created_at": "2026-04-20 09:50:30",
-      "updated_at": "2026-04-20 12:21:40",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 6,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.733596,
       "lng": 12.278937,
       "status": "good",
@@ -88,12 +88,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/50b89722-3e06-41f1-9086-ddbb92862aba.jpg",
       "created_at": "2026-04-20 16:02:04",
-      "updated_at": "2026-04-21 06:08:26",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 7,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.733221,
       "lng": 12.278742,
       "status": "good",
@@ -102,12 +102,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1a230416-7429-4a0a-95f9-36c696c8c266.jpg",
       "created_at": "2026-04-20 16:02:46",
-      "updated_at": "2026-04-20 16:02:46",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 8,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.732872,
       "lng": 12.278679,
       "status": "good",
@@ -116,12 +116,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f2ebe4af-f6a7-432c-89a6-f71383245ed3.jpg",
       "created_at": "2026-04-20 16:03:13",
-      "updated_at": "2026-04-20 16:03:48",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 9,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.732821,
       "lng": 12.278658,
       "status": "good",
@@ -130,12 +130,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/44301769-1730-413f-9a3f-cce55e744ef2.jpg",
       "created_at": "2026-04-20 16:03:25",
-      "updated_at": "2026-04-20 16:03:57",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 10,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.732534,
       "lng": 12.278681,
       "status": "good",
@@ -144,12 +144,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/cc851805-42bc-4933-b237-1b32f884eaf3.jpg",
       "created_at": "2026-04-20 16:04:11",
-      "updated_at": "2026-04-20 16:04:16",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 11,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.732487,
       "lng": 12.278663,
       "status": "good",
@@ -158,12 +158,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/fc259a39-8551-417a-96c2-aef727fcf510.jpg",
       "created_at": "2026-04-20 16:04:31",
-      "updated_at": "2026-04-20 16:04:39",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 12,
-      "title": "Bank + Tisch",
+      "title": "Sitzbank + Tisch",
       "lat": 46.732144,
       "lng": 12.278702,
       "status": "ok",
@@ -172,12 +172,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c0e9ddb3-5a49-467b-b849-f783096c473e.jpg",
       "created_at": "2026-04-20 16:05:22",
-      "updated_at": "2026-04-20 16:05:22",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 13,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.732022,
       "lng": 12.278717,
       "status": "good",
@@ -186,12 +186,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/806444c3-afc8-4e23-9924-34decee4e90c.jpg",
       "created_at": "2026-04-20 16:05:51",
-      "updated_at": "2026-04-20 16:05:59",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 14,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.731456,
       "lng": 12.279115,
       "status": "good",
@@ -200,12 +200,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/102b3865-4ebe-4608-852b-e14fc023b19c.jpg",
       "created_at": "2026-04-20 16:06:30",
-      "updated_at": "2026-04-20 16:06:30",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 15,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.731264,
       "lng": 12.27924,
       "status": "good",
@@ -214,12 +214,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/3dc03684-6c2d-40a6-bdc9-0e26a97ddc66.jpg",
       "created_at": "2026-04-20 16:06:48",
-      "updated_at": "2026-04-20 16:06:48",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 16,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.731131,
       "lng": 12.279337,
       "status": "good",
@@ -228,12 +228,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f5c230da-0fb9-4b4d-b5aa-5fe12a18f804.jpg",
       "created_at": "2026-04-20 16:07:10",
-      "updated_at": "2026-04-20 16:07:10",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 17,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.730456,
       "lng": 12.279988,
       "status": "good",
@@ -242,12 +242,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c40ba070-a217-4f5f-b836-93142fd854b6.jpg",
       "created_at": "2026-04-20 16:07:58",
-      "updated_at": "2026-04-20 16:07:58",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 18,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.73025,
       "lng": 12.280321,
       "status": "good",
@@ -256,12 +256,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/689ae32a-2998-48bc-a56f-372c3f4cf53d.jpg",
       "created_at": "2026-04-20 16:08:24",
-      "updated_at": "2026-04-20 16:08:24",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 19,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.730995,
       "lng": 12.281059,
       "status": "good",
@@ -270,26 +270,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f90282a0-6bb9-4b31-9046-b87e73ded6d8.jpg",
       "created_at": "2026-04-20 16:13:34",
-      "updated_at": "2026-04-20 16:15:21",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
       "id": 20,
-      "title": "Bank",
-      "lat": 46.730995,
-      "lng": 12.281059,
-      "status": "good",
-      "last_inspection": "2026-04-20",
-      "notes": "",
-      "active": true,
-      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f7c93d62-f090-4ba3-af79-2a3257672338.jpg",
-      "created_at": "2026-04-20 16:13:35",
-      "updated_at": "2026-04-20 16:13:35",
-      "deleted_at": null
-    },
-    {
-      "id": 21,
-      "title": "Bank",
+      "title": "Sitzbank",
       "lat": 46.730913,
       "lng": 12.280954,
       "status": "good",
@@ -298,26 +284,12 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1cd9d835-e34a-48d0-9166-79afa57016ca.jpg",
       "created_at": "2026-04-20 16:14:37",
-      "updated_at": "2026-04-20 16:14:37",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     },
     {
-      "id": 22,
-      "title": "Bank",
-      "lat": 46.730913,
-      "lng": 12.280954,
-      "status": "good",
-      "last_inspection": "2026-04-20",
-      "notes": "",
-      "active": true,
-      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f43eed55-edf6-464a-af6e-af9b4929f546.jpg",
-      "created_at": "2026-04-20 16:14:38",
-      "updated_at": "2026-04-20 16:14:38",
-      "deleted_at": null
-    },
-    {
-      "id": 23,
-      "title": "Bank",
+      "id": 21,
+      "title": "Sitzbank",
       "lat": 46.733616,
       "lng": 12.279311,
       "status": "good",
@@ -326,7 +298,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/beca5db2-a637-4163-821f-8c9c6fab4c9f.jpg",
       "created_at": "2026-04-21 06:09:06",
-      "updated_at": "2026-04-21 09:03:06",
+      "updated_at": "2026-04-21 11:41:45",
       "deleted_at": null
     }
   ]
