@@ -1,6 +1,6 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-21T13:09:09.642Z",
+  "generated_at": "2026-04-21T13:09:13.701Z",
   "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 28,
@@ -360,15 +360,15 @@
     {
       "id": 26,
       "title": "Sitzbank",
-      "lat": 46.732953,
-      "lng": 12.283947,
+      "lat": 46.732957,
+      "lng": 12.283987,
       "status": "good",
       "last_inspection": "2026-04-21",
       "notes": "",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/88fd8a4a-5401-4b2a-b713-0bedc1ad85fb.jpg",
       "created_at": "2026-04-21 13:04:26",
-      "updated_at": "2026-04-21 13:04:26",
+      "updated_at": "2026-04-21 13:09:13",
       "deleted_at": null
     },
     {
@@ -1510,6 +1510,29 @@
         ]
       },
       "created_at": "2026-04-21 13:09:09"
+    },
+    {
+      "id": 31,
+      "bench_id": 26,
+      "action": "position_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": 46.732953,
+            "to": 46.732957
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": 12.283947,
+            "to": 12.283987
+          }
+        ]
+      },
+      "created_at": "2026-04-21 13:09:13"
     }
   ]
 }
