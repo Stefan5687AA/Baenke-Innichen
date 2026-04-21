@@ -58,7 +58,8 @@ const statusColors = {
   ok: '#f97316',
   to_check: '#f97316',
   repair: '#dc2626',
-  removed: '#9ca3af'
+  removed: '#9ca3af',
+  inactive: '#6b7280'
 };
 
 const statusLabels = {
@@ -66,7 +67,8 @@ const statusLabels = {
   ok: 'In Ordnung',
   to_check: 'Zu kontrollieren',
   repair: 'Reparatur n\u00F6tig',
-  removed: 'Entfernt'
+  removed: 'Entfernt',
+  inactive: 'Inaktiv'
 };
 
 const adminToggle = document.getElementById('adminMode');
@@ -111,7 +113,7 @@ const savePositionBtn = document.getElementById('savePositionBtn');
 const cancelPositionBtn = document.getElementById('cancelPositionBtn');
 const locationAccuracyNote = document.getElementById('locationAccuracyNote');
 
-const statusSortOrder = ['repair', 'ok', 'to_check', 'good', 'removed'];
+const statusSortOrder = ['repair', 'inactive', 'ok', 'to_check', 'good', 'removed'];
 const MAX_IMAGE_SIZE = 1600;
 const IMAGE_QUALITY = 0.72;
 const LOCATION_UNCLEAR_THRESHOLD_METERS = 30;
@@ -307,7 +309,7 @@ async function loadBenches() {
 
   hasShownLoadError = false;
   const benches = await response.json();
-  currentBenches = benches.filter((bench) => bench.active && bench.status !== 'removed');
+  currentBenches = benches.filter(isVisibleBench);
 
   for (const marker of markers.values()) {
     map.removeLayer(marker);
@@ -574,7 +576,8 @@ function clearTempMarker() {
 }
 
 function markerIcon(bench) {
-  const color = statusColors[bench.status] ?? '#6b7280';
+  const visualStatus = benchVisualStatus(bench);
+  const color = statusColors[visualStatus] ?? '#6b7280';
   const markerLabel = escapeHtml(String(bench.id));
   const overdueBadge = isBenchOverdue(bench)
     ? '<span class="bench-marker-badge" aria-hidden="true">!</span>'
@@ -584,7 +587,7 @@ function markerIcon(bench) {
     : '<span class="bench-marker-photo-missing" aria-hidden="true"></span>';
 
   return leaflet.divIcon({
-    className: `bench-marker-icon${bench.image_url ? '' : ' is-missing-photo'}`,
+    className: `bench-marker-icon${bench.image_url ? '' : ' is-missing-photo'}${bench.active ? '' : ' is-inactive'}`,
     html: `
       <span class="bench-marker-pin" style="background:${color}">
         <span class="bench-marker-number">${markerLabel}</span>
@@ -599,6 +602,7 @@ function markerIcon(bench) {
 }
 
 function popupHtml(bench) {
+  const visualStatus = benchVisualStatus(bench);
   const overdueHint = isBenchOverdue(bench)
     ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
     : '';
@@ -614,7 +618,7 @@ function popupHtml(bench) {
         <small>#${bench.id}</small>
       </div>
       <div class="popup-meta">
-        <span><b>Status:</b> ${statusLabels[bench.status] ?? escapeHtml(bench.status)}</span>
+        <span><b>Status:</b> ${statusLabels[visualStatus] ?? escapeHtml(visualStatus)}</span>
         <span><b>Letzte Kontrolle:</b> ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'}</span>
         <span><b>Aktiv:</b> ${bench.active ? 'Ja' : 'Nein'}</span>
       </div>
@@ -1411,7 +1415,8 @@ function renderBenchList() {
 
   benchList.innerHTML = benches.map((bench) => {
     const status = bench.status || 'removed';
-    const statusLabel = statusLabels[status] ?? status;
+    const visualStatus = benchVisualStatus(bench);
+    const statusLabel = statusLabels[visualStatus] ?? visualStatus;
     const hasPhoto = Boolean(bench.image_url);
     const overdueClass = isBenchOverdue(bench) ? ' is-overdue' : '';
 
@@ -1424,7 +1429,7 @@ function renderBenchList() {
         </span>
         <span class="bench-list-details">
           <span class="bench-list-status">
-            <span class="dot ${escapeHtml(status)}"></span>
+            <span class="dot ${escapeHtml(visualStatus)}"></span>
             ${escapeHtml(statusLabel)}
           </span>
           ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : '<span class="bench-list-photo is-missing">Ohne Foto</span>'}
@@ -1523,8 +1528,17 @@ function inspectionSortValue(bench) {
 }
 
 function statusSortValue(bench) {
-  const index = statusSortOrder.indexOf(bench.status);
+  const index = statusSortOrder.indexOf(benchVisualStatus(bench));
   return index === -1 ? statusSortOrder.length : index;
+}
+
+function isVisibleBench(bench) {
+  return !bench.deleted_at && bench.status !== 'removed';
+}
+
+function benchVisualStatus(bench) {
+  if (!bench.active) return 'inactive';
+  return bench.status || 'removed';
 }
 
 function formatInspectionDate(value) {
