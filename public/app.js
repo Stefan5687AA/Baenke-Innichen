@@ -74,6 +74,11 @@ const reloadBtn = document.getElementById('reloadBtn');
 const benchListBtn = document.getElementById('benchListBtn');
 const benchListPanel = document.getElementById('benchListPanel');
 const closeBenchListBtn = document.getElementById('closeBenchListBtn');
+const globalHistoryBtn = document.getElementById('globalHistoryBtn');
+const globalHistoryPanel = document.getElementById('globalHistoryPanel');
+const closeGlobalHistoryBtn = document.getElementById('closeGlobalHistoryBtn');
+const globalHistoryList = document.getElementById('globalHistoryList');
+const globalHistoryCount = document.getElementById('globalHistoryCount');
 const benchSortSelect = document.getElementById('benchSortSelect');
 const benchList = document.getElementById('benchList');
 const benchListCount = document.getElementById('benchListCount');
@@ -140,12 +145,23 @@ reloadBtn.addEventListener('click', () => {
 benchListBtn?.addEventListener('click', () => {
   benchListPanel.hidden = !benchListPanel.hidden;
   if (!benchListPanel.hidden) {
+    closeGlobalHistoryPanel();
     renderBenchList();
   }
 });
 closeBenchListBtn?.addEventListener('click', () => {
   benchListPanel.hidden = true;
 });
+globalHistoryBtn?.addEventListener('click', () => {
+  if (!globalHistoryPanel) return;
+
+  globalHistoryPanel.hidden = !globalHistoryPanel.hidden;
+  if (!globalHistoryPanel.hidden) {
+    benchListPanel.hidden = true;
+    loadGlobalHistory();
+  }
+});
+closeGlobalHistoryBtn?.addEventListener('click', closeGlobalHistoryPanel);
 benchSortSelect?.addEventListener('change', renderBenchList);
 fieldNamePreset?.addEventListener('change', syncCustomNameVisibility);
 adminToggle.addEventListener('change', () => {
@@ -659,6 +675,85 @@ async function loadBenchHistory(benchId) {
   renderBenchHistory(entries);
 }
 
+async function loadGlobalHistory() {
+  if (!globalHistoryPanel || !globalHistoryList) return;
+
+  globalHistoryPanel.hidden = false;
+  globalHistoryList.innerHTML = '<p class="history-empty">Gesamtverlauf wird geladen...</p>';
+  if (globalHistoryCount) globalHistoryCount.textContent = '';
+
+  let response;
+  try {
+    response = await fetch(apiUrl('/api/history?limit=160'));
+  } catch (error) {
+    globalHistoryList.innerHTML = `<p class="history-empty">Gesamtverlauf konnte nicht geladen werden: ${escapeHtml(error.message)}</p>`;
+    return;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    globalHistoryList.innerHTML = `<p class="history-empty">Gesamtverlauf konnte nicht geladen werden: ${escapeHtml(detail)}</p>`;
+    return;
+  }
+
+  const entries = await response.json();
+  renderGlobalHistory(entries);
+}
+
+function renderGlobalHistory(entries) {
+  if (!globalHistoryList) return;
+
+  if (globalHistoryCount) {
+    globalHistoryCount.textContent = `${entries.length} Eintr\u00E4ge`;
+  }
+
+  if (!entries.length) {
+    globalHistoryList.innerHTML = '<p class="history-empty">Noch keine Änderungen gespeichert.</p>';
+    return;
+  }
+
+  globalHistoryList.innerHTML = entries.map((entry) => {
+    const title = entry.bench_title || `Bank #${entry.bench_id}`;
+    const status = entry.bench_status || 'removed';
+
+    return `
+      <article class="global-history-item" data-bench-id="${entry.bench_id}">
+        <div class="global-history-top">
+          <span class="bench-list-number">#${entry.bench_id}</span>
+          <strong>${escapeHtml(title)}</strong>
+          <span class="dot ${escapeHtml(status)}"></span>
+        </div>
+        <div class="history-item-top">
+          <span>${escapeHtml(historyActionLabel(entry.action))}</span>
+          <span>${escapeHtml(formatHistoryDate(entry.created_at))}</span>
+        </div>
+        <small>${escapeHtml(entry.actor || 'Admin')}</small>
+        ${historyChangeSummary(entry)}
+      </article>
+    `;
+  }).join('');
+
+  globalHistoryList.querySelectorAll('.global-history-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      const benchId = Number(item.dataset.benchId);
+      const bench = currentBenches.find((candidate) => candidate.id === benchId);
+      const marker = markers.get(benchId);
+
+      if (!bench || !marker) return;
+
+      closeGlobalHistoryPanel();
+      map.panTo([bench.lat, bench.lng], { animate: true });
+
+      if (adminToggle.checked) {
+        openEditPanel(bench, marker);
+        return;
+      }
+
+      marker.openPopup();
+    });
+  });
+}
+
 function renderBenchHistory(entries) {
   if (!historySection || !historyList) return;
 
@@ -707,6 +802,10 @@ function clearBenchHistory() {
   if (historySection) historySection.hidden = true;
   if (historyList) historyList.innerHTML = '';
   if (historyCount) historyCount.textContent = '0';
+}
+
+function closeGlobalHistoryPanel() {
+  if (globalHistoryPanel) globalHistoryPanel.hidden = true;
 }
 
 async function uploadSelectedImageIfNeeded(file) {

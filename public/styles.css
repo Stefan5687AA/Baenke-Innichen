@@ -247,6 +247,24 @@ main {
   box-shadow: var(--shadow);
 }
 
+.global-history-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1110;
+  width: min(480px, calc(100% - 24px));
+  max-height: min(680px, calc(100% - 24px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.9rem;
+  padding: 0.95rem;
+  border: 1px solid rgba(213, 222, 232, 0.95);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  box-shadow: var(--shadow);
+}
+
 .bench-list-header {
   display: flex;
   align-items: center;
@@ -932,6 +950,51 @@ main {
   white-space: nowrap;
 }
 
+.global-history-list {
+  display: grid;
+  gap: 0.62rem;
+  overflow: auto;
+  padding-right: 0.1rem;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+}
+
+.global-history-item {
+  display: grid;
+  gap: 0.38rem;
+  padding: 0.72rem;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.05);
+  cursor: pointer;
+}
+
+.global-history-item:hover {
+  border-color: var(--line-strong);
+}
+
+.global-history-top {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.global-history-top strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.18;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.global-history-top .dot {
+  margin-right: 0;
+}
+
 @media (max-width: 960px) {
   body > .toolbar,
   body > main {
@@ -1076,6 +1139,15 @@ main {
   }
 
   .bench-list-panel {
+    top: 8px;
+    right: 8px;
+    width: calc(100% - 16px);
+    max-height: calc(100% - 16px);
+    gap: 0.72rem;
+    padding: 0.7rem;
+  }
+
+  .global-history-panel {
     top: 8px;
     right: 8px;
     width: calc(100% - 16px);

@@ -17,6 +17,7 @@
           <span class="sr-only">Admin-Modus</span>
         </label>
         <button id="benchListBtn" class="icon-button" type="button" aria-label="B&auml;nkeliste" title="B&auml;nkeliste">&#9776;</button>
+        <button id="globalHistoryBtn" class="icon-button" type="button" aria-label="Gesamtverlauf" title="Gesamtverlauf">&#8634;</button>
         <button id="reloadBtn" class="icon-button" type="button" aria-label="Neu laden" title="Neu laden">&#8635;</button>
       </div>
     </header>
@@ -52,6 +53,17 @@
             </select>
           </label>
           <div id="benchList" class="bench-list"></div>
+        </section>
+
+        <section id="globalHistoryPanel" class="global-history-panel" aria-live="polite" hidden>
+          <div class="bench-list-header">
+            <div class="bench-list-title">
+              <h2>Gesamtverlauf</h2>
+              <span id="globalHistoryCount" class="bench-list-count">0</span>
+            </div>
+            <button id="closeGlobalHistoryBtn" class="icon-button compact-square" type="button" aria-label="Gesamtverlauf schlie&szlig;en" title="Gesamtverlauf schlie&szlig;en">&times;</button>
+          </div>
+          <div id="globalHistoryList" class="global-history-list"></div>
         </section>
 
         <button id="addCurrentLocationBtn" class="map-add-button" type="button" hidden>Bank hinzuf&uuml;gen</button>

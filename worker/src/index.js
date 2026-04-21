@@ -44,6 +44,10 @@ export default {
         return await createManualGithubBackup(request, env);
       }
 
+      if (url.pathname === '/api/history' && request.method === 'GET') {
+        return await listAllBenchHistory(url, env);
+      }
+
       const benchHistoryMatch = url.pathname.match(/^\/api\/benches\/(\d+)\/history$/);
       if (benchHistoryMatch && request.method === 'GET') {
         return await listBenchHistory(Number(benchHistoryMatch[1]), env);
@@ -286,6 +290,33 @@ async function listBenchHistory(id, env) {
     LIMIT 80
   `)
     .bind(id)
+    .all();
+
+  return json(results.map(normalizeHistoryEntry));
+}
+
+async function listAllBenchHistory(url, env) {
+  const requestedLimit = Number(url.searchParams.get('limit') || 120);
+  const limit = Math.min(Math.max(Number.isFinite(requestedLimit) ? requestedLimit : 120, 1), 250);
+
+  const { results } = await env.DB.prepare(`
+    SELECT
+      bench_history.id,
+      bench_history.bench_id,
+      bench_history.action,
+      bench_history.actor,
+      bench_history.details,
+      bench_history.created_at,
+      benches.title AS bench_title,
+      benches.status AS bench_status,
+      benches.active AS bench_active,
+      benches.deleted_at AS bench_deleted_at
+    FROM bench_history
+    LEFT JOIN benches ON benches.id = bench_history.bench_id
+    ORDER BY bench_history.created_at DESC, bench_history.id DESC
+    LIMIT ?
+  `)
+    .bind(limit)
     .all();
 
   return json(results.map(normalizeHistoryEntry));
