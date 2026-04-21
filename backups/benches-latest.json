@@ -1,10 +1,10 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-21T13:13:20.835Z",
+  "generated_at": "2026-04-21T13:53:29.043Z",
   "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 29,
-  "active_count": 29,
+  "active_count": 28,
   "deleted_count": 0,
   "benches": [
     {
@@ -15,10 +15,10 @@
       "status": "repair",
       "last_inspection": "2026-04-20",
       "notes": "Ausgerissen und neben Straße hergelegt. Warscheinlich wegen Waldarbeiten.",
-      "active": true,
+      "active": false,
       "image_url": null,
       "created_at": "2026-04-20 09:13:48",
-      "updated_at": "2026-04-21 11:41:45",
+      "updated_at": "2026-04-21 13:53:28",
       "deleted_at": null
     },
     {
@@ -1640,6 +1640,23 @@
         ]
       },
       "created_at": "2026-04-21 13:13:20"
+    },
+    {
+      "id": 35,
+      "bench_id": 1,
+      "action": "updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          }
+        ]
+      },
+      "created_at": "2026-04-21 13:53:28"
     }
   ]
 }
