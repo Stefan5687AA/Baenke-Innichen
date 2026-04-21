@@ -82,6 +82,7 @@ const panel = document.getElementById('editorPanel');
 const panelTitle = document.getElementById('panelTitle');
 const benchForm = document.getElementById('benchForm');
 const cancelBtn = document.getElementById('cancelBtn');
+const fieldNamePreset = document.getElementById('fieldNamePreset');
 const fieldName = document.getElementById('fieldName');
 const fieldStatus = document.getElementById('fieldStatus');
 const fieldInspection = document.getElementById('fieldInspection');
@@ -128,7 +129,6 @@ let currentEditBench = null;
 let currentEditMarker = null;
 let activePositionEdit = null;
 let currentBenches = [];
-let benchDisplayNumbers = new Map();
 let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', () => {
@@ -144,6 +144,7 @@ closeBenchListBtn?.addEventListener('click', () => {
   benchListPanel.hidden = true;
 });
 benchSortSelect?.addEventListener('change', renderBenchList);
+fieldNamePreset?.addEventListener('change', syncCustomNameVisibility);
 adminToggle.addEventListener('change', () => {
   updateAdminControls();
   if (!adminToggle.checked) {
@@ -214,7 +215,7 @@ benchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
   const payload = {
-    title: fieldName.value.trim(),
+    title: getSelectedBenchTitle(),
     status: fieldStatus.value,
     last_inspection: fieldInspection.value || null,
     notes: fieldNotes.value.trim(),
@@ -288,7 +289,6 @@ async function loadBenches() {
   hasShownLoadError = false;
   const benches = await response.json();
   currentBenches = benches.filter((bench) => bench.active && bench.status !== 'removed');
-  benchDisplayNumbers = buildBenchDisplayNumbers(currentBenches);
 
   for (const marker of markers.values()) {
     map.removeLayer(marker);
@@ -493,7 +493,7 @@ function openAddPanel() {
   currentEditMarker = null;
   panelTitle.textContent = 'Bank hinzuf\u00FCgen';
   resetImageField();
-  fieldName.value = '';
+  setBenchTitleControls('Sitzbank');
   fieldStatus.value = 'good';
   fieldInspection.value = todayDateString();
   fieldNotes.value = '';
@@ -511,7 +511,7 @@ function openEditPanel(bench, marker) {
   currentEditMarker = marker;
   panelTitle.textContent = 'Bank bearbeiten';
   resetImageField(bench.image_url || null);
-  fieldName.value = bench.title || '';
+  setBenchTitleControls(bench.title || 'Sitzbank');
   fieldStatus.value = bench.status || 'good';
   fieldInspection.value = bench.last_inspection || '';
   fieldNotes.value = bench.notes || '';
@@ -553,17 +553,21 @@ function clearTempMarker() {
 
 function markerIcon(bench) {
   const color = statusColors[bench.status] ?? '#6b7280';
-  const markerLabel = escapeHtml(String(getBenchDisplayNumber(bench)));
+  const markerLabel = escapeHtml(String(bench.id));
   const overdueBadge = isBenchOverdue(bench)
     ? '<span class="bench-marker-badge" aria-hidden="true">!</span>'
     : '';
+  const noPhotoBadge = bench.image_url
+    ? ''
+    : '<span class="bench-marker-photo-missing" aria-hidden="true"></span>';
 
   return leaflet.divIcon({
-    className: 'bench-marker-icon',
+    className: `bench-marker-icon${bench.image_url ? '' : ' is-missing-photo'}`,
     html: `
       <span class="bench-marker-pin" style="background:${color}">
         <span class="bench-marker-number">${markerLabel}</span>
         ${overdueBadge}
+        ${noPhotoBadge}
       </span>
     `,
     iconSize: [30, 30],
@@ -573,7 +577,6 @@ function markerIcon(bench) {
 }
 
 function popupHtml(bench) {
-  const displayNumber = getBenchDisplayNumber(bench);
   const overdueHint = isBenchOverdue(bench)
     ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
     : '';
@@ -586,7 +589,7 @@ function popupHtml(bench) {
       ${imageHtml}
       <div class="popup-header">
         <strong>${escapeHtml(bench.title)}</strong>
-        <small>#${displayNumber} &middot; technische ID: ${bench.id}</small>
+        <small>#${bench.id}</small>
       </div>
       <div class="popup-meta">
         <span><b>Status:</b> ${statusLabels[bench.status] ?? escapeHtml(bench.status)}</span>
@@ -1230,14 +1233,13 @@ function renderBenchList() {
     const status = bench.status || 'removed';
     const statusLabel = statusLabels[status] ?? status;
     const hasPhoto = Boolean(bench.image_url);
-    const displayNumber = getBenchDisplayNumber(bench);
     const overdueClass = isBenchOverdue(bench) ? ' is-overdue' : '';
 
     return `
     <button class="bench-list-item${overdueClass}" type="button" data-bench-id="${bench.id}">
       <span class="bench-list-main">
         <span class="bench-list-topline">
-          <span class="bench-list-number">#${displayNumber}</span>
+          <span class="bench-list-number">#${bench.id}</span>
           <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
         </span>
         <span class="bench-list-details">
@@ -1280,34 +1282,40 @@ function renderBenchList() {
   });
 }
 
-function buildBenchDisplayNumbers(benches) {
-  return new Map(
-    [...benches]
-      .sort((a, b) => {
-        const createdDiff = dateSortValue(a.created_at) - dateSortValue(b.created_at);
-        if (createdDiff !== 0) return createdDiff;
-        return Number(a.id) - Number(b.id);
-      })
-      .map((bench, index) => [bench.id, index + 1])
-  );
-}
-
-function getBenchDisplayNumber(bench) {
-  return benchDisplayNumbers.get(bench.id) ?? bench.id;
-}
-
-function dateSortValue(value) {
-  if (!value) return 0;
-  const normalized = String(value).includes('T')
-    ? String(value)
-    : `${value.replace(' ', 'T')}Z`;
-  const time = new Date(normalized).getTime();
-  return Number.isFinite(time) ? time : 0;
-}
-
 function updateBenchListCount(count) {
   if (!benchListCount) return;
   benchListCount.textContent = `${count} ${count === 1 ? 'Bank' : 'B\u00E4nke'}`;
+}
+
+function getSelectedBenchTitle() {
+  if (fieldNamePreset?.value === 'custom') {
+    return fieldName.value.trim();
+  }
+
+  return fieldNamePreset?.value || fieldName.value.trim();
+}
+
+function setBenchTitleControls(title) {
+  const normalizedTitle = title || 'Sitzbank';
+  const presetValues = ['Sitzbank', 'Sitzbank + Tisch', 'Sitzbank ohne Lehne'];
+
+  if (fieldNamePreset && presetValues.includes(normalizedTitle)) {
+    fieldNamePreset.value = normalizedTitle;
+    fieldName.value = '';
+  } else {
+    if (fieldNamePreset) fieldNamePreset.value = 'custom';
+    fieldName.value = normalizedTitle;
+  }
+
+  syncCustomNameVisibility();
+}
+
+function syncCustomNameVisibility() {
+  if (!fieldName || !fieldNamePreset) return;
+
+  const isCustom = fieldNamePreset.value === 'custom';
+  fieldName.hidden = !isCustom;
+  fieldName.required = isCustom;
 }
 
 function sortedBenches(benches, sortMode) {

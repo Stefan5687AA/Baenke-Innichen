@@ -72,7 +72,13 @@
 
               <label>
                 Name
-                <input id="fieldName" name="name" type="text" required maxlength="200" />
+                <select id="fieldNamePreset" name="name_preset">
+                  <option value="Sitzbank">Sitzbank</option>
+                  <option value="Sitzbank + Tisch">Sitzbank + Tisch</option>
+                  <option value="Sitzbank ohne Lehne">Sitzbank ohne Lehne</option>
+                  <option value="custom">Eigene Bezeichnung</option>
+                </select>
+                <input id="fieldName" name="name" type="text" required maxlength="200" placeholder="Eigene Bezeichnung" hidden />
               </label>
 
               <label>
