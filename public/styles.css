@@ -424,7 +424,8 @@ main {
 }
 
 .bench-list-photo {
-  padding: 0.18rem 0.48rem;
+  order: -1;
+  padding: 0.16rem 0.42rem;
   color: #155e75;
   background: #ecfeff;
   border: 1px solid #bae6fd;
@@ -1180,6 +1181,11 @@ main {
   .bench-list-date,
   .bench-list-photo {
     min-height: 23px;
+  }
+
+  .bench-list-photo {
+    flex: 0 0 auto;
+    padding-inline: 0.38rem;
   }
 
   .legend h2 {

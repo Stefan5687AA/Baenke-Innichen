@@ -791,7 +791,7 @@ function historyChangeSummary(entry) {
       ${changes.slice(0, 5).map((change) => `
         <li>
           <span>${escapeHtml(change.label || change.field)}</span>
-          <b>${escapeHtml(formatHistoryValue(change.to))}</b>
+          <b>${escapeHtml(formatHistoryValue(change.to, change.field))}</b>
         </li>
       `).join('')}
     </ul>
@@ -1427,8 +1427,8 @@ function renderBenchList() {
             <span class="dot ${escapeHtml(status)}"></span>
             ${escapeHtml(statusLabel)}
           </span>
-          <span class="bench-list-date">Kontrolle: ${escapeHtml(formatInspectionDate(bench.last_inspection))}</span>
           ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : '<span class="bench-list-photo is-missing">Ohne Foto</span>'}
+          <span class="bench-list-date">Kontrolle: ${escapeHtml(formatInspectionDate(bench.last_inspection))}</span>
         </span>
       </span>
     </button>
@@ -1559,11 +1559,12 @@ function formatHistoryDate(value) {
   });
 }
 
-function formatHistoryValue(value) {
+function formatHistoryValue(value, field = null) {
   if (value === null || value === undefined || value === '') return '-';
   if (value === true) return 'Ja';
   if (value === false) return 'Nein';
   if (typeof value === 'string' && value.startsWith('http')) return 'Foto-Link';
+  if (field === 'status') return statusLabels[value] || String(value);
   return String(value);
 }
 
