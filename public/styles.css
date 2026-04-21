@@ -384,6 +384,24 @@ main {
   white-space: nowrap;
 }
 
+.location-accuracy-note {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 650;
+  max-width: min(220px, calc(100% - 92px));
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  border-radius: 999px;
+  background: rgba(239, 246, 255, 0.86);
+  color: #1e3a8a;
+  font-size: 0.74rem;
+  line-height: 1.15;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
 .dot {
   width: 0.68rem;
   height: 0.68rem;

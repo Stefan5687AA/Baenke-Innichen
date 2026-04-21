@@ -67,17 +67,26 @@ const positionEditTitle = document.getElementById('positionEditTitle');
 const positionEditHint = document.getElementById('positionEditHint');
 const savePositionBtn = document.getElementById('savePositionBtn');
 const cancelPositionBtn = document.getElementById('cancelPositionBtn');
+const locationAccuracyNote = document.getElementById('locationAccuracyNote');
 
 const statusSortOrder = ['repair', 'ok', 'to_check', 'good', 'removed'];
 const MAX_IMAGE_SIZE = 1600;
 const IMAGE_QUALITY = 0.72;
+const LOCATION_UNCLEAR_THRESHOLD_METERS = 30;
+const LOCATION_OPTIONS = {
+  enableHighAccuracy: true,
+  timeout: 20000,
+  maximumAge: 0
+};
 
 let editMode = null;
 let selectedBenchId = null;
 let selectedPoint = null;
 let tempMarker = null;
 let userLocationMarker = null;
+let userLocationAccuracyCircle = null;
 let userLocation = null;
+let userLocationWatchId = null;
 let selectedImageFile = null;
 let selectedImagePreviewUrl = null;
 let currentImageUrl = null;
@@ -835,40 +844,30 @@ async function ensureUserLocation() {
     return null;
   }
 
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const point = {
-          lat: Number(position.coords.latitude.toFixed(6)),
-          lng: Number(position.coords.longitude.toFixed(6))
-        };
-
-        userLocation = point;
-        renderUserLocation(point);
-        resolve(point);
-      },
-      () => {
-        resolve(null);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  });
+  startUserLocationWatch();
+  return requestUserLocationOnce();
 }
 
 function renderUserLocation(point) {
-  if (userLocationMarker) {
-    map.removeLayer(userLocationMarker);
+  const latLng = [point.lat, point.lng];
+
+  if (!userLocationMarker) {
+    userLocationMarker = leaflet.circleMarker(latLng, {
+      radius: 8,
+      color: '#1d4ed8',
+      fillColor: '#60a5fa',
+      fillOpacity: 0.9,
+      weight: 2
+    })
+      .addTo(map)
+      .bindPopup('Dein Standort');
+  } else {
+    userLocationMarker.setLatLng(latLng);
   }
 
-  userLocationMarker = leaflet.circleMarker([point.lat, point.lng], {
-    radius: 8,
-    color: '#1d4ed8',
-    fillColor: '#60a5fa',
-    fillOpacity: 0.9,
-    weight: 2
-  })
-    .addTo(map)
-    .bindPopup('Dein Standort');
+  renderUserLocationAccuracy(point);
+  updateLocationAccuracyNote(point);
+  userLocationMarker.bringToFront();
 }
 
 function setSelectedImage(file) {
@@ -926,9 +925,105 @@ function showImagePreview(element, url) {
 }
 
 function showUserLocation() {
-  ensureUserLocation().catch(() => {
-    // App continues normally if location is unavailable.
+  startUserLocationWatch();
+}
+
+function startUserLocationWatch() {
+  if (!navigator.geolocation) {
+    updateLocationAccuracyNote(null);
+    return;
+  }
+
+  if (userLocationWatchId !== null) return;
+
+  userLocationWatchId = navigator.geolocation.watchPosition(
+    (position) => {
+      const point = parseUserLocation(position);
+      userLocation = point;
+      renderUserLocation(point);
+    },
+    () => {
+      updateLocationAccuracyNote(null);
+    },
+    LOCATION_OPTIONS
+  );
+}
+
+function requestUserLocationOnce() {
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const point = parseUserLocation(position);
+        userLocation = point;
+        renderUserLocation(point);
+        resolve(point);
+      },
+      () => {
+        updateLocationAccuracyNote(null);
+        resolve(null);
+      },
+      LOCATION_OPTIONS
+    );
   });
+}
+
+function parseUserLocation(position) {
+  const accuracy = Number.isFinite(position.coords.accuracy)
+    ? Math.round(position.coords.accuracy)
+    : null;
+
+  return {
+    lat: Number(position.coords.latitude.toFixed(6)),
+    lng: Number(position.coords.longitude.toFixed(6)),
+    accuracy
+  };
+}
+
+function renderUserLocationAccuracy(point) {
+  if (!point || !point.accuracy) {
+    if (userLocationAccuracyCircle) {
+      map.removeLayer(userLocationAccuracyCircle);
+      userLocationAccuracyCircle = null;
+    }
+    return;
+  }
+
+  const latLng = [point.lat, point.lng];
+
+  if (!userLocationAccuracyCircle) {
+    userLocationAccuracyCircle = leaflet.circle(latLng, {
+      radius: point.accuracy,
+      stroke: true,
+      color: '#2563eb',
+      weight: 1,
+      opacity: 0.32,
+      fillColor: '#93c5fd',
+      fillOpacity: 0.16,
+      interactive: false
+    }).addTo(map);
+    return;
+  }
+
+  userLocationAccuracyCircle.setLatLng(latLng);
+  userLocationAccuracyCircle.setRadius(point.accuracy);
+}
+
+function updateLocationAccuracyNote(point) {
+  if (!locationAccuracyNote) return;
+
+  if (!point) {
+    locationAccuracyNote.hidden = true;
+    return;
+  }
+
+  const isUnclear = !point.accuracy || point.accuracy > LOCATION_UNCLEAR_THRESHOLD_METERS;
+  locationAccuracyNote.hidden = !isUnclear;
+
+  if (!isUnclear) return;
+
+  locationAccuracyNote.textContent = point.accuracy
+    ? `Standort ungenau +/- ${point.accuracy} m`
+    : 'Standort ungenau';
 }
 
 function getMarkerState(benchId) {
