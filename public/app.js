@@ -1,5 +1,6 @@
 const INNICHEN_CENTER = [46.7326, 12.2817];
 const API_BASE_URL = resolveApiBaseUrl();
+const MUNICIPALITY_GEOJSON_URL = './innichen_gemeindegebiet_exakt.geojson';
 const OVERDUE_MONTHS = 10;
 const mapElement = document.getElementById('map');
 const leaflet = window.L;
@@ -14,6 +15,8 @@ if (!leaflet) {
 }
 
 const map = leaflet.map(mapElement).setView(INNICHEN_CENTER, 14);
+createMapPane('municipalityMaskPane', 350);
+createMapPane('municipalityBoundaryPane', 360);
 leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
@@ -21,6 +24,8 @@ leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 const markers = new Map();
 const markerStates = new Map();
+let municipalityMaskLayer = null;
+let municipalityBoundaryLayer = null;
 const statusColors = {
   good: '#16a34a',
   ok: '#f97316',
@@ -265,6 +270,114 @@ async function loadBenches() {
   }
 
   renderBenchList();
+}
+
+async function loadMunicipalityBoundary() {
+  let response;
+  try {
+    response = await fetch(MUNICIPALITY_GEOJSON_URL);
+  } catch (error) {
+    console.error('Municipality boundary loading failed:', error);
+    return;
+  }
+
+  if (!response.ok) {
+    console.error(`Municipality boundary loading failed: HTTP ${response.status}`);
+    return;
+  }
+
+  const geojson = await response.json();
+  const feature = findInnichenMunicipalityFeature(geojson);
+
+  if (!feature) {
+    console.error('Innichen municipality feature not found in source GeoJSON.');
+    return;
+  }
+
+  renderMunicipalityBoundary(feature);
+}
+
+function findInnichenMunicipalityFeature(geojson) {
+  const features = geojson?.type === 'FeatureCollection'
+    ? geojson.features
+    : [geojson];
+
+  return features.find(isInnichenMunicipalityFeature) ?? null;
+}
+
+function isInnichenMunicipalityFeature(feature) {
+  const properties = feature?.properties ?? {};
+  return properties.name_de === 'Innichen'
+    && properties.name_it === 'S.Candido'
+    && Number(properties.istat_code) === 21077;
+}
+
+function renderMunicipalityBoundary(feature) {
+  if (municipalityMaskLayer) {
+    map.removeLayer(municipalityMaskLayer);
+  }
+
+  if (municipalityBoundaryLayer) {
+    map.removeLayer(municipalityBoundaryLayer);
+  }
+
+  municipalityMaskLayer = createMunicipalityMaskLayer(feature.geometry);
+  municipalityMaskLayer?.addTo(map);
+
+  municipalityBoundaryLayer = leaflet.geoJSON(feature, {
+    pane: 'municipalityBoundaryPane',
+    interactive: false,
+    style: {
+      color: '#047857',
+      weight: 3,
+      opacity: 0.95,
+      fillColor: '#22c55e',
+      fillOpacity: 0.08
+    }
+  }).addTo(map);
+}
+
+function createMunicipalityMaskLayer(geometry) {
+  const exteriorRings = getMunicipalityExteriorRings(geometry);
+  if (!exteriorRings.length) return null;
+
+  const webMercatorWorldRing = [
+    [-85.0511, -180],
+    [-85.0511, 180],
+    [85.0511, 180],
+    [85.0511, -180],
+    [-85.0511, -180]
+  ];
+
+  return leaflet.polygon([webMercatorWorldRing, ...exteriorRings], {
+    pane: 'municipalityMaskPane',
+    interactive: false,
+    stroke: false,
+    fillColor: '#0f172a',
+    fillOpacity: 0.18,
+    fillRule: 'evenodd'
+  });
+}
+
+function getMunicipalityExteriorRings(geometry) {
+  if (!geometry) return [];
+
+  if (geometry.type === 'Polygon') {
+    return geometry.coordinates.slice(0, 1).map(geoRingToLatLngRing);
+  }
+
+  if (geometry.type === 'MultiPolygon') {
+    return geometry.coordinates
+      .map((polygon) => polygon[0])
+      .filter(Boolean)
+      .map(geoRingToLatLngRing);
+  }
+
+  return [];
+}
+
+function geoRingToLatLngRing(ring) {
+  return ring.map(([lng, lat]) => [lat, lng]);
 }
 
 function addBenchMarker(bench) {
@@ -1079,7 +1192,6 @@ function renderBenchList() {
       <span class="bench-list-main">
         <span class="bench-list-topline">
           <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
-          <span class="bench-list-id">#${bench.id}</span>
         </span>
         <span class="bench-list-details">
           <span class="bench-list-status">
@@ -1296,6 +1408,13 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
+function createMapPane(name, zIndex) {
+  const pane = map.createPane(name);
+  pane.style.zIndex = String(zIndex);
+  pane.style.pointerEvents = 'none';
+  return pane;
+}
+
 function apiUrl(path) {
   return `${API_BASE_URL}${path}`;
 }
@@ -1320,6 +1439,7 @@ function resolveApiBaseUrl() {
   return 'https://baenke-innichen.stefan-e58.workers.dev';
 }
 
+loadMunicipalityBoundary();
 loadBenches();
 showUserLocation();
 updateAdminControls();

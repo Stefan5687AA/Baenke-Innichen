@@ -334,10 +334,8 @@ main {
 }
 
 .bench-list-topline {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: block;
   align-items: start;
-  gap: 0.55rem;
   min-width: 0;
 }
 
@@ -348,13 +346,6 @@ main {
   color: var(--text);
   font-size: 0.98rem;
   line-height: 1.18;
-}
-
-.bench-list-id {
-  color: var(--text-soft);
-  font-size: 0.74rem;
-  line-height: 1.2;
-  white-space: nowrap;
 }
 
 .bench-list-details {
@@ -946,10 +937,6 @@ main {
     min-height: 82px;
     padding: 0.72rem;
     border-radius: 13px;
-  }
-
-  .bench-list-topline {
-    gap: 0.45rem;
   }
 
   .bench-list-topline strong {
