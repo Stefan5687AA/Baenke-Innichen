@@ -44,6 +44,7 @@ const benchListPanel = document.getElementById('benchListPanel');
 const closeBenchListBtn = document.getElementById('closeBenchListBtn');
 const benchSortSelect = document.getElementById('benchSortSelect');
 const benchList = document.getElementById('benchList');
+const benchListCount = document.getElementById('benchListCount');
 const addCurrentLocationBtn = document.getElementById('addCurrentLocationBtn');
 const panel = document.getElementById('editorPanel');
 const panelTitle = document.getElementById('panelTitle');
@@ -1060,24 +1061,38 @@ function renderBenchList() {
   if (!benchList || !benchSortSelect) return;
 
   const benches = sortedBenches(currentBenches, benchSortSelect.value);
+  updateBenchListCount(benches.length);
 
   if (!benches.length) {
     benchList.innerHTML = '<p class="bench-list-empty">Keine B&auml;nke gefunden.</p>';
     return;
   }
 
-  benchList.innerHTML = benches.map((bench) => `
-    <button class="bench-list-item" type="button" data-bench-id="${bench.id}">
-      <span class="dot ${escapeHtml(bench.status || 'removed')}"></span>
+  benchList.innerHTML = benches.map((bench) => {
+    const status = bench.status || 'removed';
+    const statusLabel = statusLabels[status] ?? status;
+    const hasPhoto = Boolean(bench.image_url);
+    const overdueClass = isBenchOverdue(bench) ? ' is-overdue' : '';
+
+    return `
+    <button class="bench-list-item${overdueClass}" type="button" data-bench-id="${bench.id}">
       <span class="bench-list-main">
-        <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
-        <small>
-          <span>${statusLabels[bench.status] ?? escapeHtml(bench.status || '-')}</span>
-          <span>Kontrolle: ${bench.last_inspection ? escapeHtml(bench.last_inspection) : 'Keine Angabe'}</span>
-        </small>
+        <span class="bench-list-topline">
+          <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
+          <span class="bench-list-id">#${bench.id}</span>
+        </span>
+        <span class="bench-list-details">
+          <span class="bench-list-status">
+            <span class="dot ${escapeHtml(status)}"></span>
+            ${escapeHtml(statusLabel)}
+          </span>
+          <span class="bench-list-date">Kontrolle: ${escapeHtml(formatInspectionDate(bench.last_inspection))}</span>
+          ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : ''}
+        </span>
       </span>
     </button>
-  `).join('');
+  `;
+  }).join('');
 
   benchList.querySelectorAll('.bench-list-item').forEach((item) => {
     item.addEventListener('click', () => {
@@ -1104,6 +1119,11 @@ function renderBenchList() {
       }
     });
   });
+}
+
+function updateBenchListCount(count) {
+  if (!benchListCount) return;
+  benchListCount.textContent = `${count} ${count === 1 ? 'Bank' : 'B\u00E4nke'}`;
 }
 
 function sortedBenches(benches, sortMode) {
@@ -1133,6 +1153,19 @@ function inspectionSortValue(bench) {
 function statusSortValue(bench) {
   const index = statusSortOrder.indexOf(bench.status);
   return index === -1 ? statusSortOrder.length : index;
+}
+
+function formatInspectionDate(value) {
+  if (!value) return 'Keine Angabe';
+
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 }
 
 function disableMarkerDragging(marker) {
