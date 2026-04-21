@@ -9,7 +9,7 @@ class HttpError extends Error {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
@@ -29,7 +29,9 @@ export default {
       }
 
       if (url.pathname === '/api/benches' && request.method === 'POST') {
-        return await createBench(request, env);
+        const response = await createBench(request, env);
+        queueGithubBackup(ctx, env, 'create');
+        return response;
       }
 
       if (url.pathname === '/api/upload' && request.method === 'POST') {
@@ -38,11 +40,15 @@ export default {
 
       const benchIdMatch = url.pathname.match(/^\/api\/benches\/(\d+)$/);
       if (benchIdMatch && request.method === 'PUT') {
-        return await updateBench(Number(benchIdMatch[1]), request, env);
+        const response = await updateBench(Number(benchIdMatch[1]), request, env);
+        queueGithubBackup(ctx, env, 'update');
+        return response;
       }
 
       if (benchIdMatch && request.method === 'DELETE') {
-        return await deleteBench(Number(benchIdMatch[1]), env);
+        const response = await deleteBench(Number(benchIdMatch[1]), env);
+        queueGithubBackup(ctx, env, 'delete');
+        return response;
       }
 
       return json({ error: 'Not found' }, 404);
@@ -66,6 +72,10 @@ export default {
         500
       );
     }
+  },
+
+  async scheduled(controller, env, ctx) {
+    queueGithubBackup(ctx, env, `scheduled:${controller.cron}`);
   }
 };
 
@@ -74,14 +84,14 @@ async function listBenches(url, env) {
 
   const query = includeInactive
     ? `
-      SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
+      SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
       FROM benches
       ORDER BY id DESC
     `
     : `
-      SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
+      SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
       FROM benches
-      WHERE active = 1
+      WHERE active = 1 AND deleted_at IS NULL
       ORDER BY id DESC
     `;
 
@@ -120,7 +130,7 @@ async function createBench(request, env) {
   const result = await runStatement(stmt, preparedPayload.status);
 
   const created = await env.DB.prepare(`
-    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
     FROM benches
     WHERE id = ?
   `)
@@ -132,7 +142,7 @@ async function createBench(request, env) {
 
 async function updateBench(id, request, env) {
   const existing = await env.DB.prepare(`
-    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
     FROM benches
     WHERE id = ?
   `)
@@ -147,6 +157,10 @@ async function updateBench(id, request, env) {
   const payload = validatePayload(body, false);
   const preparedPayload = applyBusinessRules(payload, false);
   const hasImageUrlUpdate = typeof preparedPayload.image_url !== 'undefined';
+  const shouldMarkDeleted = preparedPayload.status === 'removed';
+  const shouldRestoreDeleted = preparedPayload.status
+    && preparedPayload.status !== 'removed'
+    && preparedPayload.active === true;
 
   const stmt = env.DB.prepare(`
     UPDATE benches
@@ -159,6 +173,11 @@ async function updateBench(id, request, env) {
       notes = COALESCE(?, notes),
       active = COALESCE(?, active),
       image_url = CASE WHEN ? THEN ? ELSE image_url END,
+      deleted_at = CASE
+        WHEN ? THEN COALESCE(deleted_at, CURRENT_TIMESTAMP)
+        WHEN ? THEN NULL
+        ELSE deleted_at
+      END,
       updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `).bind(
@@ -173,6 +192,8 @@ async function updateBench(id, request, env) {
       : null,
     hasImageUrlUpdate ? 1 : 0,
     hasImageUrlUpdate ? preparedPayload.image_url : null,
+    shouldMarkDeleted ? 1 : 0,
+    shouldRestoreDeleted ? 1 : 0,
     id
   );
 
@@ -183,7 +204,7 @@ async function updateBench(id, request, env) {
   }
 
   const updated = await env.DB.prepare(`
-    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
     FROM benches
     WHERE id = ?
   `)
@@ -195,7 +216,12 @@ async function updateBench(id, request, env) {
 
 async function deleteBench(id, env) {
   const result = await env.DB.prepare(`
-    DELETE FROM benches
+    UPDATE benches
+    SET
+      status = 'removed',
+      active = 0,
+      deleted_at = COALESCE(deleted_at, CURRENT_TIMESTAMP),
+      updated_at = CURRENT_TIMESTAMP
     WHERE id = ?
   `)
     .bind(id)
@@ -205,7 +231,15 @@ async function deleteBench(id, env) {
     return json({ error: 'Bench not found' }, 404);
   }
 
-  return json({ ok: true });
+  const deleted = await env.DB.prepare(`
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
+    FROM benches
+    WHERE id = ?
+  `)
+    .bind(id)
+    .first();
+
+  return json({ ok: true, bench: normalizeBench(deleted) });
 }
 
 async function uploadImage(request, env) {
@@ -234,6 +268,136 @@ async function uploadImage(request, env) {
 
 const publicUrl = `https://pub-483266975888471db0d51fff35148e9d.r2.dev/${key}`;
   return json({ url: publicUrl, key }, 201);
+}
+
+function queueGithubBackup(ctx, env, reason) {
+  if (!ctx?.waitUntil) return;
+
+  ctx.waitUntil(
+    createGithubBackup(env, reason).catch((error) => {
+      console.error('GitHub backup failed:', error);
+    })
+  );
+}
+
+async function createGithubBackup(env, reason) {
+  if (!env.GITHUB_BACKUP_TOKEN) {
+    console.warn('GitHub backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
+    return;
+  }
+
+  const backup = await buildBackupPayload(env, reason);
+  const content = JSON.stringify(backup, null, 2);
+  const today = todayIsoDate();
+  const directory = String(env.GITHUB_BACKUP_DIRECTORY || 'backups').replace(/^\/+|\/+$/g, '');
+
+  await putGithubFile(
+    env,
+    `${directory}/benches-latest.json`,
+    content,
+    `Update benches backup (${reason})`
+  );
+
+  if (String(reason).startsWith('scheduled:')) {
+    await putGithubFile(
+      env,
+      `${directory}/benches-${today}.json`,
+      content,
+      `Update benches backup ${today}`
+    );
+  }
+}
+
+async function buildBackupPayload(env, reason) {
+  const { results } = await env.DB.prepare(`
+    SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
+    FROM benches
+    ORDER BY id ASC
+  `).all();
+
+  const benches = results.map(normalizeBench);
+
+  return {
+    app: 'Baenke-Innichen',
+    generated_at: new Date().toISOString(),
+    reason,
+    source: 'cloudflare-d1:innichen-benches',
+    count: benches.length,
+    active_count: benches.filter((bench) => bench.active && !bench.deleted_at).length,
+    deleted_count: benches.filter((bench) => Boolean(bench.deleted_at)).length,
+    benches
+  };
+}
+
+async function putGithubFile(env, path, content, message) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const branch = env.GITHUB_BACKUP_BRANCH || 'main';
+
+  if (!owner || !repo) {
+    throw new Error('GitHub backup repository is not configured.');
+  }
+
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`;
+  const currentSha = await getGithubFileSha(env, url, branch);
+  const body = {
+    message,
+    branch,
+    content: base64Encode(content)
+  };
+
+  if (currentSha) {
+    body.sha = currentSha;
+  }
+
+  const response = await fetch(url, {
+    method: 'PUT',
+    headers: githubHeaders(env),
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub backup write failed: HTTP ${response.status} ${await response.text()}`);
+  }
+}
+
+async function getGithubFileSha(env, url, branch) {
+  const response = await fetch(`${url}?ref=${encodeURIComponent(branch)}`, {
+    headers: githubHeaders(env)
+  });
+
+  if (response.status === 404) {
+    return null;
+  }
+
+  if (!response.ok) {
+    throw new Error(`GitHub backup lookup failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.sha ?? null;
+}
+
+function githubHeaders(env) {
+  return {
+    Authorization: `Bearer ${env.GITHUB_BACKUP_TOKEN}`,
+    Accept: 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'baenke-innichen-worker',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+function base64Encode(value) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary);
 }
 
 async function readJsonBody(request) {

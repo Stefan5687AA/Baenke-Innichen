@@ -9,8 +9,10 @@ CREATE TABLE benches (
   last_inspection TEXT,
   notes TEXT,
   active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
+  image_url TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TEXT
 );
 
 CREATE INDEX idx_benches_active ON benches(active);

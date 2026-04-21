@@ -17,10 +17,32 @@ if (!leaflet) {
 const map = leaflet.map(mapElement).setView(INNICHEN_CENTER, 14);
 createMapPane('municipalityMaskPane', 350);
 createMapPane('municipalityBoundaryPane', 360);
-leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+const municipalityRenderer = leaflet.canvas({
+  padding: 1
+});
+const standardTileLayer = leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
+});
+const terrainTileLayer = leaflet.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  maxNativeZoom: 17,
+  attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap (CC-BY-SA)'
+});
+
+standardTileLayer.addTo(map);
+leaflet.control.layers(
+  {
+    Standard: standardTileLayer,
+    Gelände: terrainTileLayer
+  },
+  {},
+  {
+    position: 'topright',
+    collapsed: true
+  }
+).addTo(map);
 
 const markers = new Map();
 const markerStates = new Map();
@@ -180,6 +202,8 @@ cancelPositionBtn?.addEventListener('click', () => {
   cancelActivePositionEdit({ reopenPanel: true });
 });
 
+map.on('zoomstart zoomend moveend resize baselayerchange', refreshMunicipalityLayers);
+
 benchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
 
@@ -326,6 +350,7 @@ function renderMunicipalityBoundary(feature) {
 
   municipalityBoundaryLayer = leaflet.geoJSON(feature, {
     pane: 'municipalityBoundaryPane',
+    renderer: municipalityRenderer,
     interactive: false,
     style: {
       color: '#047857',
@@ -335,6 +360,8 @@ function renderMunicipalityBoundary(feature) {
       fillOpacity: 0.08
     }
   }).addTo(map);
+
+  refreshMunicipalityLayers();
 }
 
 function createMunicipalityMaskLayer(geometry) {
@@ -351,11 +378,21 @@ function createMunicipalityMaskLayer(geometry) {
 
   return leaflet.polygon([webMercatorWorldRing, ...exteriorRings], {
     pane: 'municipalityMaskPane',
+    renderer: municipalityRenderer,
     interactive: false,
     stroke: false,
     fillColor: '#0f172a',
     fillOpacity: 0.18,
     fillRule: 'evenodd'
+  });
+}
+
+function refreshMunicipalityLayers() {
+  window.requestAnimationFrame(() => {
+    municipalityMaskLayer?.redraw?.();
+    municipalityBoundaryLayer?.eachLayer((layer) => layer.redraw?.());
+    municipalityMaskLayer?.bringToBack?.();
+    municipalityBoundaryLayer?.bringToFront?.();
   });
 }
 
@@ -511,6 +548,7 @@ function clearTempMarker() {
 
 function markerIcon(bench) {
   const color = statusColors[bench.status] ?? '#6b7280';
+  const markerLabel = escapeHtml(String(bench.id));
   const overdueBadge = isBenchOverdue(bench)
     ? '<span class="bench-marker-badge" aria-hidden="true">!</span>'
     : '';
@@ -519,12 +557,13 @@ function markerIcon(bench) {
     className: 'bench-marker-icon',
     html: `
       <span class="bench-marker-pin" style="background:${color}">
+        <span class="bench-marker-number">${markerLabel}</span>
         ${overdueBadge}
       </span>
     `,
-    iconSize: [22, 22],
-    iconAnchor: [11, 11],
-    popupAnchor: [0, -12]
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -16]
   });
 }
 
@@ -701,7 +740,7 @@ async function readErrorMessage(response) {
 }
 
 async function archiveBench(benchId) {
-  if (!confirm('Bank wirklich dauerhaft l\u00F6schen?')) return;
+  if (!confirm('Bank wirklich l\u00F6schen? Sie bleibt im Backup und kann technisch wiederhergestellt werden.')) return;
 
   await deleteBench(benchId);
 }
