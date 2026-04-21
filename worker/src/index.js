@@ -38,6 +38,10 @@ export default {
         return await uploadImage(request, env);
       }
 
+      if (url.pathname === '/api/backups/github' && request.method === 'POST') {
+        return await createManualGithubBackup(request, env);
+      }
+
       const benchIdMatch = url.pathname.match(/^\/api\/benches\/(\d+)$/);
       if (benchIdMatch && request.method === 'PUT') {
         const response = await updateBench(Number(benchIdMatch[1]), request, env);
@@ -283,7 +287,10 @@ function queueGithubBackup(ctx, env, reason) {
 async function createGithubBackup(env, reason) {
   if (!env.GITHUB_BACKUP_TOKEN) {
     console.warn('GitHub backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
-    return;
+    return {
+      skipped: true,
+      reason: 'missing-token'
+    };
   }
 
   const backup = await buildBackupPayload(env, reason);
@@ -291,21 +298,44 @@ async function createGithubBackup(env, reason) {
   const today = todayIsoDate();
   const directory = String(env.GITHUB_BACKUP_DIRECTORY || 'backups').replace(/^\/+|\/+$/g, '');
 
-  await putGithubFile(
+  const latest = await putGithubFile(
     env,
     `${directory}/benches-latest.json`,
     content,
     `Update benches backup (${reason})`
   );
+  const written = [latest];
 
   if (String(reason).startsWith('scheduled:')) {
-    await putGithubFile(
+    const dated = await putGithubFile(
       env,
       `${directory}/benches-${today}.json`,
       content,
       `Update benches backup ${today}`
     );
+    written.push(dated);
   }
+
+  return {
+    count: backup.count,
+    active_count: backup.active_count,
+    deleted_count: backup.deleted_count,
+    written
+  };
+}
+
+async function createManualGithubBackup(request, env) {
+  const body = await readJsonBody(request);
+
+  if (body?.confirm !== 'backup') {
+    throw new HttpError(400, 'Backup confirmation is required');
+  }
+
+  const result = await createGithubBackup(env, 'manual');
+  return json({
+    ok: true,
+    ...result
+  });
 }
 
 async function buildBackupPayload(env, reason) {
@@ -360,6 +390,13 @@ async function putGithubFile(env, path, content, message) {
   if (!response.ok) {
     throw new Error(`GitHub backup write failed: HTTP ${response.status} ${await response.text()}`);
   }
+
+  const data = await response.json();
+  return {
+    path,
+    commit: data.commit?.sha ?? null,
+    url: data.content?.html_url ?? null
+  };
 }
 
 async function getGithubFileSha(env, url, branch) {
