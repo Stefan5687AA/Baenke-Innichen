@@ -1,7 +1,7 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-21T11:51:47.338Z",
-  "reason": "manual",
+  "generated_at": "2026-04-21T12:00:40.357Z",
+  "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 21,
   "active_count": 21,
@@ -65,7 +65,7 @@
     },
     {
       "id": 5,
-      "title": "Sitzbank",
+      "title": "Sitzbank Gewalt gegen Frauen",
       "lat": 46.732891,
       "lng": 12.281827,
       "status": "good",
@@ -74,7 +74,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/19e9e19a-ea53-457e-995c-fd5a6373bcfc.jpg",
       "created_at": "2026-04-20 09:50:30",
-      "updated_at": "2026-04-21 11:41:45",
+      "updated_at": "2026-04-21 12:00:40",
       "deleted_at": null
     },
     {
