@@ -35,7 +35,9 @@ export default {
       }
 
       if (url.pathname === '/api/upload' && request.method === 'POST') {
-        return await uploadImage(request, env);
+        const response = await uploadImage(request, env);
+        queueGithubBackup(ctx, env, 'upload');
+        return response;
       }
 
       if (url.pathname === '/api/backups/github' && request.method === 'POST') {
@@ -370,33 +372,43 @@ async function putGithubFile(env, path, content, message) {
 
   const encodedPath = path.split('/').map(encodeURIComponent).join('/');
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`;
-  const currentSha = await getGithubFileSha(env, url, branch);
-  const body = {
-    message,
-    branch,
-    content: base64Encode(content)
-  };
 
-  if (currentSha) {
-    body.sha = currentSha;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const currentSha = await getGithubFileSha(env, url, branch);
+    const body = {
+      message,
+      branch,
+      content: base64Encode(content)
+    };
+
+    if (currentSha) {
+      body.sha = currentSha;
+    }
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: githubHeaders(env),
+      body: JSON.stringify(body)
+    });
+
+    if (response.status === 409 && attempt < 2) {
+      await sleep(250 * (attempt + 1));
+      continue;
+    }
+
+    if (!response.ok) {
+      throw new Error(`GitHub backup write failed: HTTP ${response.status} ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    return {
+      path,
+      commit: data.commit?.sha ?? null,
+      url: data.content?.html_url ?? null
+    };
   }
 
-  const response = await fetch(url, {
-    method: 'PUT',
-    headers: githubHeaders(env),
-    body: JSON.stringify(body)
-  });
-
-  if (!response.ok) {
-    throw new Error(`GitHub backup write failed: HTTP ${response.status} ${await response.text()}`);
-  }
-
-  const data = await response.json();
-  return {
-    path,
-    commit: data.commit?.sha ?? null,
-    url: data.content?.html_url ?? null
-  };
+  throw new Error('GitHub backup write failed after retries.');
 }
 
 async function getGithubFileSha(env, url, branch) {
@@ -435,6 +447,10 @@ function base64Encode(value) {
   }
 
   return btoa(binary);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function readJsonBody(request) {

@@ -334,9 +334,26 @@ main {
 }
 
 .bench-list-topline {
-  display: block;
-  align-items: start;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
   min-width: 0;
+}
+
+.bench-list-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  min-height: 1.45rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .bench-list-topline strong {
@@ -393,6 +410,12 @@ main {
   color: #155e75;
   background: #ecfeff;
   border: 1px solid #bae6fd;
+}
+
+.bench-list-photo.is-missing {
+  color: #64748b;
+  background: #f8fafc;
+  border-color: #e2e8f0;
 }
 
 .bench-list-empty {
@@ -520,6 +543,12 @@ main {
   text-align: center;
   text-shadow: 0 1px 2px rgba(15, 23, 42, 0.28);
   user-select: none;
+}
+
+.leaflet-municipalityMask-pane,
+.leaflet-municipalityBoundary-pane {
+  pointer-events: none;
+  will-change: transform;
 }
 
 .bench-marker-badge {

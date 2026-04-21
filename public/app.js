@@ -18,11 +18,11 @@ const map = leaflet.map(mapElement).setView(INNICHEN_CENTER, 14);
 createMapPane('municipalityMaskPane', 350);
 createMapPane('municipalityBoundaryPane', 360);
 
-const municipalityMaskRenderer = leaflet.canvas({
+const municipalityMaskRenderer = leaflet.svg({
   padding: 1,
   pane: 'municipalityMaskPane'
 });
-const municipalityBoundaryRenderer = leaflet.canvas({
+const municipalityBoundaryRenderer = leaflet.svg({
   padding: 1,
   pane: 'municipalityBoundaryPane'
 });
@@ -128,6 +128,7 @@ let currentEditBench = null;
 let currentEditMarker = null;
 let activePositionEdit = null;
 let currentBenches = [];
+let benchDisplayNumbers = new Map();
 let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', () => {
@@ -207,7 +208,7 @@ cancelPositionBtn?.addEventListener('click', () => {
   cancelActivePositionEdit({ reopenPanel: true });
 });
 
-map.on('zoomstart zoomend moveend resize baselayerchange', refreshMunicipalityLayers);
+map.on('moveend resize baselayerchange', refreshMunicipalityLayers);
 
 benchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -287,6 +288,7 @@ async function loadBenches() {
   hasShownLoadError = false;
   const benches = await response.json();
   currentBenches = benches.filter((bench) => bench.active && bench.status !== 'removed');
+  benchDisplayNumbers = buildBenchDisplayNumbers(currentBenches);
 
   for (const marker of markers.values()) {
     map.removeLayer(marker);
@@ -394,8 +396,6 @@ function createMunicipalityMaskLayer(geometry) {
 
 function refreshMunicipalityLayers() {
   window.requestAnimationFrame(() => {
-    municipalityMaskLayer?.redraw?.();
-    municipalityBoundaryLayer?.eachLayer((layer) => layer.redraw?.());
     municipalityMaskLayer?.bringToBack?.();
     municipalityBoundaryLayer?.bringToFront?.();
   });
@@ -553,7 +553,7 @@ function clearTempMarker() {
 
 function markerIcon(bench) {
   const color = statusColors[bench.status] ?? '#6b7280';
-  const markerLabel = escapeHtml(String(bench.id));
+  const markerLabel = escapeHtml(String(getBenchDisplayNumber(bench)));
   const overdueBadge = isBenchOverdue(bench)
     ? '<span class="bench-marker-badge" aria-hidden="true">!</span>'
     : '';
@@ -573,6 +573,7 @@ function markerIcon(bench) {
 }
 
 function popupHtml(bench) {
+  const displayNumber = getBenchDisplayNumber(bench);
   const overdueHint = isBenchOverdue(bench)
     ? '<div class="popup-overdue">! Kontrolle seit mindestens 10 Monaten f\u00E4llig</div>'
     : '';
@@ -585,7 +586,7 @@ function popupHtml(bench) {
       ${imageHtml}
       <div class="popup-header">
         <strong>${escapeHtml(bench.title)}</strong>
-        <small>ID: ${bench.id}</small>
+        <small>#${displayNumber} &middot; technische ID: ${bench.id}</small>
       </div>
       <div class="popup-meta">
         <span><b>Status:</b> ${statusLabels[bench.status] ?? escapeHtml(bench.status)}</span>
@@ -1229,12 +1230,14 @@ function renderBenchList() {
     const status = bench.status || 'removed';
     const statusLabel = statusLabels[status] ?? status;
     const hasPhoto = Boolean(bench.image_url);
+    const displayNumber = getBenchDisplayNumber(bench);
     const overdueClass = isBenchOverdue(bench) ? ' is-overdue' : '';
 
     return `
     <button class="bench-list-item${overdueClass}" type="button" data-bench-id="${bench.id}">
       <span class="bench-list-main">
         <span class="bench-list-topline">
+          <span class="bench-list-number">#${displayNumber}</span>
           <strong>${escapeHtml(bench.title || `Bank ${bench.id}`)}</strong>
         </span>
         <span class="bench-list-details">
@@ -1243,7 +1246,7 @@ function renderBenchList() {
             ${escapeHtml(statusLabel)}
           </span>
           <span class="bench-list-date">Kontrolle: ${escapeHtml(formatInspectionDate(bench.last_inspection))}</span>
-          ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : ''}
+          ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : '<span class="bench-list-photo is-missing">Ohne Foto</span>'}
         </span>
       </span>
     </button>
@@ -1275,6 +1278,31 @@ function renderBenchList() {
       }
     });
   });
+}
+
+function buildBenchDisplayNumbers(benches) {
+  return new Map(
+    [...benches]
+      .sort((a, b) => {
+        const createdDiff = dateSortValue(a.created_at) - dateSortValue(b.created_at);
+        if (createdDiff !== 0) return createdDiff;
+        return Number(a.id) - Number(b.id);
+      })
+      .map((bench, index) => [bench.id, index + 1])
+  );
+}
+
+function getBenchDisplayNumber(bench) {
+  return benchDisplayNumbers.get(bench.id) ?? bench.id;
+}
+
+function dateSortValue(value) {
+  if (!value) return 0;
+  const normalized = String(value).includes('T')
+    ? String(value)
+    : `${value.replace(' ', 'T')}Z`;
+  const time = new Date(normalized).getTime();
+  return Number.isFinite(time) ? time : 0;
 }
 
 function updateBenchListCount(count) {
