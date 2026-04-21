@@ -221,11 +221,12 @@ main {
 
 .map-add-button {
   position: absolute;
-  left: 50%;
+  left: 0;
+  right: 0;
   bottom: max(14px, env(safe-area-inset-bottom));
-  transform: translateX(-50%);
   z-index: 850;
   width: min(280px, calc(100% - 32px));
+  margin-inline: auto;
   box-shadow: var(--shadow-soft);
 }
 
@@ -466,6 +467,10 @@ main {
   pointer-events: none;
 }
 
+.map-shell.is-admin .legend {
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 58px);
+}
+
 .legend h2 {
   margin: 0 0 0.55rem;
   font-size: 0.86rem;
@@ -611,10 +616,24 @@ main {
 }
 
 .leaflet-control-layers {
+  position: relative;
+  z-index: 650;
   border: 1px solid rgba(184, 197, 212, 0.9);
   border-radius: 12px;
   box-shadow: var(--shadow-soft);
   overflow: hidden;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 700;
+}
+
+.editor-panel,
+.bench-list-panel,
+.global-history-panel,
+.position-edit-bar {
+  z-index: 1200;
 }
 
 .leaflet-popup-content-wrapper {

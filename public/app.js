@@ -1726,6 +1726,8 @@ function updateAdminControls() {
   if (addCurrentLocationBtn) {
     addCurrentLocationBtn.hidden = !adminToggle.checked;
   }
+
+  mapElement.closest('.map-shell')?.classList.toggle('is-admin', adminToggle.checked);
 }
 
 function resolveApiBaseUrl() {
