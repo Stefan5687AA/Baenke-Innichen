@@ -1,7 +1,7 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-22T07:33:34.462Z",
-  "reason": "create",
+  "generated_at": "2026-04-22T09:11:54.776Z",
+  "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 33,
   "active_count": 33,
@@ -432,13 +432,13 @@
       "title": "Sitzbank + Tisch",
       "lat": 46.728608,
       "lng": 12.274468,
-      "status": "good",
+      "status": "ok",
       "last_inspection": "2026-04-22",
       "notes": "",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/581979dd-b1d5-4dca-bf9f-d07d61fac328.jpg",
       "created_at": "2026-04-22 07:33:21",
-      "updated_at": "2026-04-22 07:33:21",
+      "updated_at": "2026-04-22 09:11:54",
       "deleted_at": null
     },
     {
@@ -1952,6 +1952,23 @@
         ]
       },
       "created_at": "2026-04-22 07:33:34"
+    },
+    {
+      "id": 43,
+      "bench_id": 31,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "good",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-04-22 09:11:54"
     }
   ]
 }
