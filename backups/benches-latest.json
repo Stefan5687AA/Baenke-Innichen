@@ -1,7 +1,7 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-23T02:00:07.821Z",
-  "reason": "scheduled:0 2 * * *",
+  "generated_at": "2026-04-23T06:49:59.841Z",
+  "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 42,
   "active_count": 42,
@@ -485,7 +485,7 @@
     },
     {
       "id": 35,
-      "title": "Sitzbank",
+      "title": "Sitzbank ohne Lehne",
       "lat": 46.715834,
       "lng": 12.311825,
       "status": "good",
@@ -494,7 +494,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/d123c666-eb9d-4e1e-9a02-96f6b74e15eb.jpg",
       "created_at": "2026-04-22 09:44:41",
-      "updated_at": "2026-04-22 09:44:41",
+      "updated_at": "2026-04-23 06:49:59",
       "deleted_at": null
     },
     {
@@ -2552,6 +2552,23 @@
         ]
       },
       "created_at": "2026-04-22 10:18:41"
+    },
+    {
+      "id": 55,
+      "bench_id": 35,
+      "action": "updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": "Sitzbank",
+            "to": "Sitzbank ohne Lehne"
+          }
+        ]
+      },
+      "created_at": "2026-04-23 06:49:59"
     }
   ]
 }
