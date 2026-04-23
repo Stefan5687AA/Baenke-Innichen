@@ -1,10 +1,10 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-23T06:51:50.292Z",
-  "reason": "upload",
+  "generated_at": "2026-04-23T06:54:49.029Z",
+  "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
-  "count": 42,
-  "active_count": 42,
+  "count": 43,
+  "active_count": 43,
   "deleted_count": 0,
   "benches": [
     {
@@ -472,15 +472,15 @@
     {
       "id": 34,
       "title": "Sitzbank",
-      "lat": 46.728935,
-      "lng": 12.275359,
+      "lat": 46.72886,
+      "lng": 12.275376,
       "status": "ok",
       "last_inspection": "2026-04-22",
       "notes": "",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/07cf86eb-1606-49f0-9a89-2195203c1384.jpg",
       "created_at": "2026-04-22 09:12:57",
-      "updated_at": "2026-04-22 09:12:57",
+      "updated_at": "2026-04-23 06:54:48",
       "deleted_at": null
     },
     {
@@ -593,6 +593,20 @@
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/d16593fc-2fd1-4f83-9ae0-9d623805c640.jpg",
       "created_at": "2026-04-22 10:18:41",
       "updated_at": "2026-04-22 10:18:41",
+      "deleted_at": null
+    },
+    {
+      "id": 43,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.720549,
+      "lng": 12.297054,
+      "status": "ok",
+      "last_inspection": "2026-04-23",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/79dde625-767a-4c2f-bb3e-16eb251c14dd.jpg",
+      "created_at": "2026-04-23 06:51:50",
+      "updated_at": "2026-04-23 06:51:50",
       "deleted_at": null
     }
   ],
@@ -2592,6 +2606,76 @@
         ]
       },
       "created_at": "2026-04-23 06:50:12"
+    },
+    {
+      "id": 57,
+      "bench_id": 43,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-23"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.720549
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.297054
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/79dde625-767a-4c2f-bb3e-16eb251c14dd.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-23 06:51:50"
+    },
+    {
+      "id": 58,
+      "bench_id": 34,
+      "action": "position_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": 46.728935,
+            "to": 46.72886
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": 12.275359,
+            "to": 12.275376
+          }
+        ]
+      },
+      "created_at": "2026-04-23 06:54:48"
     }
   ]
 }
