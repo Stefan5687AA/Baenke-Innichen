@@ -1,6 +1,6 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-23T13:37:52.727Z",
+  "generated_at": "2026-04-23T13:37:52.898Z",
   "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 45,
@@ -30,7 +30,7 @@
       "last_inspection": "2026-04-20",
       "notes": "",
       "active": true,
-      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/392d2f9d-6e96-4c20-b3e9-1842cd81b23d.jpg",
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/fe437562-229d-4d85-a904-6e15582222b1.jpg",
       "created_at": "2026-04-20 09:27:58",
       "updated_at": "2026-04-23 13:37:52",
       "deleted_at": null
@@ -2828,6 +2828,23 @@
             "label": "Foto",
             "from": null,
             "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/392d2f9d-6e96-4c20-b3e9-1842cd81b23d.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-23 13:37:52"
+    },
+    {
+      "id": 63,
+      "bench_id": 2,
+      "action": "photo_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/392d2f9d-6e96-4c20-b3e9-1842cd81b23d.jpg",
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/fe437562-229d-4d85-a904-6e15582222b1.jpg"
           }
         ]
       },
