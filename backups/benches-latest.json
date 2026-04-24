@@ -1,7 +1,7 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-24T05:30:07.866Z",
-  "reason": "create",
+  "generated_at": "2026-04-24T05:52:11.135Z",
+  "reason": "update",
   "source": "cloudflare-d1:innichen-benches",
   "count": 50,
   "active_count": 50,
@@ -18,7 +18,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/6b3f7ee9-a930-4de0-8465-be7af7253cce.jpg",
       "created_at": "2026-04-20 09:13:48",
-      "updated_at": "2026-04-23 13:30:49",
+      "updated_at": "2026-04-24 05:52:10",
       "deleted_at": null
     },
     {
