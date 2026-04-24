@@ -5,7 +5,7 @@ compatibility_date = "2026-04-17"
 [vars]
 GITHUB_BACKUP_OWNER = "Stefan5687AA"
 GITHUB_BACKUP_REPO = "Baenke-Innichen"
-GITHUB_BACKUP_BRANCH = "data-backups"
+GITHUB_BACKUP_BRANCH = "main"
 GITHUB_BACKUP_DIRECTORY = "backups"
 
 [triggers]
