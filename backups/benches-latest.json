@@ -1,7 +1,7 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-24T02:00:14.959Z",
-  "reason": "scheduled:0 2 * * *",
+  "generated_at": "2026-04-24T05:30:07.579Z",
+  "reason": "upload",
   "source": "cloudflare-d1:innichen-benches",
   "count": 49,
   "active_count": 49,
