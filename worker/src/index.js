@@ -29,15 +29,11 @@ export default {
       }
 
       if (url.pathname === '/api/benches' && request.method === 'POST') {
-        const response = await createBench(request, env);
-        queueGithubBackup(ctx, env, 'create');
-        return response;
+        return await createBench(request, env);
       }
 
       if (url.pathname === '/api/upload' && request.method === 'POST') {
-        const response = await uploadImage(request, env);
-        queueGithubBackup(ctx, env, 'upload');
-        return response;
+        return await uploadImage(request, env);
       }
 
       if (url.pathname === '/api/backups/github' && request.method === 'POST') {
@@ -55,15 +51,11 @@ export default {
 
       const benchIdMatch = url.pathname.match(/^\/api\/benches\/(\d+)$/);
       if (benchIdMatch && request.method === 'PUT') {
-        const response = await updateBench(Number(benchIdMatch[1]), request, env);
-        queueGithubBackup(ctx, env, 'update');
-        return response;
+        return await updateBench(Number(benchIdMatch[1]), request, env);
       }
 
       if (benchIdMatch && request.method === 'DELETE') {
-        const response = await deleteBench(Number(benchIdMatch[1]), env);
-        queueGithubBackup(ctx, env, 'delete');
-        return response;
+        return await deleteBench(Number(benchIdMatch[1]), env);
       }
 
       return json({ error: 'Not found' }, 404);
@@ -371,7 +363,6 @@ async function createGithubBackup(env, reason) {
 
   const backup = await buildBackupPayload(env, reason);
   const content = JSON.stringify(backup, null, 2);
-  const today = todayIsoDate();
   const directory = String(env.GITHUB_BACKUP_DIRECTORY || 'backups').replace(/^\/+|\/+$/g, '');
 
   const latest = await putGithubFile(
@@ -380,23 +371,12 @@ async function createGithubBackup(env, reason) {
     content,
     `Update benches backup (${reason})`
   );
-  const written = [latest];
-
-  if (String(reason).startsWith('scheduled:')) {
-    const dated = await putGithubFile(
-      env,
-      `${directory}/benches-${today}.json`,
-      content,
-      `Update benches backup ${today}`
-    );
-    written.push(dated);
-  }
 
   return {
     count: backup.count,
     active_count: backup.active_count,
     deleted_count: backup.deleted_count,
-    written
+    written: [latest]
   };
 }
 
