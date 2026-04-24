@@ -1755,7 +1755,7 @@ function resolveApiBaseUrl() {
     return 'http://127.0.0.1:8787';
   }
 
-  return 'https://baenke-innichen.stefan-e58.workers.dev';
+  return 'https://baenke-innichen-api.stefan-e58.workers.dev';
 }
 
 loadMunicipalityBoundary();
