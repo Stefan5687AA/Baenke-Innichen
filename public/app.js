@@ -2047,7 +2047,6 @@ function renderTrailList() {
       <button class="bench-list-item" type="button" data-trail-pole-id="${pole.id}">
         <span class="bench-list-main">
           <span class="bench-list-topline">
-            <span class="bench-list-number">#${escapeHtml(pole.site_number || pole.id)}</span>
             <strong>Standort ${escapeHtml(pole.site_number || pole.id)}</strong>
           </span>
           <span class="bench-list-details">
