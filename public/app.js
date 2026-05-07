@@ -1754,15 +1754,16 @@ async function initializeUserLocation() {
   if (!navigator.geolocation) return;
 
   if (!navigator.permissions?.query) {
+    startUserLocationWatch();
     return;
   }
 
   try {
     const permission = await navigator.permissions.query({ name: 'geolocation' });
-    if (permission.state === 'granted') {
-      startUserLocationWatch();
-    } else if (permission.state === 'denied') {
+    if (permission.state === 'denied') {
       userLocationDenied = true;
+    } else {
+      startUserLocationWatch();
     }
 
     permission.onchange = () => {
@@ -1773,6 +1774,7 @@ async function initializeUserLocation() {
     };
   } catch {
     // Some browsers expose geolocation but not its permission status.
+    startUserLocationWatch();
   }
 }
 
