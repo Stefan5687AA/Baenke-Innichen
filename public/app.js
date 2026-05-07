@@ -770,16 +770,17 @@ function renderMarkerPopup(marker, bench) {
 
 function trailMarkerIcon(pole) {
   const label = escapeHtml(String(pole.site_number || pole.id));
+  const markerWidth = Math.max(50, String(pole.site_number || pole.id).length * 9 + 22);
 
   return leaflet.divIcon({
     className: `trail-marker-icon${pole.active ? '' : ' is-inactive'}`,
     html: `
       <span class="trail-marker-pin">
-        <span class="bench-marker-number">${label}</span>
+        <span class="trail-marker-number">${label}</span>
       </span>
     `,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
+    iconSize: [markerWidth, 34],
+    iconAnchor: [markerWidth / 2, 17],
     popupAnchor: [0, -18]
   });
 }
@@ -2451,7 +2452,12 @@ function startPositionEdit(type, item, marker) {
   state.pendingPosition = state.pendingPosition ?? { ...currentPosition };
   selectedPoint = null;
   clearTempMarker();
+  map.closePopup();
   panel.hidden = true;
+  trailPanel.hidden = true;
+  if (benchListPanel) benchListPanel.hidden = true;
+  if (trailListPanel) trailListPanel.hidden = true;
+  closeGlobalHistoryPanel();
   marker.setLatLng([state.pendingPosition.lat, state.pendingPosition.lng]);
   marker.dragging.enable();
   marker.getElement()?.classList.add('is-moving');
