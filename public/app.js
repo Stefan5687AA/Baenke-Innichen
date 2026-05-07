@@ -2,6 +2,8 @@ const INNICHEN_CENTER = [46.7326, 12.2817];
 const API_BASE_URL = resolveApiBaseUrl();
 const MUNICIPALITY_GEOJSON_URL = './innichen_gemeindegebiet_exakt.geojson';
 const OVERDUE_MONTHS = 10;
+const TRAIL_ICON_BASE_WIDTH = 118;
+const TRAIL_ICON_BASE_HEIGHT = 39;
 const mapElement = document.getElementById('map');
 const leaflet = window.L;
 
@@ -304,6 +306,7 @@ cancelPositionBtn?.addEventListener('click', () => {
 });
 
 map.on('moveend resize baselayerchange', refreshMunicipalityLayers);
+map.on('zoom zoomend', updateTrailMarkerScales);
 
 benchForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -756,6 +759,7 @@ function addTrailMarker(pole) {
   });
 
   trailMarkers.set(pole.id, marker);
+  applyTrailMarkerScale(marker);
 }
 
 function renderMarkerPopup(marker, bench) {
@@ -769,20 +773,56 @@ function renderMarkerPopup(marker, bench) {
 }
 
 function trailMarkerIcon(pole) {
-  const label = escapeHtml(String(pole.site_number || pole.id));
-  const markerWidth = Math.max(112, String(pole.site_number || pole.id).length * 10 + 74);
+  const rawLabel = String(pole.site_number || pole.id);
+  const label = escapeHtml(rawLabel);
+  const dimensions = trailMarkerPresentation(rawLabel);
+  const state = trailMarkerStates.get(pole.id);
 
   return leaflet.divIcon({
-    className: `trail-marker-icon${pole.active ? '' : ' is-inactive'}`,
+    className: `trail-marker-icon${pole.active ? '' : ' is-inactive'}${state?.isMoving ? ' is-moving' : ''}`,
     html: `
-      <span class="trail-marker-pin">
+      <span class="trail-marker-pin" style="--trail-marker-scale:${trailMarkerScale()}; --trail-marker-font-size:${dimensions.fontSize}px">
         <span class="trail-marker-number">${label}</span>
       </span>
     `,
-    iconSize: [markerWidth, 39],
-    iconAnchor: [markerWidth / 2, 20],
-    popupAnchor: [0, -20]
+    iconSize: [dimensions.width, dimensions.height],
+    iconAnchor: [Math.round(dimensions.width * 0.5), Math.round(dimensions.height * 0.5)],
+    popupAnchor: [0, -Math.round(dimensions.height * 0.5)]
   });
+}
+
+function trailMarkerPresentation(label) {
+  const labelWidth = String(label).length * 10 + 74;
+  const baseWidth = Math.max(TRAIL_ICON_BASE_WIDTH, labelWidth);
+  const textScale = Math.min(1, 7 / Math.max(1, String(label).length));
+
+  return {
+    width: baseWidth,
+    height: TRAIL_ICON_BASE_HEIGHT,
+    fontSize: Math.max(6, Math.round(11 * textScale * 10) / 10)
+  };
+}
+
+function trailMarkerScale() {
+  return Math.round(clamp(0.46 + ((map.getZoom() - 14) * 0.135), 0.46, 1) * 1000) / 1000;
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function updateTrailMarkerScales() {
+  if (currentView !== 'trails') return;
+
+  for (const marker of trailMarkers.values()) {
+    applyTrailMarkerScale(marker);
+  }
+}
+
+function applyTrailMarkerScale(marker) {
+  marker.getElement()
+    ?.querySelector('.trail-marker-pin')
+    ?.style.setProperty('--trail-marker-scale', trailMarkerScale());
 }
 
 function openAddPanel() {

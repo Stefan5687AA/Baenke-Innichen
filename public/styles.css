@@ -625,7 +625,7 @@ main {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 39px;
+  height: 100%;
   border: 0;
   background: url("./trail-pole-icon.png") center / contain no-repeat;
   color: #fff;
@@ -635,6 +635,9 @@ main {
   letter-spacing: 0;
   white-space: nowrap;
   filter: drop-shadow(0 5px 9px rgba(15, 23, 42, 0.25));
+  transform: scale(var(--trail-marker-scale, 0.46));
+  transform-origin: center center;
+  transition: transform 180ms ease-out, filter 180ms ease-out, opacity 180ms ease-out;
 }
 
 .trail-marker-icon.is-inactive .trail-marker-pin {
@@ -665,16 +668,18 @@ main {
 
 .trail-marker-number {
   position: absolute;
-  left: 38%;
+  left: 40%;
   top: 48%;
   display: block;
-  max-width: 38%;
-  overflow: visible;
+  width: 30%;
+  overflow: hidden;
   text-align: center;
   color: #171717;
+  font-size: var(--trail-marker-font-size, 11px);
   font-weight: 900;
   line-height: 1;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+  text-overflow: clip;
   transform: translate(-50%, -50%);
   white-space: nowrap;
   user-select: none;
