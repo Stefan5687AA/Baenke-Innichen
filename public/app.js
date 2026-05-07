@@ -827,7 +827,7 @@ function closePanel({ keepTempMarker = false } = {}) {
   cancelActivePositionEdit();
   editMode = null;
   selectedBenchId = null;
-  selectedPoint = null;
+  if (!keepTempMarker) selectedPoint = null;
   currentEditBench = null;
   currentEditMarker = null;
   panel.hidden = true;
