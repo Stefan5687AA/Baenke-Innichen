@@ -770,7 +770,7 @@ function renderMarkerPopup(marker, bench) {
 
 function trailMarkerIcon(pole) {
   const label = escapeHtml(String(pole.site_number || pole.id));
-  const markerWidth = Math.max(50, String(pole.site_number || pole.id).length * 9 + 22);
+  const markerWidth = Math.max(112, String(pole.site_number || pole.id).length * 10 + 74);
 
   return leaflet.divIcon({
     className: `trail-marker-icon${pole.active ? '' : ' is-inactive'}`,
@@ -779,9 +779,9 @@ function trailMarkerIcon(pole) {
         <span class="trail-marker-number">${label}</span>
       </span>
     `,
-    iconSize: [markerWidth, 34],
-    iconAnchor: [markerWidth / 2, 17],
-    popupAnchor: [0, -18]
+    iconSize: [markerWidth, 39],
+    iconAnchor: [markerWidth / 2, 20],
+    popupAnchor: [0, -20]
   });
 }
 
@@ -973,7 +973,7 @@ function trailPopupHtml(pole) {
         ? signboard.entries.map((entry) => `
           <li>
             ${escapeHtml(entry.label)}
-            ${entry.duration ? ` · ${escapeHtml(entry.duration)}` : ''}
+            ${formatTrailDuration(entry.duration) ? ` · ${escapeHtml(formatTrailDuration(entry.duration))}` : ''}
           </li>
         `).join('')
         : '<li>Keine Anschriften</li>';
@@ -997,7 +997,6 @@ function trailPopupHtml(pole) {
         <small>#${pole.id}</small>
       </div>
       <div class="popup-meta">
-        <span><b>Aktiv:</b> ${pole.active ? 'Ja' : 'Nein'}</span>
         <span><b>Tafeln:</b> ${pole.signboards?.length || 0}</span>
       </div>
       <div class="popup-notes">
@@ -1941,8 +1940,6 @@ function renderTrailList() {
     const signboardCount = pole.signboards?.length || 0;
     const entryCount = countTrailEntries(pole);
     const firstEntry = firstTrailEntrySummary(pole);
-    const activeLabel = pole.active ? 'Aktiv' : 'Inaktiv';
-
     return `
       <button class="bench-list-item" type="button" data-trail-pole-id="${pole.id}">
         <span class="bench-list-main">
@@ -1951,10 +1948,6 @@ function renderTrailList() {
             <strong>Standort ${escapeHtml(pole.site_number || pole.id)}</strong>
           </span>
           <span class="bench-list-details">
-            <span class="bench-list-status">
-              <span class="dot ${pole.active ? 'good' : 'inactive'}"></span>
-              ${activeLabel}
-            </span>
             <span class="trail-list-summary">${signboardCount} ${signboardCount === 1 ? 'Tafel' : 'Tafeln'}</span>
             <span class="trail-list-summary">${entryCount} ${entryCount === 1 ? 'Anschrift' : 'Anschriften'}</span>
             <span class="trail-list-entry">${escapeHtml(firstEntry)}</span>
@@ -2096,7 +2089,10 @@ function trailEntryEditorHtml(entry, index) {
         </label>
         <label>
           Dauer
-          <input name="duration" type="text" maxlength="80" value="${escapeHtml(entry?.duration || '')}" />
+          <span class="duration-input">
+            <input name="duration" type="number" min="0" step="1" inputmode="numeric" value="${escapeHtml(durationInputValue(entry?.duration))}" />
+            <span>min</span>
+          </span>
         </label>
       </div>
     </div>
@@ -2334,7 +2330,19 @@ function firstTrailEntrySummary(pole) {
 
   if (!firstSignboard || !firstEntry) return 'Keine Anschriften gepflegt';
 
-  return `${firstSignboard.direction} · Weg ${firstSignboard.trail_number} · ${firstEntry.label}${firstEntry.duration ? ` (${firstEntry.duration})` : ''}`;
+  return `${firstSignboard.direction} · Weg ${firstSignboard.trail_number} · ${firstEntry.label}${formatTrailDuration(firstEntry.duration) ? ` (${formatTrailDuration(firstEntry.duration)})` : ''}`;
+}
+
+function durationInputValue(duration) {
+  if (!duration) return '';
+
+  const match = String(duration).match(/\d+/);
+  return match ? match[0] : '';
+}
+
+function formatTrailDuration(duration) {
+  const minutes = durationInputValue(duration);
+  return minutes ? `${minutes} min` : '';
 }
 
 function inspectionSortValue(bench) {
