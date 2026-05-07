@@ -142,10 +142,12 @@ const statusSortOrder = ['repair', 'inactive', 'ok', 'to_check', 'good', 'remove
 const MAX_IMAGE_SIZE = 1600;
 const IMAGE_QUALITY = 0.72;
 const LOCATION_UNCLEAR_THRESHOLD_METERS = 30;
+const USER_LOCATION_MIN_MOVE_METERS = 2;
+const USER_LOCATION_STALE_MS = 12000;
 const LOCATION_OPTIONS = {
   enableHighAccuracy: true,
   timeout: 20000,
-  maximumAge: 0
+  maximumAge: 3000
 };
 
 let editMode = null;
@@ -158,6 +160,8 @@ let userLocationMarker = null;
 let userLocationAccuracyCircle = null;
 let userLocation = null;
 let userLocationWatchId = null;
+let userLocationPromise = null;
+let userLocationDenied = false;
 let selectedImageFile = null;
 let selectedImagePreviewUrl = null;
 let currentImageUrl = null;
@@ -1656,27 +1660,29 @@ async function ensureUserLocation() {
     return userLocation;
   }
 
-  if (!navigator.geolocation) {
+  if (!navigator.geolocation || userLocationDenied) {
     return null;
   }
 
-  startUserLocationWatch();
-  return requestUserLocationOnce();
+  return startUserLocationWatch();
 }
 
 function renderUserLocation(point) {
   const latLng = [point.lat, point.lng];
 
   if (!userLocationMarker) {
-    userLocationMarker = leaflet.circleMarker(latLng, {
-      radius: 8,
-      color: '#1d4ed8',
-      fillColor: '#60a5fa',
-      fillOpacity: 0.9,
-      weight: 2
+    userLocationMarker = leaflet.marker(latLng, {
+      icon: leaflet.divIcon({
+        className: 'user-location-marker',
+        html: '<span class="user-location-dot"></span>',
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      }),
+      interactive: false,
+      keyboard: false,
+      zIndexOffset: 1000
     })
-      .addTo(map)
-      .bindPopup('Dein Standort');
+      .addTo(map);
   } else {
     userLocationMarker.setLatLng(latLng);
   }
@@ -1744,43 +1750,70 @@ function showUserLocation() {
   startUserLocationWatch();
 }
 
-function startUserLocationWatch() {
-  if (!navigator.geolocation) {
-    updateLocationAccuracyNote(null);
+async function initializeUserLocation() {
+  if (!navigator.geolocation) return;
+
+  if (!navigator.permissions?.query) {
     return;
   }
 
-  if (userLocationWatchId !== null) return;
+  try {
+    const permission = await navigator.permissions.query({ name: 'geolocation' });
+    if (permission.state === 'granted') {
+      startUserLocationWatch();
+    } else if (permission.state === 'denied') {
+      userLocationDenied = true;
+    }
 
-  userLocationWatchId = navigator.geolocation.watchPosition(
-    (position) => {
-      const point = parseUserLocation(position);
-      userLocation = point;
-      renderUserLocation(point);
-    },
-    () => {
-      updateLocationAccuracyNote(null);
-    },
-    LOCATION_OPTIONS
-  );
+    permission.onchange = () => {
+      userLocationDenied = permission.state === 'denied';
+      if (permission.state === 'granted') {
+        startUserLocationWatch();
+      }
+    };
+  } catch {
+    // Some browsers expose geolocation but not its permission status.
+  }
 }
 
-function requestUserLocationOnce() {
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
+function startUserLocationWatch() {
+  if (!navigator.geolocation || userLocationDenied) {
+    updateLocationAccuracyNote(null);
+    return Promise.resolve(null);
+  }
+
+  if (userLocation) {
+    return Promise.resolve(userLocation);
+  }
+
+  if (userLocationPromise) {
+    return userLocationPromise;
+  }
+
+  userLocationPromise = new Promise((resolve) => {
+    userLocationWatchId = navigator.geolocation.watchPosition(
       (position) => {
         const point = parseUserLocation(position);
-        userLocation = point;
-        renderUserLocation(point);
-        resolve(point);
+        if (shouldAcceptUserLocation(point)) {
+          userLocation = point;
+          renderUserLocation(point);
+        }
+
+        resolve(userLocation);
       },
-      () => {
+      (error) => {
+        if (error?.code === error?.PERMISSION_DENIED) {
+          userLocationDenied = true;
+        }
         updateLocationAccuracyNote(null);
+        userLocationPromise = null;
         resolve(null);
       },
       LOCATION_OPTIONS
     );
   });
+
+  return userLocationPromise;
 }
 
 function parseUserLocation(position) {
@@ -1791,8 +1824,36 @@ function parseUserLocation(position) {
   return {
     lat: Number(position.coords.latitude.toFixed(6)),
     lng: Number(position.coords.longitude.toFixed(6)),
-    accuracy
+    accuracy,
+    timestamp: position.timestamp || Date.now()
   };
+}
+
+function shouldAcceptUserLocation(nextPoint) {
+  if (!userLocation) return true;
+
+  const distance = distanceMeters(userLocation, nextPoint);
+  const currentAccuracy = userLocation.accuracy ?? Number.POSITIVE_INFINITY;
+  const nextAccuracy = nextPoint.accuracy ?? Number.POSITIVE_INFINITY;
+  const isMoreAccurate = nextAccuracy + 1 < currentAccuracy;
+  const isRealMovement = distance >= Math.max(USER_LOCATION_MIN_MOVE_METERS, nextAccuracy * 0.35);
+  const isStale = (nextPoint.timestamp || Date.now()) - (userLocation.timestamp || 0) > USER_LOCATION_STALE_MS;
+
+  return isMoreAccurate || isRealMovement || isStale;
+}
+
+function distanceMeters(from, to) {
+  const fromLat = degreesToRadians(from.lat);
+  const toLat = degreesToRadians(to.lat);
+  const deltaLat = degreesToRadians(to.lat - from.lat);
+  const deltaLng = degreesToRadians(to.lng - from.lng);
+  const a = Math.sin(deltaLat / 2) ** 2
+    + Math.cos(fromLat) * Math.cos(toLat) * Math.sin(deltaLng / 2) ** 2;
+  return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function degreesToRadians(value) {
+  return value * Math.PI / 180;
 }
 
 function renderUserLocationAccuracy(point) {
@@ -2651,5 +2712,5 @@ function resolveApiBaseUrl() {
 
 loadMunicipalityBoundary();
 loadBenches();
-showUserLocation();
+initializeUserLocation();
 updateViewControls();
