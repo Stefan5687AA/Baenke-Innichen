@@ -491,19 +491,19 @@ function updateViewControls() {
   benchListBtn.setAttribute('aria-label', isTrailView ? 'Pfeilerliste' : 'B\u00E4nkeliste');
   globalHistoryBtn.hidden = isTrailView;
 
+  const legend = document.querySelector('.legend');
+  if (legend) {
+    legend.hidden = isTrailView;
+  }
+
   const legendTitle = document.querySelector('.legend h2');
   if (legendTitle) {
-    legendTitle.textContent = isTrailView ? 'Wandertafeln' : 'Statusfarben';
+    legendTitle.textContent = 'Statusfarben';
   }
 
   const legendList = document.querySelector('.legend ul');
   if (legendList) {
-    legendList.innerHTML = isTrailView
-      ? `
-        <li><span class="dot good"></span> Aktive Pfeiler</li>
-        <li><span class="dot inactive"></span> Inaktive Pfeiler</li>
-      `
-      : `
+    legendList.innerHTML = `
         <li><span class="dot good"></span> Guter Zustand</li>
         <li><span class="dot ok"></span> In Ordnung</li>
         <li><span class="dot repair"></span> Reparatur n&ouml;tig</li>
@@ -846,7 +846,7 @@ function openTrailAddPanel() {
   currentEditTrailMarker = null;
   trailPanelTitle.textContent = 'Wandertafel-Pfeiler hinzuf\u00FCgen';
   fieldTrailSiteNumber.value = '';
-  fieldTrailActive.value = '1';
+  if (fieldTrailActive) fieldTrailActive.value = '1';
   fieldTrailNotes.value = '';
   showTrailFormError(null);
   renderTrailSignboards([
@@ -871,7 +871,7 @@ function openTrailEditPanel(pole, marker) {
   currentEditTrailMarker = marker;
   trailPanelTitle.textContent = 'Wandertafel-Pfeiler bearbeiten';
   fieldTrailSiteNumber.value = pole.site_number || '';
-  fieldTrailActive.value = pole.active ? '1' : '0';
+  if (fieldTrailActive) fieldTrailActive.value = pole.active ? '1' : '0';
   fieldTrailNotes.value = pole.notes || '';
   showTrailFormError(null);
   renderTrailSignboards(pole.signboards?.length ? pole.signboards : []);
@@ -2048,6 +2048,7 @@ function trailSignboardEditorHtml(signboard, index) {
     ? signboard.entries
     : [{ label: '', duration: '', sort_order: 0 }];
   const entriesHtml = entries.map((entry, entryIndex) => trailEntryEditorHtml(entry, entryIndex)).join('');
+  const direction = String(signboard?.direction || '').toLowerCase();
 
   return `
     <article class="trail-signboard-editor" data-role="trail-signboard">
@@ -2058,11 +2059,15 @@ function trailSignboardEditorHtml(signboard, index) {
       <div class="trail-signboard-grid">
         <label>
           Richtung
-          <input name="direction" type="text" maxlength="120" value="${escapeHtml(signboard?.direction || '')}" required />
+          <select name="direction" required>
+            <option value="">Bitte ausw&auml;hlen</option>
+            <option value="rechts"${direction === 'rechts' ? ' selected' : ''}>rechts</option>
+            <option value="links"${direction === 'links' ? ' selected' : ''}>links</option>
+          </select>
         </label>
         <label>
           Wegnummer
-          <input name="trail_number" type="text" maxlength="80" value="${escapeHtml(signboard?.trail_number || '')}" required />
+          <input name="trail_number" type="text" maxlength="80" value="${escapeHtml(signboard?.trail_number || '')}" placeholder="1" required />
         </label>
       </div>
       <div class="trail-entry-header">
@@ -2086,7 +2091,7 @@ function trailEntryEditorHtml(entry, index) {
       <div class="trail-entry-grid">
         <label>
           Beschriftung
-          <input name="label" type="text" maxlength="200" value="${escapeHtml(entry?.label || '')}" required />
+          <input name="label" type="text" maxlength="200" value="${escapeHtml(entry?.label || '')}" placeholder="Zielpunkt" required />
         </label>
         <label>
           Dauer
@@ -2166,7 +2171,7 @@ function readTrailPoleFormPayload() {
   }
 
   const signboards = Array.from(trailSignboards.querySelectorAll('[data-role="trail-signboard"]')).map((signboardElement, signboardIndex) => {
-    const direction = signboardElement.querySelector('input[name="direction"]').value.trim();
+    const direction = signboardElement.querySelector('[name="direction"]').value.trim();
     const trailNumber = signboardElement.querySelector('input[name="trail_number"]').value.trim();
     const entries = Array.from(signboardElement.querySelectorAll('[data-role="trail-entry"]')).map((entryElement, entryIndex) => ({
       label: entryElement.querySelector('input[name="label"]').value.trim(),
@@ -2194,7 +2199,7 @@ function readTrailPoleFormPayload() {
     if (!signboard.direction) {
       showTrailValidationError(
         `Bitte die Richtung f\u00FCr Tafel ${signboardIndex + 1} eingeben.`,
-        signboardElement?.querySelector('input[name="direction"]'),
+        signboardElement?.querySelector('[name="direction"]'),
         signboardElement
       );
       return null;
@@ -2233,7 +2238,7 @@ function readTrailPoleFormPayload() {
 
   return {
     site_number: siteNumber,
-    active: fieldTrailActive.value === '1',
+    active: fieldTrailActive ? fieldTrailActive.value === '1' : (currentEditTrailPole?.active ?? true),
     notes: fieldTrailNotes.value.trim() || null,
     signboards
   };
