@@ -51,6 +51,8 @@ leaflet.control.layers(
 
 const markers = new Map();
 const markerStates = new Map();
+const trailMarkers = new Map();
+const trailMarkerStates = new Map();
 let municipalityMaskLayer = null;
 let municipalityBoundaryLayer = null;
 const statusColors = {
@@ -72,10 +74,18 @@ const statusLabels = {
 };
 
 const adminToggle = document.getElementById('adminMode');
+const appTitle = document.getElementById('appTitle');
+const benchViewBtn = document.getElementById('benchViewBtn');
+const trailViewBtn = document.getElementById('trailViewBtn');
 const reloadBtn = document.getElementById('reloadBtn');
 const benchListBtn = document.getElementById('benchListBtn');
 const benchListPanel = document.getElementById('benchListPanel');
 const closeBenchListBtn = document.getElementById('closeBenchListBtn');
+const trailListPanel = document.getElementById('trailListPanel');
+const closeTrailListBtn = document.getElementById('closeTrailListBtn');
+const trailSortSelect = document.getElementById('trailSortSelect');
+const trailList = document.getElementById('trailList');
+const trailListCount = document.getElementById('trailListCount');
 const globalHistoryBtn = document.getElementById('globalHistoryBtn');
 const globalHistoryPanel = document.getElementById('globalHistoryPanel');
 const closeGlobalHistoryBtn = document.getElementById('closeGlobalHistoryBtn');
@@ -112,6 +122,19 @@ const positionEditHint = document.getElementById('positionEditHint');
 const savePositionBtn = document.getElementById('savePositionBtn');
 const cancelPositionBtn = document.getElementById('cancelPositionBtn');
 const locationAccuracyNote = document.getElementById('locationAccuracyNote');
+const trailPanel = document.getElementById('trailEditorPanel');
+const trailPanelTitle = document.getElementById('trailPanelTitle');
+const trailPoleForm = document.getElementById('trailPoleForm');
+const cancelTrailBtn = document.getElementById('cancelTrailBtn');
+const fieldTrailSiteNumber = document.getElementById('fieldTrailSiteNumber');
+const fieldTrailActive = document.getElementById('fieldTrailActive');
+const fieldTrailNotes = document.getElementById('fieldTrailNotes');
+const trailFormError = document.getElementById('trailFormError');
+const trailSignboards = document.getElementById('trailSignboards');
+const addTrailSignboardBtn = document.getElementById('addTrailSignboardBtn');
+const trailEditPanelActions = document.getElementById('trailEditPanelActions');
+const moveTrailPositionBtn = document.getElementById('moveTrailPositionBtn');
+const deleteTrailPoleBtn = document.getElementById('deleteTrailPoleBtn');
 
 const statusSortOrder = ['repair', 'inactive', 'ok', 'to_check', 'good', 'removed'];
 const MAX_IMAGE_SIZE = 1600;
@@ -124,7 +147,9 @@ const LOCATION_OPTIONS = {
 };
 
 let editMode = null;
+let currentView = 'benches';
 let selectedBenchId = null;
+let selectedTrailPoleId = null;
 let selectedPoint = null;
 let tempMarker = null;
 let userLocationMarker = null;
@@ -137,25 +162,49 @@ let currentImageUrl = null;
 let shouldRemoveCurrentImage = false;
 let currentEditBench = null;
 let currentEditMarker = null;
+let currentEditTrailPole = null;
+let currentEditTrailMarker = null;
 let activePositionEdit = null;
 let currentBenches = [];
+let currentTrailPoles = [];
 let hasShownLoadError = false;
 
 reloadBtn.addEventListener('click', () => {
   window.location.reload();
 });
+benchViewBtn?.addEventListener('click', () => {
+  setActiveView('benches');
+});
+trailViewBtn?.addEventListener('click', () => {
+  setActiveView('trails');
+});
 benchListBtn?.addEventListener('click', () => {
+  if (currentView === 'trails') {
+    trailListPanel.hidden = !trailListPanel.hidden;
+    if (!trailListPanel.hidden) {
+      closeGlobalHistoryPanel();
+      if (benchListPanel) benchListPanel.hidden = true;
+      renderTrailList();
+    }
+    return;
+  }
+
   benchListPanel.hidden = !benchListPanel.hidden;
   if (!benchListPanel.hidden) {
     closeGlobalHistoryPanel();
+    if (trailListPanel) trailListPanel.hidden = true;
     renderBenchList();
   }
 });
 closeBenchListBtn?.addEventListener('click', () => {
   benchListPanel.hidden = true;
 });
+closeTrailListBtn?.addEventListener('click', () => {
+  trailListPanel.hidden = true;
+});
 globalHistoryBtn?.addEventListener('click', () => {
   if (!globalHistoryPanel) return;
+  if (currentView !== 'benches') return;
 
   globalHistoryPanel.hidden = !globalHistoryPanel.hidden;
   if (!globalHistoryPanel.hidden) {
@@ -165,11 +214,13 @@ globalHistoryBtn?.addEventListener('click', () => {
 });
 closeGlobalHistoryBtn?.addEventListener('click', closeGlobalHistoryPanel);
 benchSortSelect?.addEventListener('change', renderBenchList);
+trailSortSelect?.addEventListener('change', renderTrailList);
 fieldNamePreset?.addEventListener('change', syncCustomNameVisibility);
 adminToggle.addEventListener('change', () => {
   updateAdminControls();
   if (!adminToggle.checked) {
     closePanel();
+    closeTrailPanel();
     resetAllMarkerEditStates();
   }
 });
@@ -182,16 +233,23 @@ addCurrentLocationBtn?.addEventListener('click', async () => {
 
   const currentPosition = await ensureUserLocation();
   if (!currentPosition) {
-    alert('Standort ist nicht verf\u00FCgbar. Bitte Standortfreigabe erlauben oder die Bank per Klick auf die Karte hinzuf\u00FCgen.');
+    const itemLabel = currentView === 'trails' ? 'den Pfeiler' : 'die Bank';
+    alert(`Standort ist nicht verf\u00FCgbar. Bitte Standortfreigabe erlauben oder ${itemLabel} per Klick auf die Karte hinzuf\u00FCgen.`);
     return;
   }
 
   selectedPoint = currentPosition;
   setTempMarker(currentPosition);
+  if (currentView === 'trails') {
+    openTrailAddPanel();
+    return;
+  }
+
   openAddPanel();
 });
 
 cancelBtn.addEventListener('click', closePanel);
+cancelTrailBtn?.addEventListener('click', closeTrailPanel);
 todayInspectionBtn?.addEventListener('click', () => {
   fieldInspection.value = todayDateString();
 });
@@ -217,12 +275,27 @@ removeImageBtn?.addEventListener('click', () => {
 
 movePositionBtn?.addEventListener('click', () => {
   if (!currentEditBench || !currentEditMarker) return;
-  startPositionEdit(currentEditBench, currentEditMarker);
+  startPositionEdit('bench', currentEditBench, currentEditMarker);
 });
 
 deleteBenchBtn?.addEventListener('click', async () => {
   if (!currentEditBench) return;
   await archiveBench(currentEditBench.id);
+});
+
+addTrailSignboardBtn?.addEventListener('click', () => {
+  addTrailSignboardEditor();
+});
+trailSignboards?.addEventListener('click', handleTrailSignboardAction);
+
+moveTrailPositionBtn?.addEventListener('click', () => {
+  if (!currentEditTrailPole || !currentEditTrailMarker) return;
+  startPositionEdit('trail', currentEditTrailPole, currentEditTrailMarker);
+});
+
+deleteTrailPoleBtn?.addEventListener('click', async () => {
+  if (!currentEditTrailPole) return;
+  await archiveTrailPole(currentEditTrailPole.id);
 });
 
 savePositionBtn?.addEventListener('click', saveActivePositionEdit);
@@ -280,6 +353,31 @@ benchForm.addEventListener('submit', async (event) => {
   }
 });
 
+trailPoleForm?.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const payload = readTrailPoleFormPayload();
+  if (!payload) return;
+
+  if (editMode === 'trail-add' && !selectedPoint) {
+    alert('Bitte zuerst einen Standort f\u00FCr den neuen Pfeiler ausw\u00E4hlen.');
+    return;
+  }
+
+  if (editMode === 'trail-add') {
+    await upsertTrailPole('/api/trail-poles', 'POST', {
+      ...payload,
+      lat: selectedPoint.lat,
+      lng: selectedPoint.lng
+    });
+    return;
+  }
+
+  if (editMode === 'trail-edit' && selectedTrailPoleId !== null) {
+    await upsertTrailPole(`/api/trail-poles/${selectedTrailPoleId}`, 'PUT', payload);
+  }
+});
+
 map.on('click', (event) => {
   if (!adminToggle.checked) return;
 
@@ -289,6 +387,11 @@ map.on('click', (event) => {
   };
 
   setTempMarker(selectedPoint);
+  if (currentView === 'trails') {
+    openTrailAddPanel();
+    return;
+  }
+
   openAddPanel();
 });
 
@@ -322,6 +425,109 @@ async function loadBenches() {
   }
 
   renderBenchList();
+}
+
+async function loadTrailPoles() {
+  let response;
+  try {
+    response = await fetch(apiUrl('/api/trail-poles?active=all'));
+  } catch (error) {
+    handleTrailPoleLoadError(`Netzwerkfehler: ${error.message}`);
+    return;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    handleTrailPoleLoadError(detail);
+    return;
+  }
+
+  const poles = await response.json();
+  currentTrailPoles = poles;
+
+  clearTrailMarkers();
+
+  for (const pole of currentTrailPoles) {
+    addTrailMarker(pole);
+  }
+
+  renderTrailList();
+}
+
+async function setActiveView(view) {
+  if (currentView === view) return;
+
+  cancelActivePositionEdit();
+  closePanel();
+  closeTrailPanel();
+  closeGlobalHistoryPanel();
+  if (benchListPanel) benchListPanel.hidden = true;
+  if (trailListPanel) trailListPanel.hidden = true;
+
+  currentView = view;
+  updateViewControls();
+
+  if (currentView === 'trails') {
+    clearBenchMarkers();
+    await loadTrailPoles();
+    return;
+  }
+
+  clearTrailMarkers();
+  await loadBenches();
+}
+
+function updateViewControls() {
+  const isTrailView = currentView === 'trails';
+
+  if (appTitle) {
+    appTitle.textContent = isTrailView ? 'Wandertafeln Innichen' : 'Bankkarte Innichen';
+  }
+
+  benchViewBtn?.classList.toggle('is-active', !isTrailView);
+  trailViewBtn?.classList.toggle('is-active', isTrailView);
+  benchListBtn.hidden = false;
+  benchListBtn.title = isTrailView ? 'Pfeilerliste' : 'B\u00E4nkeliste';
+  benchListBtn.setAttribute('aria-label', isTrailView ? 'Pfeilerliste' : 'B\u00E4nkeliste');
+  globalHistoryBtn.hidden = isTrailView;
+
+  const legendTitle = document.querySelector('.legend h2');
+  if (legendTitle) {
+    legendTitle.textContent = isTrailView ? 'Wandertafeln' : 'Statusfarben';
+  }
+
+  const legendList = document.querySelector('.legend ul');
+  if (legendList) {
+    legendList.innerHTML = isTrailView
+      ? `
+        <li><span class="dot good"></span> Aktive Pfeiler</li>
+        <li><span class="dot inactive"></span> Inaktive Pfeiler</li>
+      `
+      : `
+        <li><span class="dot good"></span> Guter Zustand</li>
+        <li><span class="dot ok"></span> In Ordnung</li>
+        <li><span class="dot repair"></span> Reparatur n&ouml;tig</li>
+        <li><span class="dot inactive"></span> Inaktiv</li>
+      `;
+  }
+
+  updateAdminControls();
+}
+
+function clearBenchMarkers() {
+  for (const marker of markers.values()) {
+    map.removeLayer(marker);
+  }
+  markers.clear();
+  markerStates.clear();
+}
+
+function clearTrailMarkers() {
+  for (const marker of trailMarkers.values()) {
+    map.removeLayer(marker);
+  }
+  trailMarkers.clear();
+  trailMarkerStates.clear();
 }
 
 async function loadMunicipalityBoundary() {
@@ -496,6 +702,62 @@ function addBenchMarker(bench) {
   markers.set(bench.id, marker);
 }
 
+function addTrailMarker(pole) {
+  const marker = leaflet.marker([pole.lat, pole.lng], {
+    icon: trailMarkerIcon(pole),
+    draggable: false
+  }).addTo(map);
+
+  marker.bindPopup(trailPopupHtml(pole), {
+    closeOnClick: true,
+    autoClose: true,
+    autoPan: false
+  });
+
+  marker.on('click', () => {
+    if (!adminToggle.checked) return;
+    marker.closePopup();
+    openTrailEditPanel(pole, marker);
+  });
+
+  marker.on('popupopen', () => {
+    if (adminToggle.checked) {
+      marker.closePopup();
+      return;
+    }
+
+    marker.setPopupContent(trailPopupHtml(pole));
+  });
+
+  marker.on('dragend', () => {
+    const state = getTrailMarkerState(pole.id);
+    if (!state.isMoving) {
+      marker.setLatLng([pole.lat, pole.lng]);
+      return;
+    }
+
+    const latLng = marker.getLatLng();
+    state.pendingPosition = {
+      lat: Number(latLng.lat.toFixed(6)),
+      lng: Number(latLng.lng.toFixed(6))
+    };
+
+    renderPositionEditBar();
+  });
+
+  marker.on('popupclose', () => {
+    const state = getTrailMarkerState(pole.id);
+    if (state.isMoving) return;
+
+    disableMarkerDragging(marker);
+    if (!state.pendingPosition) {
+      marker.setLatLng([pole.lat, pole.lng]);
+    }
+  });
+
+  trailMarkers.set(pole.id, marker);
+}
+
 function renderMarkerPopup(marker, bench) {
   const state = getMarkerState(bench.id);
   if (adminToggle.checked) {
@@ -506,8 +768,25 @@ function renderMarkerPopup(marker, bench) {
   marker.setPopupContent(popupHtml(bench));
 }
 
+function trailMarkerIcon(pole) {
+  const label = escapeHtml(String(pole.site_number || pole.id));
+
+  return leaflet.divIcon({
+    className: `trail-marker-icon${pole.active ? '' : ' is-inactive'}`,
+    html: `
+      <span class="trail-marker-pin">
+        <span class="bench-marker-number">${label}</span>
+      </span>
+    `,
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
+    popupAnchor: [0, -18]
+  });
+}
+
 function openAddPanel() {
   cancelActivePositionEdit();
+  closeTrailPanel({ keepTempMarker: true });
   editMode = 'add';
   selectedBenchId = null;
   currentEditBench = null;
@@ -526,6 +805,7 @@ function openAddPanel() {
 
 function openEditPanel(bench, marker) {
   cancelActivePositionEdit();
+  closeTrailPanel();
   editMode = 'edit';
   selectedBenchId = bench.id;
   selectedPoint = null;
@@ -543,7 +823,7 @@ function openEditPanel(bench, marker) {
   panel.hidden = false;
 }
 
-function closePanel() {
+function closePanel({ keepTempMarker = false } = {}) {
   cancelActivePositionEdit();
   editMode = null;
   selectedBenchId = null;
@@ -554,7 +834,62 @@ function closePanel() {
   benchForm.reset();
   resetImageField();
   clearBenchHistory();
-  clearTempMarker();
+  if (!keepTempMarker) clearTempMarker();
+}
+
+function openTrailAddPanel() {
+  cancelActivePositionEdit();
+  closePanel({ keepTempMarker: true });
+  editMode = 'trail-add';
+  selectedTrailPoleId = null;
+  currentEditTrailPole = null;
+  currentEditTrailMarker = null;
+  trailPanelTitle.textContent = 'Wandertafel-Pfeiler hinzuf\u00FCgen';
+  fieldTrailSiteNumber.value = '';
+  fieldTrailActive.value = '1';
+  fieldTrailNotes.value = '';
+  showTrailFormError(null);
+  renderTrailSignboards([
+    {
+      direction: '',
+      trail_number: '',
+      sort_order: 0,
+      entries: [{ label: '', duration: '', sort_order: 0 }]
+    }
+  ]);
+  trailEditPanelActions.hidden = true;
+  trailPanel.hidden = false;
+}
+
+function openTrailEditPanel(pole, marker) {
+  cancelActivePositionEdit();
+  closePanel();
+  editMode = 'trail-edit';
+  selectedTrailPoleId = pole.id;
+  selectedPoint = null;
+  currentEditTrailPole = pole;
+  currentEditTrailMarker = marker;
+  trailPanelTitle.textContent = 'Wandertafel-Pfeiler bearbeiten';
+  fieldTrailSiteNumber.value = pole.site_number || '';
+  fieldTrailActive.value = pole.active ? '1' : '0';
+  fieldTrailNotes.value = pole.notes || '';
+  showTrailFormError(null);
+  renderTrailSignboards(pole.signboards?.length ? pole.signboards : []);
+  trailEditPanelActions.hidden = false;
+  trailPanel.hidden = false;
+}
+
+function closeTrailPanel({ keepTempMarker = false } = {}) {
+  cancelActivePositionEdit();
+  editMode = null;
+  selectedTrailPoleId = null;
+  currentEditTrailPole = null;
+  currentEditTrailMarker = null;
+  trailPanel.hidden = true;
+  trailPoleForm?.reset();
+  showTrailFormError(null);
+  if (trailSignboards) trailSignboards.innerHTML = '';
+  if (!keepTempMarker) clearTempMarker();
 }
 
 function setTempMarker(point) {
@@ -630,6 +965,50 @@ function popupHtml(bench) {
   `;
 }
 
+function trailPopupHtml(pole) {
+  const signboardsHtml = pole.signboards?.length
+    ? pole.signboards.map((signboard) => {
+      const entries = signboard.entries?.length
+        ? signboard.entries.map((entry) => `
+          <li>
+            ${escapeHtml(entry.label)}
+            ${entry.duration ? ` · ${escapeHtml(entry.duration)}` : ''}
+          </li>
+        `).join('')
+        : '<li>Keine Anschriften</li>';
+
+      return `
+        <div class="popup-signboard">
+          <div class="popup-signboard-title">
+            <strong>${escapeHtml(signboard.direction)}</strong>
+            <small>Weg ${escapeHtml(signboard.trail_number)}</small>
+          </div>
+          <ul>${entries}</ul>
+        </div>
+      `;
+    }).join('')
+    : '<div class="popup-signboard"><div class="popup-signboard-title"><strong>Keine Tafeln gepflegt</strong></div></div>';
+
+  return `
+    <div class="popup-card">
+      <div class="popup-header">
+        <strong>Standort ${escapeHtml(pole.site_number)}</strong>
+        <small>#${pole.id}</small>
+      </div>
+      <div class="popup-meta">
+        <span><b>Aktiv:</b> ${pole.active ? 'Ja' : 'Nein'}</span>
+        <span><b>Tafeln:</b> ${pole.signboards?.length || 0}</span>
+      </div>
+      <div class="popup-notes">
+        <b>Notiz:</b> ${pole.notes ? escapeHtml(pole.notes) : '-'}
+      </div>
+      <div class="popup-signboards">
+        ${signboardsHtml}
+      </div>
+    </div>
+  `;
+}
+
 async function upsertBench(path, method, payload) {
   let response;
   try {
@@ -651,6 +1030,30 @@ async function upsertBench(path, method, payload) {
 
   closePanel();
   await loadBenches();
+  return true;
+}
+
+async function upsertTrailPole(path, method, payload) {
+  let response;
+  try {
+    response = await fetch(apiUrl(path), {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (error) {
+    showTrailFormError(`Fehler beim Speichern des Pfeilers. Netzwerkfehler: ${error.message}`);
+    return;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    showTrailFormError(`Fehler beim Speichern des Pfeilers. ${detail}`);
+    return;
+  }
+
+  closeTrailPanel();
+  await loadTrailPoles();
   return true;
 }
 
@@ -938,6 +1341,12 @@ async function archiveBench(benchId) {
   await deleteBench(benchId);
 }
 
+async function archiveTrailPole(poleId) {
+  if (!confirm('Wandertafel-Pfeiler wirklich l\u00F6schen? Alle Tafeln und Anschriften werden mitgel\u00F6scht.')) return;
+
+  await deleteTrailPole(poleId);
+}
+
 async function deleteBench(benchId) {
   let response;
   try {
@@ -957,6 +1366,27 @@ async function deleteBench(benchId) {
 
   closePanel();
   await loadBenches();
+}
+
+async function deleteTrailPole(poleId) {
+  let response;
+  try {
+    response = await fetch(apiUrl(`/api/trail-poles/${poleId}`), {
+      method: 'DELETE'
+    });
+  } catch (error) {
+    alert(`Fehler beim L\u00F6schen des Pfeilers. Netzwerkfehler: ${error.message}`);
+    return;
+  }
+
+  if (!response.ok) {
+    const detail = await readErrorMessage(response);
+    alert(`Fehler beim L\u00F6schen des Pfeilers. ${detail}`);
+    return;
+  }
+
+  closeTrailPanel();
+  await loadTrailPoles();
 }
 
 function popupEditorHtml(bench, state) {
@@ -1384,6 +1814,18 @@ function getMarkerState(benchId) {
   return markerStates.get(benchId);
 }
 
+function getTrailMarkerState(poleId) {
+  if (!trailMarkerStates.has(poleId)) {
+    trailMarkerStates.set(poleId, {
+      isMoving: false,
+      pendingPosition: null,
+      originalPosition: null
+    });
+  }
+
+  return trailMarkerStates.get(poleId);
+}
+
 function resetMarkerEditState(marker, benchId, originalPosition) {
   const state = getMarkerState(benchId);
   state.isMoving = false;
@@ -1400,6 +1842,22 @@ function resetAllMarkerEditStates() {
 
     resetMarkerEditState(marker, benchId, state.originalPosition);
   }
+
+  for (const [poleId, marker] of trailMarkers.entries()) {
+    const state = getTrailMarkerState(poleId);
+    if (!state.pendingPosition || !state.originalPosition) continue;
+
+    resetTrailMarkerEditState(marker, poleId, state.originalPosition);
+  }
+}
+
+function resetTrailMarkerEditState(marker, poleId, originalPosition) {
+  const state = getTrailMarkerState(poleId);
+  state.isMoving = false;
+  state.pendingPosition = null;
+  state.originalPosition = null;
+  disableMarkerDragging(marker);
+  marker.setLatLng([originalPosition.lat, originalPosition.lng]);
 }
 
 function renderBenchList() {
@@ -1467,9 +1925,72 @@ function renderBenchList() {
   });
 }
 
+function renderTrailList() {
+  if (!trailList || !trailSortSelect) return;
+
+  const poles = sortedTrailPoles(currentTrailPoles, trailSortSelect.value);
+  updateTrailListCount(poles.length);
+
+  if (!poles.length) {
+    trailList.innerHTML = '<p class="bench-list-empty">Keine Wandertafel-Pfeiler gefunden.</p>';
+    return;
+  }
+
+  trailList.innerHTML = poles.map((pole) => {
+    const signboardCount = pole.signboards?.length || 0;
+    const entryCount = countTrailEntries(pole);
+    const firstEntry = firstTrailEntrySummary(pole);
+    const activeLabel = pole.active ? 'Aktiv' : 'Inaktiv';
+
+    return `
+      <button class="bench-list-item" type="button" data-trail-pole-id="${pole.id}">
+        <span class="bench-list-main">
+          <span class="bench-list-topline">
+            <span class="bench-list-number">#${escapeHtml(pole.site_number || pole.id)}</span>
+            <strong>Standort ${escapeHtml(pole.site_number || pole.id)}</strong>
+          </span>
+          <span class="bench-list-details">
+            <span class="bench-list-status">
+              <span class="dot ${pole.active ? 'good' : 'inactive'}"></span>
+              ${activeLabel}
+            </span>
+            <span class="trail-list-summary">${signboardCount} ${signboardCount === 1 ? 'Tafel' : 'Tafeln'}</span>
+            <span class="trail-list-summary">${entryCount} ${entryCount === 1 ? 'Anschrift' : 'Anschriften'}</span>
+            <span class="trail-list-entry">${escapeHtml(firstEntry)}</span>
+          </span>
+        </span>
+      </button>
+    `;
+  }).join('');
+
+  trailList.querySelectorAll('[data-trail-pole-id]').forEach((item) => {
+    item.addEventListener('click', () => {
+      const poleId = Number(item.dataset.trailPoleId);
+      const pole = currentTrailPoles.find((candidate) => candidate.id === poleId);
+      const marker = trailMarkers.get(poleId);
+      if (!pole) return;
+
+      trailListPanel.hidden = true;
+      map.panTo([pole.lat, pole.lng], { animate: true });
+
+      if (adminToggle.checked && marker) {
+        openTrailEditPanel(pole, marker);
+        return;
+      }
+
+      marker?.openPopup();
+    });
+  });
+}
+
 function updateBenchListCount(count) {
   if (!benchListCount) return;
   benchListCount.textContent = `${count} ${count === 1 ? 'Bank' : 'B\u00E4nke'}`;
+}
+
+function updateTrailListCount(count) {
+  if (!trailListCount) return;
+  trailListCount.textContent = `${count} ${count === 1 ? 'Pfeiler' : 'Pfeiler'}`;
 }
 
 function getSelectedBenchTitle() {
@@ -1503,6 +2024,248 @@ function syncCustomNameVisibility() {
   fieldName.required = isCustom;
 }
 
+function renderTrailSignboards(signboards) {
+  if (!trailSignboards) return;
+
+  trailSignboards.innerHTML = '';
+  for (const signboard of signboards) {
+    addTrailSignboardEditor(signboard);
+  }
+
+  renumberTrailEditors();
+}
+
+function addTrailSignboardEditor(signboard = null) {
+  if (!trailSignboards) return;
+
+  const index = trailSignboards.querySelectorAll('.trail-signboard-editor').length;
+  trailSignboards.insertAdjacentHTML('beforeend', trailSignboardEditorHtml(signboard, index));
+  renumberTrailEditors();
+}
+
+function trailSignboardEditorHtml(signboard, index) {
+  const entries = signboard?.entries?.length
+    ? signboard.entries
+    : [{ label: '', duration: '', sort_order: 0 }];
+  const entriesHtml = entries.map((entry, entryIndex) => trailEntryEditorHtml(entry, entryIndex)).join('');
+
+  return `
+    <article class="trail-signboard-editor" data-role="trail-signboard">
+      <div class="trail-signboard-editor-header">
+        <strong>Tafel ${index + 1}</strong>
+        <button class="danger compact" type="button" data-action="remove-signboard">Tafel l&ouml;schen</button>
+      </div>
+      <div class="trail-signboard-grid">
+        <label>
+          Richtung
+          <input name="direction" type="text" maxlength="120" value="${escapeHtml(signboard?.direction || '')}" required />
+        </label>
+        <label>
+          Wegnummer
+          <input name="trail_number" type="text" maxlength="80" value="${escapeHtml(signboard?.trail_number || '')}" required />
+        </label>
+      </div>
+      <div class="trail-entry-header">
+        <strong>Anschriften</strong>
+        <button class="compact" type="button" data-action="add-entry">Anschrift hinzuf&uuml;gen</button>
+      </div>
+      <div class="trail-entries" data-role="trail-entries">
+        ${entriesHtml}
+      </div>
+    </article>
+  `;
+}
+
+function trailEntryEditorHtml(entry, index) {
+  return `
+    <div class="trail-entry-editor" data-role="trail-entry">
+      <div class="trail-entry-header">
+        <strong>Anschrift ${index + 1}</strong>
+        <button class="danger compact" type="button" data-action="remove-entry">Entfernen</button>
+      </div>
+      <div class="trail-entry-grid">
+        <label>
+          Beschriftung
+          <input name="label" type="text" maxlength="200" value="${escapeHtml(entry?.label || '')}" required />
+        </label>
+        <label>
+          Dauer
+          <input name="duration" type="text" maxlength="80" value="${escapeHtml(entry?.duration || '')}" />
+        </label>
+      </div>
+    </div>
+  `;
+}
+
+function handleTrailSignboardAction(event) {
+  const button = event.target.closest('button[data-action]');
+  if (!button) return;
+
+  const signboardElement = button.closest('[data-role="trail-signboard"]');
+  const action = button.dataset.action;
+
+  if (action === 'remove-signboard') {
+    signboardElement?.remove();
+    renumberTrailEditors();
+    clearTrailValidationHighlights();
+    return;
+  }
+
+  if (action === 'add-entry') {
+    const entriesElement = signboardElement?.querySelector('[data-role="trail-entries"]');
+    const entryCount = entriesElement?.querySelectorAll('[data-role="trail-entry"]').length || 0;
+    if (!entriesElement || entryCount >= 2) {
+      showTrailValidationError('Pro Tafel sind maximal zwei Anschriften erlaubt.', button, signboardElement);
+      return;
+    }
+
+    entriesElement.insertAdjacentHTML('beforeend', trailEntryEditorHtml(null, entryCount));
+    renumberTrailEditors();
+    clearTrailValidationHighlights();
+    return;
+  }
+
+  if (action === 'remove-entry') {
+    const entriesElement = signboardElement?.querySelector('[data-role="trail-entries"]');
+    const entryCount = entriesElement?.querySelectorAll('[data-role="trail-entry"]').length || 0;
+    if (entryCount <= 1) {
+      showTrailValidationError('Eine Tafel braucht mindestens eine Anschrift.', button, signboardElement);
+      return;
+    }
+
+    button.closest('[data-role="trail-entry"]')?.remove();
+    renumberTrailEditors();
+    clearTrailValidationHighlights();
+  }
+}
+
+function renumberTrailEditors() {
+  if (!trailSignboards) return;
+
+  trailSignboards.querySelectorAll('[data-role="trail-signboard"]').forEach((signboardElement, signboardIndex) => {
+    const title = signboardElement.querySelector('.trail-signboard-editor-header strong');
+    if (title) title.textContent = `Tafel ${signboardIndex + 1}`;
+
+    const entries = signboardElement.querySelectorAll('[data-role="trail-entry"]');
+    const addEntryButton = signboardElement.querySelector('[data-action="add-entry"]');
+    if (addEntryButton) addEntryButton.disabled = entries.length >= 2;
+
+    entries.forEach((entryElement, entryIndex) => {
+      const entryTitle = entryElement.querySelector('.trail-entry-header strong');
+      if (entryTitle) entryTitle.textContent = `Anschrift ${entryIndex + 1}`;
+    });
+  });
+}
+
+function readTrailPoleFormPayload() {
+  clearTrailValidationHighlights();
+  const siteNumber = fieldTrailSiteNumber.value.trim();
+  if (!siteNumber) {
+    showTrailValidationError('Bitte eine Standortnummer eingeben.', fieldTrailSiteNumber);
+    return null;
+  }
+
+  const signboards = Array.from(trailSignboards.querySelectorAll('[data-role="trail-signboard"]')).map((signboardElement, signboardIndex) => {
+    const direction = signboardElement.querySelector('input[name="direction"]').value.trim();
+    const trailNumber = signboardElement.querySelector('input[name="trail_number"]').value.trim();
+    const entries = Array.from(signboardElement.querySelectorAll('[data-role="trail-entry"]')).map((entryElement, entryIndex) => ({
+      label: entryElement.querySelector('input[name="label"]').value.trim(),
+      duration: entryElement.querySelector('input[name="duration"]').value.trim() || null,
+      sort_order: entryIndex
+    }));
+
+    return {
+      direction,
+      trail_number: trailNumber,
+      sort_order: signboardIndex,
+      entries
+    };
+  });
+
+  if (signboards.length < 1) {
+    showTrailValidationError('Bitte mindestens eine Tafel anlegen.', addTrailSignboardBtn);
+    return null;
+  }
+
+  for (let signboardIndex = 0; signboardIndex < signboards.length; signboardIndex += 1) {
+    const signboard = signboards[signboardIndex];
+    const signboardElement = trailSignboards.querySelectorAll('[data-role="trail-signboard"]')[signboardIndex];
+
+    if (!signboard.direction) {
+      showTrailValidationError(
+        `Bitte die Richtung f\u00FCr Tafel ${signboardIndex + 1} eingeben.`,
+        signboardElement?.querySelector('input[name="direction"]'),
+        signboardElement
+      );
+      return null;
+    }
+
+    if (!signboard.trail_number) {
+      showTrailValidationError(
+        `Bitte die Wegnummer f\u00FCr Tafel ${signboardIndex + 1} eingeben.`,
+        signboardElement?.querySelector('input[name="trail_number"]'),
+        signboardElement
+      );
+      return null;
+    }
+
+    if (signboard.entries.length < 1 || signboard.entries.length > 2) {
+      showTrailValidationError(
+        `Tafel ${signboardIndex + 1} braucht eine oder zwei Anschriften.`,
+        signboardElement?.querySelector('[data-action="add-entry"]'),
+        signboardElement
+      );
+      return null;
+    }
+
+    for (let entryIndex = 0; entryIndex < signboard.entries.length; entryIndex += 1) {
+      const entryElement = signboardElement?.querySelectorAll('[data-role="trail-entry"]')[entryIndex];
+      if (!signboard.entries[entryIndex].label) {
+        showTrailValidationError(
+          `Bitte die Beschriftung f\u00FCr Anschrift ${entryIndex + 1} in Tafel ${signboardIndex + 1} eingeben.`,
+          entryElement?.querySelector('input[name="label"]'),
+          entryElement || signboardElement
+        );
+        return null;
+      }
+    }
+  }
+
+  return {
+    site_number: siteNumber,
+    active: fieldTrailActive.value === '1',
+    notes: fieldTrailNotes.value.trim() || null,
+    signboards
+  };
+}
+
+function showTrailValidationError(message, focusTarget = null, highlightTarget = null) {
+  showTrailFormError(message);
+  highlightTarget?.classList.add('is-invalid');
+  focusTarget?.focus?.({ preventScroll: true });
+  focusTarget?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+}
+
+function showTrailFormError(message) {
+  if (!trailFormError) return;
+
+  if (!message) {
+    trailFormError.hidden = true;
+    trailFormError.textContent = '';
+    return;
+  }
+
+  trailFormError.textContent = message;
+  trailFormError.hidden = false;
+}
+
+function clearTrailValidationHighlights() {
+  showTrailFormError(null);
+  trailSignboards?.querySelectorAll('.is-invalid').forEach((element) => {
+    element.classList.remove('is-invalid');
+  });
+}
+
 function sortedBenches(benches, sortMode) {
   const next = [...benches];
 
@@ -1519,6 +2282,53 @@ function sortedBenches(benches, sortMode) {
   }
 
   return next.sort((a, b) => inspectionSortValue(b) - inspectionSortValue(a));
+}
+
+function sortedTrailPoles(poles, sortMode) {
+  const next = [...poles];
+
+  if (sortMode === 'updated-desc') {
+    return next.sort((a, b) => timestampSortValue(b.updated_at) - timestampSortValue(a.updated_at));
+  }
+
+  if (sortMode === 'signboards-desc') {
+    return next.sort((a, b) => {
+      const countDiff = (b.signboards?.length || 0) - (a.signboards?.length || 0);
+      if (countDiff !== 0) return countDiff;
+      return compareSiteNumbers(a.site_number, b.site_number);
+    });
+  }
+
+  return next.sort((a, b) => compareSiteNumbers(a.site_number, b.site_number));
+}
+
+function compareSiteNumbers(a, b) {
+  return String(a || '').localeCompare(String(b || ''), 'de', {
+    numeric: true,
+    sensitivity: 'base'
+  });
+}
+
+function timestampSortValue(value) {
+  if (!value) return 0;
+  const normalized = String(value).includes('T')
+    ? String(value)
+    : `${String(value).replace(' ', 'T')}Z`;
+  const time = new Date(normalized).getTime();
+  return Number.isFinite(time) ? time : 0;
+}
+
+function countTrailEntries(pole) {
+  return (pole.signboards || []).reduce((sum, signboard) => sum + (signboard.entries?.length || 0), 0);
+}
+
+function firstTrailEntrySummary(pole) {
+  const firstSignboard = pole.signboards?.[0];
+  const firstEntry = firstSignboard?.entries?.[0];
+
+  if (!firstSignboard || !firstEntry) return 'Keine Anschriften gepflegt';
+
+  return `${firstSignboard.direction} · Weg ${firstSignboard.trail_number} · ${firstEntry.label}${firstEntry.duration ? ` (${firstEntry.duration})` : ''}`;
 }
 
 function inspectionSortValue(bench) {
@@ -1616,8 +2426,8 @@ function isBenchOverdue(bench) {
   return inspectionDate <= threshold;
 }
 
-function startPositionEdit(bench, marker) {
-  const state = getMarkerState(bench.id);
+function startPositionEdit(type, item, marker) {
+  const state = type === 'trail' ? getTrailMarkerState(item.id) : getMarkerState(item.id);
   const currentLatLng = marker.getLatLng();
   const currentPosition = {
     lat: Number(currentLatLng.lat.toFixed(6)),
@@ -1625,7 +2435,8 @@ function startPositionEdit(bench, marker) {
   };
 
   activePositionEdit = {
-    bench,
+    type,
+    item,
     marker,
     originalPosition: state.originalPosition || currentPosition
   };
@@ -1646,8 +2457,8 @@ function startPositionEdit(bench, marker) {
 async function saveActivePositionEdit() {
   if (!activePositionEdit) return;
 
-  const { bench, marker } = activePositionEdit;
-  const state = getMarkerState(bench.id);
+  const { type, item, marker } = activePositionEdit;
+  const state = type === 'trail' ? getTrailMarkerState(item.id) : getMarkerState(item.id);
   const latLng = marker.getLatLng();
   const nextPosition = state.pendingPosition ?? {
     lat: Number(latLng.lat.toFixed(6)),
@@ -1655,28 +2466,38 @@ async function saveActivePositionEdit() {
   };
 
   clearActivePositionEdit(false);
-  await upsertBench(`/api/benches/${bench.id}`, 'PUT', nextPosition);
+  if (type === 'trail') {
+    await upsertTrailPole(`/api/trail-poles/${item.id}`, 'PUT', nextPosition);
+    return;
+  }
+
+  await upsertBench(`/api/benches/${item.id}`, 'PUT', nextPosition);
 }
 
 function cancelActivePositionEdit({ reopenPanel = false } = {}) {
   if (!activePositionEdit) return;
-  const { bench, marker } = activePositionEdit;
+  const { type, item, marker } = activePositionEdit;
   clearActivePositionEdit(true);
 
   if (reopenPanel) {
-    openEditPanel(bench, marker);
+    if (type === 'trail') {
+      openTrailEditPanel(item, marker);
+      return;
+    }
+
+    openEditPanel(item, marker);
   }
 }
 
 function clearActivePositionEdit(restorePosition) {
   if (!activePositionEdit) return;
 
-  const { bench, marker, originalPosition } = activePositionEdit;
+  const { type, item, marker, originalPosition } = activePositionEdit;
   if (restorePosition) {
     marker.setLatLng([originalPosition.lat, originalPosition.lng]);
   }
 
-  const state = getMarkerState(bench.id);
+  const state = type === 'trail' ? getTrailMarkerState(item.id) : getMarkerState(item.id);
   state.isMoving = false;
   state.pendingPosition = null;
   state.originalPosition = null;
@@ -1689,14 +2510,17 @@ function clearActivePositionEdit(restorePosition) {
 function renderPositionEditBar() {
   if (!activePositionEdit) return;
 
-  const { bench, marker } = activePositionEdit;
+  const { type, item, marker } = activePositionEdit;
   const latLng = marker.getLatLng();
   const position = {
     lat: Number(latLng.lat.toFixed(6)),
     lng: Number(latLng.lng.toFixed(6))
   };
 
-  positionEditTitle.textContent = `Position \u00E4ndern: ${bench.title || `Bank ${bench.id}`}`;
+  const itemName = type === 'trail'
+    ? `Standort ${item.site_number || item.id}`
+    : (item.title || `Bank ${item.id}`);
+  positionEditTitle.textContent = `Position \u00E4ndern: ${itemName}`;
   positionEditHint.textContent = `Marker verschieben. Aktuell: ${position.lat}, ${position.lng}`;
   positionEditBar.hidden = false;
 }
@@ -1714,6 +2538,11 @@ function handleBenchLoadError(detail) {
   if (hasShownLoadError) return;
   hasShownLoadError = true;
   alert(`B\u00E4nke konnten nicht geladen werden. ${detail}`);
+}
+
+function handleTrailPoleLoadError(detail) {
+  console.error('Trail pole loading failed:', detail);
+  alert(`Wandertafeln konnten nicht geladen werden. ${detail}`);
 }
 
 function escapeHtml(value) {
@@ -1739,6 +2568,9 @@ function apiUrl(path) {
 function updateAdminControls() {
   if (addCurrentLocationBtn) {
     addCurrentLocationBtn.hidden = !adminToggle.checked;
+    addCurrentLocationBtn.textContent = currentView === 'trails'
+      ? 'Pfeiler hinzuf\u00FCgen'
+      : 'Bank hinzuf\u00FCgen';
   }
 
   mapElement.closest('.map-shell')?.classList.toggle('is-admin', adminToggle.checked);
@@ -1761,4 +2593,4 @@ function resolveApiBaseUrl() {
 loadMunicipalityBoundary();
 loadBenches();
 showUserLocation();
-updateAdminControls();
+updateViewControls();

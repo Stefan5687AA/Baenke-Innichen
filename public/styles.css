@@ -120,6 +120,7 @@ body > main {
   flex: 0 0 auto;
   z-index: 1000;
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 0.85rem;
@@ -138,6 +139,37 @@ body > main {
   font-size: clamp(1.05rem, 0.96rem + 0.45vw, 1.35rem);
   line-height: 1.2;
   letter-spacing: 0;
+}
+
+.view-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.86);
+}
+
+.view-switch-button {
+  min-height: 38px;
+  padding: 0.5rem 0.78rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  box-shadow: none;
+  color: var(--text-soft);
+  font-size: 0.88rem;
+}
+
+.view-switch-button:hover {
+  box-shadow: none;
+}
+
+.view-switch-button.is-active {
+  background: var(--surface-strong);
+  color: var(--text);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
 .controls {
@@ -438,6 +470,27 @@ main {
   border-color: #e2e8f0;
 }
 
+.trail-list-summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0.18rem 0.52rem;
+  border-radius: 999px;
+  color: #155e75;
+  background: #ecfeff;
+  border: 1px solid #bae6fd;
+  white-space: nowrap;
+}
+
+.trail-list-entry {
+  flex: 1 1 100%;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text-soft);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .bench-list-empty {
   margin: 0;
   padding: 1rem 0.75rem;
@@ -534,6 +587,11 @@ main {
   border: 0;
 }
 
+.trail-marker-icon {
+  background: transparent;
+  border: 0;
+}
+
 .bench-marker-pin {
   position: relative;
   display: inline-flex;
@@ -558,6 +616,40 @@ main {
   box-shadow:
     0 0 0 6px rgba(250, 204, 21, 0.35),
     0 0 0 12px rgba(37, 99, 235, 0.18),
+    0 10px 24px rgba(15, 23, 42, 0.28);
+}
+
+.trail-marker-pin {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 0.42rem;
+  border-radius: 9px;
+  border: 2px solid #fff;
+  background: #0f766e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.18), 0 5px 16px rgba(15, 23, 42, 0.18);
+}
+
+.trail-marker-icon.is-inactive .trail-marker-pin {
+  background: #64748b;
+  opacity: 0.84;
+}
+
+.trail-marker-icon.is-moving .trail-marker-pin {
+  background: #facc15 !important;
+  border-color: #111827;
+  color: #111827;
+  box-shadow:
+    0 0 0 6px rgba(250, 204, 21, 0.35),
+    0 0 0 12px rgba(20, 184, 166, 0.18),
     0 10px 24px rgba(15, 23, 42, 0.28);
 }
 
@@ -712,6 +804,54 @@ main {
   line-height: 1.4;
 }
 
+.popup-signboards {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.popup-signboard {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.55rem 0.62rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-muted);
+}
+
+.popup-signboard-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  font-size: 0.86rem;
+  line-height: 1.25;
+}
+
+.popup-signboard-title small {
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.popup-signboard ul {
+  display: grid;
+  gap: 0.22rem;
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.form-error {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
 .popup-editor label {
   display: grid;
   gap: 0.32rem;
@@ -735,7 +875,13 @@ main {
 #fieldStatus,
 #fieldActive,
 #fieldImage,
-#fieldNotes {
+#fieldNotes,
+#fieldTrailSiteNumber,
+#fieldTrailActive,
+#fieldTrailNotes,
+.trail-form input,
+.trail-form select,
+.trail-form textarea {
   width: 100%;
   font-size: 16px;
   min-height: 44px;
@@ -747,7 +893,9 @@ main {
 }
 
 .popup-editor textarea,
-#fieldNotes {
+#fieldNotes,
+#fieldTrailNotes,
+.trail-form textarea {
   min-height: 82px;
   resize: vertical;
 }
@@ -861,17 +1009,96 @@ main {
   line-height: 1.3;
 }
 
-#benchForm {
+#benchForm,
+#trailPoleForm {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
 }
 
-#benchForm label {
+#benchForm label,
+#trailPoleForm label {
   display: grid;
   gap: 0.38rem;
   font-size: 0.92rem;
   color: var(--text-soft);
+}
+
+.trail-signboards-section {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(213, 222, 232, 0.95);
+  border-radius: 14px;
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.trail-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.trail-section-header h3 {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.2;
+}
+
+.trail-signboards {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.trail-signboard-editor {
+  display: grid;
+  gap: 0.68rem;
+  padding: 0.72rem;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  border-radius: 13px;
+  background: #fff;
+}
+
+.trail-signboard-editor.is-invalid,
+.trail-entry-editor.is-invalid {
+  border-color: #fca5a5;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+.trail-signboard-editor-header,
+.trail-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.trail-signboard-editor-header strong,
+.trail-entry-header strong {
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+
+.trail-signboard-grid,
+.trail-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.trail-entries {
+  display: grid;
+  gap: 0.58rem;
+}
+
+.trail-entry-editor {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.62rem;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 12px;
+  background: var(--surface-muted);
 }
 
 .full-width {
@@ -1073,7 +1300,13 @@ main {
     gap: 0.6rem;
   }
 
+  #trailPoleForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+
   #benchForm label,
+  #trailPoleForm label,
   .popup-editor label {
     font-size: 0.84rem;
   }
@@ -1108,7 +1341,13 @@ main {
   #fieldStatus,
   #fieldActive,
   #fieldImage,
-  #fieldNotes {
+  #fieldNotes,
+  #fieldTrailSiteNumber,
+  #fieldTrailActive,
+  #fieldTrailNotes,
+  .trail-form input,
+  .trail-form select,
+  .trail-form textarea {
     min-height: 40px;
     border-radius: 10px;
     padding: 0.52rem 0.62rem;
@@ -1122,6 +1361,12 @@ main {
 
   .panel-actions button {
     width: 100%;
+  }
+
+  .trail-signboard-grid,
+  .trail-entry-grid {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
   }
 
   .position-edit-bar {
@@ -1152,6 +1397,12 @@ main {
     flex: 1 1 auto;
     min-width: 0;
     font-size: 1rem;
+  }
+
+  .view-switch {
+    order: 3;
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   main {

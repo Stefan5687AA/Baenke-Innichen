@@ -149,6 +149,93 @@ Bench shape:
 }
 ```
 
+## Trail poles
+
+The app includes a second map area for trail sign poles (`Wandertafeln`). Use the toolbar switch to move between the bench map and the trail-pole map. The list button opens a bench list in the bench view and a pole list in the trail view.
+
+Existing D1 databases need the additive trail-pole migration:
+
+```bash
+npx wrangler d1 execute innichen-benches --local --file=worker/migrations/005_add_trail_poles.sql --config worker/wrangler.toml
+```
+
+Use `--remote` for the remote D1 database.
+
+Trail pole endpoints:
+
+- `GET /api/trail-poles` -> active trail poles
+- `GET /api/trail-poles?active=all` -> include inactive trail poles
+- `GET /api/trail-poles/:id` -> one pole with all signboards and entries
+- `POST /api/trail-poles` -> create pole with nested signboards and entries
+- `PUT /api/trail-poles/:id` -> update pole fields; when `signboards` is sent, the pole's signboards are replaced
+- `DELETE /api/trail-poles/:id` -> delete pole including signboards and entries
+
+Trail pole shape:
+
+```json
+{
+  "id": 1,
+  "site_number": "12A",
+  "lat": 46.7326,
+  "lng": 12.2817,
+  "active": true,
+  "notes": "Optional note",
+  "created_at": "2026-05-07 10:00:00",
+  "updated_at": "2026-05-07 10:00:00",
+  "signboards": [
+    {
+      "id": 1,
+      "pole_id": 1,
+      "direction": "Nord",
+      "trail_number": "4",
+      "sort_order": 0,
+      "entries": [
+        {
+          "id": 1,
+          "signboard_id": 1,
+          "label": "Haunold",
+          "duration": "45 min",
+          "sort_order": 0
+        }
+      ]
+    }
+  ]
+}
+```
+
+Trail pole validation:
+
+- `site_number`, `lat`, and `lng` are required when creating a pole.
+- Each signboard stores `direction`, `trail_number`, and `sort_order`.
+- Each signboard must have 1 or 2 entries.
+- Each entry requires `label`; `duration` is optional.
+- Marker position always belongs to the pole.
+
+## GitHub backups
+
+The Worker cron runs once per night and writes the latest JSON snapshots to the configured backup branch.
+
+Backup files:
+
+- `backups/benches-latest.json` contains all benches and bench history.
+- `backups/trail-poles-latest.json` contains all trail poles with nested signboards and entries.
+
+Manual backup endpoint:
+
+```bash
+curl -X POST https://<worker-url>/api/backups/github \
+  -H "Content-Type: application/json" \
+  -d "{\"confirm\":\"backup\"}"
+```
+
+Required Worker settings:
+
+- `GITHUB_BACKUP_OWNER`
+- `GITHUB_BACKUP_REPO`
+- `GITHUB_BACKUP_BRANCH` (`data-backups` in `worker/wrangler.toml`)
+- `GITHUB_BACKUP_DIRECTORY`
+- secret `GITHUB_BACKUP_TOKEN`
+
 ## Notes
 
 - Diese App ist absichtlich minimal gehalten und nutzt ein einfaches, formularbasiertes Admin-Panel.

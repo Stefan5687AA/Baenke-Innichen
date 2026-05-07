@@ -1,4 +1,11 @@
 const ALLOWED_STATUSES = ['good', 'ok', 'to_check', 'repair', 'removed'];
+const MAX_NOTES_LENGTH = 5000;
+const MAX_IMAGE_URL_LENGTH = 2000;
+const MAX_TRAIL_SITE_NUMBER_LENGTH = 80;
+const MAX_TRAIL_DIRECTION_LENGTH = 120;
+const MAX_TRAIL_NUMBER_LENGTH = 80;
+const MAX_TRAIL_LABEL_LENGTH = 200;
+const MAX_TRAIL_DURATION_LENGTH = 80;
 
 class HttpError extends Error {
   constructor(status, message, detail = null) {
@@ -32,6 +39,14 @@ export default {
         return await createBench(request, env);
       }
 
+      if (url.pathname === '/api/trail-poles' && request.method === 'GET') {
+        return await listTrailPoles(url, env);
+      }
+
+      if (url.pathname === '/api/trail-poles' && request.method === 'POST') {
+        return await createTrailPole(request, env);
+      }
+
       if (url.pathname === '/api/upload' && request.method === 'POST') {
         return await uploadImage(request, env);
       }
@@ -56,6 +71,19 @@ export default {
 
       if (benchIdMatch && request.method === 'DELETE') {
         return await deleteBench(Number(benchIdMatch[1]), env);
+      }
+
+      const trailPoleIdMatch = url.pathname.match(/^\/api\/trail-poles\/(\d+)$/);
+      if (trailPoleIdMatch && request.method === 'GET') {
+        return await getTrailPole(Number(trailPoleIdMatch[1]), env);
+      }
+
+      if (trailPoleIdMatch && request.method === 'PUT') {
+        return await updateTrailPole(Number(trailPoleIdMatch[1]), request, env);
+      }
+
+      if (trailPoleIdMatch && request.method === 'DELETE') {
+        return await deleteTrailPole(Number(trailPoleIdMatch[1]), env);
       }
 
       return json({ error: 'Not found' }, 404);
@@ -108,8 +136,8 @@ async function listBenches(url, env) {
 
 async function createBench(request, env) {
   const body = await readJsonBody(request);
-  const payload = validatePayload(body, true);
-  const preparedPayload = applyBusinessRules(payload, true);
+  const payload = validateBenchPayload(body, true);
+  const preparedPayload = applyBenchBusinessRules(payload, true);
 
   const stmt = env.DB.prepare(`
     INSERT INTO benches (
@@ -170,8 +198,8 @@ async function updateBench(id, request, env) {
   }
 
   const body = await readJsonBody(request);
-  const payload = validatePayload(body, false);
-  const preparedPayload = applyBusinessRules(payload, false);
+  const payload = validateBenchPayload(body, false);
+  const preparedPayload = applyBenchBusinessRules(payload, false);
   const hasImageUrlUpdate = typeof preparedPayload.image_url !== 'undefined';
   const shouldMarkDeleted = preparedPayload.status === 'removed';
   const shouldRestoreDeleted = preparedPayload.status
@@ -314,6 +342,288 @@ async function listAllBenchHistory(url, env) {
   return json(results.map(normalizeHistoryEntry));
 }
 
+async function listTrailPoles(url, env) {
+  const includeInactive = url.searchParams.get('active') === 'all';
+
+  const query = includeInactive
+    ? `
+      SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+      FROM trail_poles
+      ORDER BY id DESC
+    `
+    : `
+      SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+      FROM trail_poles
+      WHERE active = 1
+      ORDER BY id DESC
+    `;
+
+  const { results } = await env.DB.prepare(query).all();
+  return json(await hydrateTrailPoles(env, results));
+}
+
+async function getTrailPole(id, env) {
+  const pole = await fetchTrailPoleAggregate(env, id);
+
+  if (!pole) {
+    return json({ error: 'Trail pole not found' }, 404);
+  }
+
+  return json(pole);
+}
+
+async function createTrailPole(request, env) {
+  const body = await readJsonBody(request);
+  const payload = validateTrailPolePayload(body, true);
+
+  const result = await runStatement(
+    env.DB.prepare(`
+      INSERT INTO trail_poles (
+        site_number,
+        lat,
+        lng,
+        active,
+        notes
+      )
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(
+      payload.site_number,
+      payload.lat,
+      payload.lng,
+      payload.active ? 1 : 0,
+      payload.notes ?? null
+    )
+  );
+
+  const poleId = result.meta.last_row_id;
+
+  try {
+    await replaceTrailPoleSignboards(env, poleId, payload.signboards);
+  } catch (error) {
+    await env.DB.prepare(`DELETE FROM trail_poles WHERE id = ?`)
+      .bind(poleId)
+      .run()
+      .catch(() => {});
+    throw error;
+  }
+
+  const created = await fetchTrailPoleAggregate(env, poleId);
+  return json(created, 201);
+}
+
+async function updateTrailPole(id, request, env) {
+  const existing = await fetchTrailPoleRow(env, id);
+
+  if (!existing) {
+    return json({ error: 'Trail pole not found' }, 404);
+  }
+
+  const body = await readJsonBody(request);
+  const payload = validateTrailPolePayload(body, false);
+  const hasScalarUpdates =
+    typeof payload.site_number !== 'undefined'
+    || Number.isFinite(payload.lat)
+    || Number.isFinite(payload.lng)
+    || typeof payload.active === 'boolean'
+    || hasOwn(payload, 'notes');
+  const shouldReplaceSignboards = hasOwn(payload, 'signboards');
+
+  if (hasScalarUpdates) {
+    const result = await runStatement(
+      env.DB.prepare(`
+        UPDATE trail_poles
+        SET
+          site_number = COALESCE(?, site_number),
+          lat = COALESCE(?, lat),
+          lng = COALESCE(?, lng),
+          active = COALESCE(?, active),
+          notes = CASE WHEN ? THEN ? ELSE notes END,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `).bind(
+        payload.site_number ?? null,
+        Number.isFinite(payload.lat) ? payload.lat : null,
+        Number.isFinite(payload.lng) ? payload.lng : null,
+        typeof payload.active === 'boolean'
+          ? (payload.active ? 1 : 0)
+          : null,
+        hasOwn(payload, 'notes') ? 1 : 0,
+        hasOwn(payload, 'notes') ? payload.notes : null,
+        id
+      )
+    );
+
+    if (result.meta.changes === 0) {
+      return json({ error: 'Trail pole not found' }, 404);
+    }
+  }
+
+  if (shouldReplaceSignboards) {
+    await replaceTrailPoleSignboards(env, id, payload.signboards);
+    if (!hasScalarUpdates) {
+      await touchTrailPole(env, id);
+    }
+  }
+
+  const updated = await fetchTrailPoleAggregate(env, id);
+  return json(updated);
+}
+
+async function deleteTrailPole(id, env) {
+  const existing = await fetchTrailPoleAggregate(env, id);
+
+  if (!existing) {
+    return json({ error: 'Trail pole not found' }, 404);
+  }
+
+  const result = await env.DB.prepare(`
+    DELETE FROM trail_poles
+    WHERE id = ?
+  `)
+    .bind(id)
+    .run();
+
+  if (result.meta.changes === 0) {
+    return json({ error: 'Trail pole not found' }, 404);
+  }
+
+  return json({
+    ok: true,
+    trail_pole: existing
+  });
+}
+
+async function fetchTrailPoleRow(env, id) {
+  return env.DB.prepare(`
+    SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+    FROM trail_poles
+    WHERE id = ?
+  `)
+    .bind(id)
+    .first();
+}
+
+async function fetchTrailPoleAggregate(env, id) {
+  const row = await fetchTrailPoleRow(env, id);
+  if (!row) return null;
+
+  const [pole] = await hydrateTrailPoles(env, [row]);
+  return pole ?? null;
+}
+
+async function hydrateTrailPoles(env, poleRows) {
+  const poles = poleRows.map(normalizeTrailPole);
+
+  if (!poles.length) {
+    return [];
+  }
+
+  const poleIds = poles.map((pole) => pole.id);
+  const { results: signboardRows } = await env.DB.prepare(`
+    SELECT id, pole_id, direction, trail_number, sort_order
+    FROM trail_signboards
+    WHERE pole_id IN (${buildInClausePlaceholders(poleIds.length)})
+    ORDER BY pole_id ASC, sort_order ASC, id ASC
+  `)
+    .bind(...poleIds)
+    .all();
+
+  const signboards = signboardRows.map(normalizeTrailSignboard);
+  const signboardIds = signboards.map((signboard) => signboard.id);
+  let entries = [];
+
+  if (signboardIds.length) {
+    const { results: entryRows } = await env.DB.prepare(`
+      SELECT id, signboard_id, label, duration, sort_order
+      FROM trail_sign_entries
+      WHERE signboard_id IN (${buildInClausePlaceholders(signboardIds.length)})
+      ORDER BY signboard_id ASC, sort_order ASC, id ASC
+    `)
+      .bind(...signboardIds)
+      .all();
+
+    entries = entryRows.map(normalizeTrailSignEntry);
+  }
+
+  const entriesBySignboard = new Map();
+  for (const entry of entries) {
+    const signboardEntries = entriesBySignboard.get(entry.signboard_id) ?? [];
+    signboardEntries.push(entry);
+    entriesBySignboard.set(entry.signboard_id, signboardEntries);
+  }
+
+  const signboardsByPole = new Map();
+  for (const signboard of signboards) {
+    const poleSignboards = signboardsByPole.get(signboard.pole_id) ?? [];
+    poleSignboards.push({
+      ...signboard,
+      entries: entriesBySignboard.get(signboard.id) ?? []
+    });
+    signboardsByPole.set(signboard.pole_id, poleSignboards);
+  }
+
+  return poles.map((pole) => ({
+    ...pole,
+    signboards: signboardsByPole.get(pole.id) ?? []
+  }));
+}
+
+async function replaceTrailPoleSignboards(env, poleId, signboards) {
+  await runStatement(
+    env.DB.prepare(`
+      DELETE FROM trail_signboards
+      WHERE pole_id = ?
+    `).bind(poleId)
+  );
+
+  for (const signboard of signboards) {
+    const signboardResult = await runStatement(
+      env.DB.prepare(`
+        INSERT INTO trail_signboards (
+          pole_id,
+          direction,
+          trail_number,
+          sort_order
+        )
+        VALUES (?, ?, ?, ?)
+      `).bind(
+        poleId,
+        signboard.direction,
+        signboard.trail_number,
+        signboard.sort_order
+      )
+    );
+
+    const signboardId = signboardResult.meta.last_row_id;
+    await env.DB.batch(
+      signboard.entries.map((entry) => env.DB.prepare(`
+        INSERT INTO trail_sign_entries (
+          signboard_id,
+          label,
+          duration,
+          sort_order
+        )
+        VALUES (?, ?, ?, ?)
+      `).bind(
+        signboardId,
+        entry.label,
+        entry.duration ?? null,
+        entry.sort_order
+      ))
+    );
+  }
+}
+
+async function touchTrailPole(env, poleId) {
+  await env.DB.prepare(`
+    UPDATE trail_poles
+    SET updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `)
+    .bind(poleId)
+    .run();
+}
+
 async function uploadImage(request, env) {
   const formData = await request.formData();
   const file = formData.get('file');
@@ -354,29 +664,39 @@ function queueGithubBackup(ctx, env, reason) {
 
 async function createGithubBackup(env, reason) {
   if (!env.GITHUB_BACKUP_TOKEN) {
-    console.warn('GitHub backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
-    return {
-      skipped: true,
-      reason: 'missing-token'
-    };
+    throw new Error('GitHub backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
   }
 
-  const backup = await buildBackupPayload(env, reason);
-  const content = JSON.stringify(backup, null, 2);
+  const benchesBackup = await buildBenchBackupPayload(env, reason);
+  const trailPolesBackup = await buildTrailPolesBackupPayload(env, reason);
   const directory = String(env.GITHUB_BACKUP_DIRECTORY || 'backups').replace(/^\/+|\/+$/g, '');
 
-  const latest = await putGithubFile(
+  const benchesLatest = await putGithubFile(
     env,
     `${directory}/benches-latest.json`,
-    content,
+    JSON.stringify(benchesBackup, null, 2),
     `Update benches backup (${reason})`
+  );
+  const trailPolesLatest = await putGithubFile(
+    env,
+    `${directory}/trail-poles-latest.json`,
+    JSON.stringify(trailPolesBackup, null, 2),
+    `Update trail poles backup (${reason})`
   );
 
   return {
-    count: backup.count,
-    active_count: backup.active_count,
-    deleted_count: backup.deleted_count,
-    written: [latest]
+    benches: {
+      count: benchesBackup.count,
+      active_count: benchesBackup.active_count,
+      deleted_count: benchesBackup.deleted_count
+    },
+    trail_poles: {
+      count: trailPolesBackup.count,
+      active_count: trailPolesBackup.active_count,
+      signboard_count: trailPolesBackup.signboard_count,
+      entry_count: trailPolesBackup.entry_count
+    },
+    written: [benchesLatest, trailPolesLatest]
   };
 }
 
@@ -394,7 +714,7 @@ async function createManualGithubBackup(request, env) {
   });
 }
 
-async function buildBackupPayload(env, reason) {
+async function buildBenchBackupPayload(env, reason) {
   const { results } = await env.DB.prepare(`
     SELECT id, title, lat, lng, status, last_inspection, notes, active, image_url, created_at, updated_at, deleted_at
     FROM benches
@@ -418,6 +738,39 @@ async function buildBackupPayload(env, reason) {
     deleted_count: benches.filter((bench) => Boolean(bench.deleted_at)).length,
     benches,
     history: historyResults.map(normalizeHistoryEntry)
+  };
+}
+
+async function buildTrailPolesBackupPayload(env, reason) {
+  const { results } = await env.DB.prepare(`
+    SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+    FROM trail_poles
+    ORDER BY id ASC
+  `).all();
+
+  const trailPoles = await hydrateTrailPoles(env, results);
+  const signboardCount = trailPoles.reduce(
+    (count, pole) => count + pole.signboards.length,
+    0
+  );
+  const entryCount = trailPoles.reduce(
+    (count, pole) => count + pole.signboards.reduce(
+      (entryTotal, signboard) => entryTotal + signboard.entries.length,
+      0
+    ),
+    0
+  );
+
+  return {
+    app: 'Baenke-Innichen',
+    generated_at: new Date().toISOString(),
+    reason,
+    source: 'cloudflare-d1:innichen-benches',
+    count: trailPoles.length,
+    active_count: trailPoles.filter((pole) => pole.active).length,
+    signboard_count: signboardCount,
+    entry_count: entryCount,
+    trail_poles: trailPoles
   };
 }
 
@@ -521,7 +874,7 @@ async function readJsonBody(request) {
   }
 }
 
-function validatePayload(payload, requireLocation) {
+function validateBenchPayload(payload, requireLocation) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
     throw new HttpError(400, 'Invalid payload');
   }
@@ -585,7 +938,7 @@ function validatePayload(payload, requireLocation) {
       throw new HttpError(400, 'notes must be a string');
     }
 
-    if (normalized.notes.length > 5000) {
+    if (normalized.notes.length > MAX_NOTES_LENGTH) {
       throw new HttpError(400, 'notes too long');
     }
   }
@@ -599,7 +952,7 @@ function validatePayload(payload, requireLocation) {
       throw new HttpError(400, 'image_url must be a string');
     }
 
-    if (normalized.image_url.length > 2000) {
+    if (normalized.image_url.length > MAX_IMAGE_URL_LENGTH) {
       throw new HttpError(400, 'image_url too long');
     }
   }
@@ -607,7 +960,7 @@ function validatePayload(payload, requireLocation) {
   return normalized;
 }
 
-function applyBusinessRules(payload, isCreate) {
+function applyBenchBusinessRules(payload, isCreate) {
   const next = {
     ...payload
   };
@@ -635,8 +988,197 @@ function applyBusinessRules(payload, isCreate) {
   return next;
 }
 
+function validateTrailPolePayload(payload, isCreate) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new HttpError(400, 'Invalid payload');
+  }
+
+  const normalized = {
+    site_number: normalizeStringField(payload.site_number, 'site_number', {
+      required: isCreate,
+      allowNumber: true,
+      maxLength: MAX_TRAIL_SITE_NUMBER_LENGTH
+    }),
+    lat: payload.lat,
+    lng: payload.lng,
+    active: payload.active
+  };
+
+  if (isCreate) {
+    if (!Number.isFinite(normalized.lat) || !Number.isFinite(normalized.lng)) {
+      throw new HttpError(400, 'lat and lng are required numbers');
+    }
+  } else {
+    if (typeof normalized.lat !== 'undefined' && !Number.isFinite(normalized.lat)) {
+      throw new HttpError(400, 'lat must be a number');
+    }
+
+    if (typeof normalized.lng !== 'undefined' && !Number.isFinite(normalized.lng)) {
+      throw new HttpError(400, 'lng must be a number');
+    }
+  }
+
+  if (typeof normalized.active !== 'undefined' && typeof normalized.active !== 'boolean') {
+    throw new HttpError(400, 'active must be a boolean');
+  }
+
+  if (hasOwn(payload, 'notes')) {
+    normalized.notes = normalizeStringField(payload.notes, 'notes', {
+      allowNull: true,
+      emptyAsNull: true,
+      maxLength: MAX_NOTES_LENGTH
+    });
+  } else if (isCreate) {
+    normalized.notes = null;
+  }
+
+  if (hasOwn(payload, 'signboards')) {
+    if (!Array.isArray(payload.signboards)) {
+      throw new HttpError(400, 'signboards must be an array');
+    }
+
+    normalized.signboards = payload.signboards.map((signboard, index) =>
+      validateTrailSignboardPayload(signboard, index)
+    );
+  } else if (isCreate) {
+    normalized.signboards = [];
+  }
+
+  return normalized;
+}
+
+function validateTrailSignboardPayload(payload, index) {
+  const fieldPrefix = `signboards[${index}]`;
+
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new HttpError(400, `${fieldPrefix} must be an object`);
+  }
+
+  if (!Array.isArray(payload.entries)) {
+    throw new HttpError(400, `${fieldPrefix}.entries must be an array`);
+  }
+
+  if (payload.entries.length < 1 || payload.entries.length > 2) {
+    throw new HttpError(400, `${fieldPrefix}.entries must contain 1 or 2 items`);
+  }
+
+  const normalized = {
+    direction: normalizeStringField(payload.direction, `${fieldPrefix}.direction`, {
+      required: true,
+      maxLength: MAX_TRAIL_DIRECTION_LENGTH
+    }),
+    trail_number: normalizeStringField(payload.trail_number, `${fieldPrefix}.trail_number`, {
+      required: true,
+      allowNumber: true,
+      maxLength: MAX_TRAIL_NUMBER_LENGTH
+    }),
+    sort_order: validateSortOrder(payload.sort_order, index, `${fieldPrefix}.sort_order`),
+    entries: payload.entries.map((entry, entryIndex) =>
+      validateTrailSignEntryPayload(entry, entryIndex, `${fieldPrefix}.entries[${entryIndex}]`)
+    )
+  };
+
+  return normalized;
+}
+
+function validateTrailSignEntryPayload(payload, index, fieldPrefix) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new HttpError(400, `${fieldPrefix} must be an object`);
+  }
+
+  return {
+    label: normalizeStringField(payload.label, `${fieldPrefix}.label`, {
+      required: true,
+      maxLength: MAX_TRAIL_LABEL_LENGTH
+    }),
+    duration: hasOwn(payload, 'duration')
+      ? normalizeStringField(payload.duration, `${fieldPrefix}.duration`, {
+        allowNull: true,
+        emptyAsNull: true,
+        maxLength: MAX_TRAIL_DURATION_LENGTH
+      })
+      : null,
+    sort_order: validateSortOrder(payload.sort_order, index, `${fieldPrefix}.sort_order`)
+  };
+}
+
+function normalizeStringField(value, field, options = {}) {
+  const {
+    required = false,
+    allowNull = false,
+    emptyAsNull = false,
+    allowNumber = false,
+    maxLength = 200
+  } = options;
+
+  if (typeof value === 'undefined') {
+    if (required) {
+      throw new HttpError(400, `${field} is required`);
+    }
+
+    return undefined;
+  }
+
+  if (value === null) {
+    if (allowNull || emptyAsNull) {
+      return null;
+    }
+
+    throw new HttpError(400, `${field} must be a string`);
+  }
+
+  let normalized = value;
+  if (allowNumber && typeof normalized === 'number' && Number.isFinite(normalized)) {
+    normalized = String(normalized);
+  }
+
+  if (typeof normalized !== 'string') {
+    throw new HttpError(400, `${field} must be a string`);
+  }
+
+  normalized = normalized.trim();
+
+  if (!normalized) {
+    if (required) {
+      throw new HttpError(400, `${field} must be a non-empty string`);
+    }
+
+    if (allowNull || emptyAsNull) {
+      return null;
+    }
+
+    return normalized;
+  }
+
+  if (normalized.length > maxLength) {
+    throw new HttpError(400, `${field} too long`);
+  }
+
+  return normalized;
+}
+
+function validateSortOrder(value, fallback, field) {
+  if (typeof value === 'undefined') {
+    return fallback;
+  }
+
+  if (!Number.isInteger(value) || value < 0) {
+    throw new HttpError(400, `${field} must be a non-negative integer`);
+  }
+
+  return value;
+}
+
 function todayIsoDate() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function buildInClausePlaceholders(count) {
+  return Array.from({ length: count }, () => '?').join(', ');
+}
+
+function hasOwn(value, key) {
+  return Object.prototype.hasOwnProperty.call(value, key);
 }
 
 function normalizeBench(row) {
@@ -648,6 +1190,38 @@ function normalizeBench(row) {
     lng: Number(row.lng),
     active: Boolean(row.active),
     image_url: row.image_url ?? null
+  };
+}
+
+function normalizeTrailPole(row) {
+  if (!row) return null;
+
+  return {
+    ...row,
+    id: Number(row.id),
+    lat: Number(row.lat),
+    lng: Number(row.lng),
+    active: Boolean(row.active),
+    notes: row.notes ?? null
+  };
+}
+
+function normalizeTrailSignboard(row) {
+  return {
+    ...row,
+    id: Number(row.id),
+    pole_id: Number(row.pole_id),
+    sort_order: Number(row.sort_order)
+  };
+}
+
+function normalizeTrailSignEntry(row) {
+  return {
+    ...row,
+    id: Number(row.id),
+    signboard_id: Number(row.signboard_id),
+    duration: row.duration ?? null,
+    sort_order: Number(row.sort_order)
   };
 }
 
@@ -752,7 +1326,7 @@ async function runStatement(stmt, status) {
   try {
     return await stmt.run();
   } catch (error) {
-    throw mapDatabaseError(error, status);
+    throw mapDatabaseWriteError(error, status);
   }
 }
 
@@ -772,6 +1346,24 @@ function mapDatabaseError(error, status) {
   }
 
   return error;
+}
+
+function mapDatabaseWriteError(error, status) {
+  const message = String(error?.message || error);
+
+  if (message.includes('NOT NULL constraint failed')) {
+    return new HttpError(400, 'Pflichtfelder fehlen f\u00FCr den Datenbankeintrag');
+  }
+
+  if (message.includes('FOREIGN KEY constraint failed')) {
+    return new HttpError(400, 'Verkn\u00FCpfte Wandertafel-Daten sind ung\u00FCltig');
+  }
+
+  if (message.includes('UNIQUE constraint failed')) {
+    return new HttpError(409, 'Daten stehen im Konflikt mit einem bestehenden Eintrag');
+  }
+
+  return mapDatabaseError(error, status);
 }
 
 function json(payload, status = 200) {

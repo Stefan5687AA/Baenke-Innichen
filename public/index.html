@@ -9,7 +9,11 @@
   </head>
   <body>
     <header class="toolbar">
-      <h1>Bankkarte Innichen</h1>
+      <h1 id="appTitle">Bankkarte Innichen</h1>
+      <div class="view-switch" role="group" aria-label="Kartenansicht">
+        <button id="benchViewBtn" class="view-switch-button is-active" type="button">B&auml;nke</button>
+        <button id="trailViewBtn" class="view-switch-button" type="button">Wandertafeln</button>
+      </div>
       <div class="controls">
         <label class="icon-toggle" title="Admin-Modus">
           <input id="adminMode" type="checkbox" />
@@ -53,6 +57,25 @@
             </select>
           </label>
           <div id="benchList" class="bench-list"></div>
+        </section>
+
+        <section id="trailListPanel" class="bench-list-panel trail-list-panel" aria-live="polite" hidden>
+          <div class="bench-list-header">
+            <div class="bench-list-title">
+              <h2>Wandertafeln</h2>
+              <span id="trailListCount" class="bench-list-count">0</span>
+            </div>
+            <button id="closeTrailListBtn" class="icon-button compact-square" type="button" aria-label="Liste schlie&szlig;en" title="Liste schlie&szlig;en">&times;</button>
+          </div>
+          <label class="bench-sort">
+            Sortieren
+            <select id="trailSortSelect">
+              <option value="site-number">Standortnummer</option>
+              <option value="updated-desc">Zuletzt bearbeitet</option>
+              <option value="signboards-desc">Tafeln: viele zuerst</option>
+            </select>
+          </label>
+          <div id="trailList" class="bench-list"></div>
         </section>
 
         <section id="globalHistoryPanel" class="global-history-panel" aria-live="polite" hidden>
@@ -140,6 +163,51 @@
               <div class="panel-actions full-width">
                 <button type="submit" class="primary">Speichern</button>
                 <button type="button" id="cancelBtn">Schlie&szlig;en</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="trailEditorPanel" class="editor-panel" aria-live="polite" hidden>
+          <div class="panel-card">
+            <h2 id="trailPanelTitle">Wandertafel-Pfeiler hinzuf&uuml;gen</h2>
+            <form id="trailPoleForm" class="trail-form" novalidate>
+              <div id="trailFormError" class="form-error full-width" role="alert" hidden></div>
+
+              <label>
+                Standortnummer
+                <input id="fieldTrailSiteNumber" name="site_number" type="text" required maxlength="80" />
+              </label>
+
+              <label>
+                Aktiv
+                <select id="fieldTrailActive" name="active">
+                  <option value="1">Ja</option>
+                  <option value="0">Nein</option>
+                </select>
+              </label>
+
+              <label class="full-width">
+                Notiz
+                <textarea id="fieldTrailNotes" name="notes" rows="3"></textarea>
+              </label>
+
+              <section class="trail-signboards-section full-width">
+                <div class="trail-section-header">
+                  <h3>Tafeln</h3>
+                  <button id="addTrailSignboardBtn" class="compact" type="button">Tafel hinzuf&uuml;gen</button>
+                </div>
+                <div id="trailSignboards" class="trail-signboards"></div>
+              </section>
+
+              <div class="panel-actions edit-only full-width" id="trailEditPanelActions" hidden>
+                <button type="button" id="moveTrailPositionBtn">Position &auml;ndern</button>
+                <button type="button" id="deleteTrailPoleBtn">Archivieren/L&ouml;schen</button>
+              </div>
+
+              <div class="panel-actions full-width">
+                <button type="submit" class="primary">Speichern</button>
+                <button type="button" id="cancelTrailBtn">Schlie&szlig;en</button>
               </div>
             </form>
           </div>
