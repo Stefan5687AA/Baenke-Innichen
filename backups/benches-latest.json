@@ -1,11 +1,11 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-04-24T05:52:11.135Z",
-  "reason": "update",
+  "generated_at": "2026-05-14T08:01:17.157Z",
+  "reason": "manual",
   "source": "cloudflare-d1:innichen-benches",
-  "count": 50,
-  "active_count": 50,
-  "deleted_count": 0,
+  "count": 116,
+  "active_count": 110,
+  "deleted_count": 6,
   "benches": [
     {
       "id": 1,
@@ -706,6 +706,930 @@
       "created_at": "2026-04-24 05:30:07",
       "updated_at": "2026-04-24 05:30:07",
       "deleted_at": null
+    },
+    {
+      "id": 51,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717289,
+      "lng": 12.294534,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1ce7d9a3-f051-4ea3-97db-3c232b29868b.jpg",
+      "created_at": "2026-04-24 09:50:14",
+      "updated_at": "2026-04-24 09:50:14",
+      "deleted_at": null
+    },
+    {
+      "id": 52,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717257,
+      "lng": 12.294481,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/af99e17f-1c6b-4ac1-99b1-576d31f1e998.jpg",
+      "created_at": "2026-04-24 09:50:53",
+      "updated_at": "2026-04-24 09:50:53",
+      "deleted_at": null
+    },
+    {
+      "id": 53,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717307,
+      "lng": 12.294394,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c8e70002-6450-4a42-a961-851252389640.jpg",
+      "created_at": "2026-04-24 09:51:25",
+      "updated_at": "2026-04-24 09:51:25",
+      "deleted_at": null
+    },
+    {
+      "id": 54,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717362,
+      "lng": 12.294399,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5e99ecb7-988e-4ff8-a0b2-226853f257d9.jpg",
+      "created_at": "2026-04-24 09:51:28",
+      "updated_at": "2026-04-24 09:51:28",
+      "deleted_at": null
+    },
+    {
+      "id": 55,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717259,
+      "lng": 12.294219,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/b7169d97-b839-488c-8d3a-ea8202911c17.jpg",
+      "created_at": "2026-04-24 09:52:09",
+      "updated_at": "2026-04-24 09:52:09",
+      "deleted_at": null
+    },
+    {
+      "id": 56,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717096,
+      "lng": 12.294348,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/64301f4d-587f-49d1-90a3-2c9f6755a5d7.jpg",
+      "created_at": "2026-04-24 09:52:42",
+      "updated_at": "2026-04-24 09:52:42",
+      "deleted_at": null
+    },
+    {
+      "id": 57,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717108,
+      "lng": 12.294203,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/2815b6de-7974-47c9-805c-27e77d0097ec.jpg",
+      "created_at": "2026-04-24 09:53:13",
+      "updated_at": "2026-04-24 09:53:13",
+      "deleted_at": null
+    },
+    {
+      "id": 58,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717082,
+      "lng": 12.294148,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e540c0fc-22a5-4289-b09a-6f20a52cec5f.jpg",
+      "created_at": "2026-04-24 09:53:51",
+      "updated_at": "2026-04-24 09:53:51",
+      "deleted_at": null
+    },
+    {
+      "id": 59,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.717044,
+      "lng": 12.293953,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/2211472f-df91-45e3-906d-c1906fd1fdc7.jpg",
+      "created_at": "2026-04-24 09:54:41",
+      "updated_at": "2026-04-24 09:54:41",
+      "deleted_at": null
+    },
+    {
+      "id": 60,
+      "title": "Sitzbank",
+      "lat": 46.717536,
+      "lng": 12.293485,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/d2fefb9d-e5fa-4928-8e79-3f753a647144.jpg",
+      "created_at": "2026-04-24 09:57:43",
+      "updated_at": "2026-04-24 09:57:43",
+      "deleted_at": null
+    },
+    {
+      "id": 61,
+      "title": "Sitzbank",
+      "lat": 46.734204,
+      "lng": 12.341279,
+      "status": "good",
+      "last_inspection": "2026-04-24",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1d97001e-d625-41d9-9698-c8f1d00ba639.jpg",
+      "created_at": "2026-04-24 15:24:17",
+      "updated_at": "2026-05-05 11:58:07",
+      "deleted_at": null
+    },
+    {
+      "id": 62,
+      "title": "Sitzbank",
+      "lat": 46.727336,
+      "lng": 12.28687,
+      "status": "good",
+      "last_inspection": "2026-04-25",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f15e8e59-0e68-4809-8029-02268c1859f7.jpg",
+      "created_at": "2026-04-25 07:00:34",
+      "updated_at": "2026-04-25 07:00:34",
+      "deleted_at": null
+    },
+    {
+      "id": 63,
+      "title": "Sitzbank",
+      "lat": 46.725395,
+      "lng": 12.271566,
+      "status": "good",
+      "last_inspection": "2026-04-25",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/31b308be-f0ba-4a3d-9cd3-197bad104180.jpg",
+      "created_at": "2026-04-25 11:34:22",
+      "updated_at": "2026-04-25 11:34:22",
+      "deleted_at": null
+    },
+    {
+      "id": 64,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.716679,
+      "lng": 12.286842,
+      "status": "good",
+      "last_inspection": "2026-04-25",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/54c0e925-55b5-45da-92b0-94a911570044.jpg",
+      "created_at": "2026-04-25 11:56:41",
+      "updated_at": "2026-04-25 11:56:41",
+      "deleted_at": null
+    },
+    {
+      "id": 65,
+      "title": "Sitzbank",
+      "lat": 46.719388,
+      "lng": 12.289846,
+      "status": "good",
+      "last_inspection": "2026-04-25",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/83f4ef68-dff4-48dc-82ab-734ab1424047.jpg",
+      "created_at": "2026-04-25 12:00:42",
+      "updated_at": "2026-04-25 12:00:42",
+      "deleted_at": null
+    },
+    {
+      "id": 66,
+      "title": "Sitzbank",
+      "lat": 46.722036,
+      "lng": 12.287716,
+      "status": "good",
+      "last_inspection": "2026-04-25",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/97c6a5fa-3638-4d01-9cae-799791ced715.jpg",
+      "created_at": "2026-04-25 12:02:31",
+      "updated_at": "2026-04-25 12:02:31",
+      "deleted_at": null
+    },
+    {
+      "id": 67,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.727735,
+      "lng": 12.282299,
+      "status": "good",
+      "last_inspection": "2026-04-25",
+      "notes": "",
+      "active": true,
+      "image_url": null,
+      "created_at": "2026-04-25 12:10:20",
+      "updated_at": "2026-04-25 12:10:20",
+      "deleted_at": null
+    },
+    {
+      "id": 68,
+      "title": "Sitzbank",
+      "lat": 46.736894,
+      "lng": 12.302897,
+      "status": "ok",
+      "last_inspection": "2026-04-30",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f414bfaa-beb9-48cf-b70c-d568bdf5e6c4.jpg",
+      "created_at": "2026-04-30 17:04:08",
+      "updated_at": "2026-04-30 17:04:08",
+      "deleted_at": null
+    },
+    {
+      "id": 69,
+      "title": "Sitzbank",
+      "lat": 46.736673,
+      "lng": 12.299178,
+      "status": "repair",
+      "last_inspection": "2026-04-30",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/49ebe7d7-22d0-42ac-9b36-c11250e5380a.jpg",
+      "created_at": "2026-04-30 17:06:19",
+      "updated_at": "2026-04-30 17:06:19",
+      "deleted_at": null
+    },
+    {
+      "id": 70,
+      "title": "Sitzbank",
+      "lat": 46.73261,
+      "lng": 12.282318,
+      "status": "removed",
+      "last_inspection": "2026-05-05",
+      "notes": "Wackelig, bitte kontrollieren",
+      "active": false,
+      "image_url": null,
+      "created_at": "2026-05-05 06:55:00",
+      "updated_at": "2026-05-07 14:12:22",
+      "deleted_at": "2026-05-07 14:12:22"
+    },
+    {
+      "id": 71,
+      "title": "Sitzbank",
+      "lat": 46.740958,
+      "lng": 12.35448,
+      "status": "removed",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": false,
+      "image_url": null,
+      "created_at": "2026-05-05 06:55:18",
+      "updated_at": "2026-05-05 11:45:28",
+      "deleted_at": "2026-05-05 11:45:28"
+    },
+    {
+      "id": 72,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.741089,
+      "lng": 12.354429,
+      "status": "repair",
+      "last_inspection": "2026-05-05",
+      "notes": "Repariert aber auszutauschen",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/27ab2733-75bf-48c6-b835-21692010daf6.jpg",
+      "created_at": "2026-05-05 11:46:33",
+      "updated_at": "2026-05-05 11:46:33",
+      "deleted_at": null
+    },
+    {
+      "id": 73,
+      "title": "Sitzbank",
+      "lat": 46.737057,
+      "lng": 12.352593,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a660202d-3d89-46a0-a58a-875cfe1bb3fc.jpg",
+      "created_at": "2026-05-05 11:52:51",
+      "updated_at": "2026-05-05 11:52:51",
+      "deleted_at": null
+    },
+    {
+      "id": 74,
+      "title": "Sitzbank",
+      "lat": 46.735769,
+      "lng": 12.349295,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/876f124f-77b6-4e66-9519-92bbb1f91997.jpg",
+      "created_at": "2026-05-05 11:54:14",
+      "updated_at": "2026-05-05 11:54:14",
+      "deleted_at": null
+    },
+    {
+      "id": 75,
+      "title": "Sitzbank",
+      "lat": 46.734906,
+      "lng": 12.345621,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/0ccd9b72-70f4-4aad-afcc-440e324b8c20.jpg",
+      "created_at": "2026-05-05 11:55:17",
+      "updated_at": "2026-05-05 11:55:17",
+      "deleted_at": null
+    },
+    {
+      "id": 76,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728428,
+      "lng": 12.313348,
+      "status": "repair",
+      "last_inspection": "2026-05-05",
+      "notes": "Tisch kaputt",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e0b0d6cf-86ba-42ce-81be-7e7c55ff1a69.jpg",
+      "created_at": "2026-05-05 12:05:12",
+      "updated_at": "2026-05-05 12:05:12",
+      "deleted_at": null
+    },
+    {
+      "id": 77,
+      "title": "Sitzbank",
+      "lat": 46.72862,
+      "lng": 12.309429,
+      "status": "ok",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f9ec85c9-a7ce-4e83-b916-df46010568e6.jpg",
+      "created_at": "2026-05-05 12:08:29",
+      "updated_at": "2026-05-05 12:08:29",
+      "deleted_at": null
+    },
+    {
+      "id": 78,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728574,
+      "lng": 12.305018,
+      "status": "ok",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/3293932d-8184-4d3b-9c22-f4143d18b654.jpg",
+      "created_at": "2026-05-05 12:10:48",
+      "updated_at": "2026-05-05 12:10:48",
+      "deleted_at": null
+    },
+    {
+      "id": 79,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.729045,
+      "lng": 12.301788,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/58734189-920f-4b70-81ee-a6691dd14131.jpg",
+      "created_at": "2026-05-05 12:11:54",
+      "updated_at": "2026-05-05 12:11:54",
+      "deleted_at": null
+    },
+    {
+      "id": 80,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.730176,
+      "lng": 12.297948,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/42ae083c-7b76-41fc-b501-43d0cbd9fc74.jpg",
+      "created_at": "2026-05-05 12:13:23",
+      "updated_at": "2026-05-05 12:13:23",
+      "deleted_at": null
+    },
+    {
+      "id": 81,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.731076,
+      "lng": 12.295677,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/9ab1124b-5cfd-4975-8f42-054dd94dd39f.jpg",
+      "created_at": "2026-05-05 12:14:59",
+      "updated_at": "2026-05-05 12:14:59",
+      "deleted_at": null
+    },
+    {
+      "id": 82,
+      "title": "Sitzbank",
+      "lat": 46.732801,
+      "lng": 12.289585,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/62cdfbfc-25fb-4b05-8e59-d24e4541a168.jpg",
+      "created_at": "2026-05-05 12:16:48",
+      "updated_at": "2026-05-05 12:16:48",
+      "deleted_at": null
+    },
+    {
+      "id": 83,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.733027,
+      "lng": 12.28884,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a1c8172e-e57b-40d4-b645-7a663c5ccf7d.jpg",
+      "created_at": "2026-05-05 12:18:19",
+      "updated_at": "2026-05-05 12:18:19",
+      "deleted_at": null
+    },
+    {
+      "id": 84,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.731015,
+      "lng": 12.290791,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/399b6a64-e154-4766-8616-c391159bab88.jpg",
+      "created_at": "2026-05-05 12:20:12",
+      "updated_at": "2026-05-05 12:20:12",
+      "deleted_at": null
+    },
+    {
+      "id": 85,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.729124,
+      "lng": 12.263923,
+      "status": "good",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/b09ad647-f8ae-4eb4-ad77-1daad6aa0403.jpg",
+      "created_at": "2026-05-05 12:28:05",
+      "updated_at": "2026-05-05 12:28:05",
+      "deleted_at": null
+    },
+    {
+      "id": 86,
+      "title": "Sitzbank",
+      "lat": 46.726769,
+      "lng": 12.256209,
+      "status": "repair",
+      "last_inspection": "2026-05-05",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/06be00a5-35a4-4352-97a9-8127d7910207.jpg",
+      "created_at": "2026-05-05 12:31:20",
+      "updated_at": "2026-05-05 12:31:20",
+      "deleted_at": null
+    },
+    {
+      "id": 87,
+      "title": "Sitzbank",
+      "lat": 46.732492,
+      "lng": 12.282279,
+      "status": "removed",
+      "last_inspection": "2026-05-07",
+      "notes": "jsjsksk",
+      "active": false,
+      "image_url": null,
+      "created_at": "2026-05-07 13:39:54",
+      "updated_at": "2026-05-07 13:40:01",
+      "deleted_at": "2026-05-07 13:40:01"
+    },
+    {
+      "id": 88,
+      "title": "Sitzbank",
+      "lat": 46.733129,
+      "lng": 12.298765,
+      "status": "repair",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1abdaa41-6bf4-4787-b058-e6c469779873.jpg",
+      "created_at": "2026-05-09 12:39:28",
+      "updated_at": "2026-05-09 12:39:28",
+      "deleted_at": null
+    },
+    {
+      "id": 89,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.733717,
+      "lng": 12.293502,
+      "status": "ok",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/46850f7f-7b04-48da-b3a0-6c71c106c3fa.jpg",
+      "created_at": "2026-05-09 12:43:25",
+      "updated_at": "2026-05-09 12:43:25",
+      "deleted_at": null
+    },
+    {
+      "id": 90,
+      "title": "Sitzbank",
+      "lat": 46.735563,
+      "lng": 12.287961,
+      "status": "ok",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c7818a33-1d79-45e6-8da4-3aa25d38050f.jpg",
+      "created_at": "2026-05-09 12:46:00",
+      "updated_at": "2026-05-09 12:46:00",
+      "deleted_at": null
+    },
+    {
+      "id": 91,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.72724,
+      "lng": 12.267136,
+      "status": "repair",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/84737146-017d-4be9-be4b-c2fc0f11edad.jpg",
+      "created_at": "2026-05-09 16:16:15",
+      "updated_at": "2026-05-09 16:16:15",
+      "deleted_at": null
+    },
+    {
+      "id": 92,
+      "title": "Sitzbank",
+      "lat": 46.727257,
+      "lng": 12.267155,
+      "status": "good",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": null,
+      "created_at": "2026-05-09 16:16:21",
+      "updated_at": "2026-05-09 16:16:21",
+      "deleted_at": null
+    },
+    {
+      "id": 93,
+      "title": "Sitzbank",
+      "lat": 46.72775,
+      "lng": 12.267237,
+      "status": "ok",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c6904e61-4566-41c9-bfec-a80522d70715.jpg",
+      "created_at": "2026-05-09 16:19:00",
+      "updated_at": "2026-05-09 16:19:00",
+      "deleted_at": null
+    },
+    {
+      "id": 94,
+      "title": "Sitzbank",
+      "lat": 46.726437,
+      "lng": 12.265913,
+      "status": "repair",
+      "last_inspection": "2026-05-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/adc07f32-a086-4c1c-9003-d6c3b1ff2d15.jpg",
+      "created_at": "2026-05-09 16:22:15",
+      "updated_at": "2026-05-09 16:22:15",
+      "deleted_at": null
+    },
+    {
+      "id": 95,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.714058,
+      "lng": 12.311732,
+      "status": "ok",
+      "last_inspection": "2026-05-10",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/d7d2ac91-f079-491d-bf9a-ca13c220f0e8.jpg",
+      "created_at": "2026-05-10 09:45:50",
+      "updated_at": "2026-05-10 09:45:50",
+      "deleted_at": null
+    },
+    {
+      "id": 96,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.714181,
+      "lng": 12.311634,
+      "status": "ok",
+      "last_inspection": "2026-05-10",
+      "notes": "",
+      "active": true,
+      "image_url": null,
+      "created_at": "2026-05-10 09:46:35",
+      "updated_at": "2026-05-10 09:46:35",
+      "deleted_at": null
+    },
+    {
+      "id": 97,
+      "title": "Sitzbank",
+      "lat": 46.728181,
+      "lng": 12.287297,
+      "status": "ok",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/43adfe18-bb45-418a-9caf-c08691bc3e70.jpg",
+      "created_at": "2026-05-12 09:37:40",
+      "updated_at": "2026-05-12 09:37:40",
+      "deleted_at": null
+    },
+    {
+      "id": 98,
+      "title": "Sitzbank",
+      "lat": 46.727933,
+      "lng": 12.284953,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/3efd80d3-782b-4517-a189-5eeec26f4e41.jpg",
+      "created_at": "2026-05-12 09:41:19",
+      "updated_at": "2026-05-12 09:41:19",
+      "deleted_at": null
+    },
+    {
+      "id": 99,
+      "title": "Sitzbank",
+      "lat": 46.728645,
+      "lng": 12.284148,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/19387f0f-5d2a-42b7-b6f2-19a4061fb2af.jpg",
+      "created_at": "2026-05-12 09:43:37",
+      "updated_at": "2026-05-12 09:43:37",
+      "deleted_at": null
+    },
+    {
+      "id": 100,
+      "title": "Sitzbank",
+      "lat": 46.728467,
+      "lng": 12.283908,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/66266835-43ac-4df5-9347-a623d4ad9b34.jpg",
+      "created_at": "2026-05-12 09:44:39",
+      "updated_at": "2026-05-12 09:44:39",
+      "deleted_at": null
+    },
+    {
+      "id": 101,
+      "title": "Sitzbank",
+      "lat": 46.728492,
+      "lng": 12.283835,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/2e87c15f-779b-4dac-a7cb-627e27d22f76.jpg",
+      "created_at": "2026-05-12 09:45:06",
+      "updated_at": "2026-05-12 09:45:06",
+      "deleted_at": null
+    },
+    {
+      "id": 102,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728314,
+      "lng": 12.283615,
+      "status": "repair",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a399cf7c-c3f9-47e7-be89-3ba26362783a.jpg",
+      "created_at": "2026-05-12 09:46:08",
+      "updated_at": "2026-05-12 09:46:08",
+      "deleted_at": null
+    },
+    {
+      "id": 103,
+      "title": "Sitzbank",
+      "lat": 46.728815,
+      "lng": 12.283706,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ca0d65a1-006c-4857-b85e-3639d25a5fc8.jpg",
+      "created_at": "2026-05-12 09:47:01",
+      "updated_at": "2026-05-12 09:47:01",
+      "deleted_at": null
+    },
+    {
+      "id": 104,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728972,
+      "lng": 12.283734,
+      "status": "repair",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e81e7313-020b-47bf-b869-2b3d28d9c192.jpg",
+      "created_at": "2026-05-12 09:47:41",
+      "updated_at": "2026-05-12 09:47:41",
+      "deleted_at": null
+    },
+    {
+      "id": 105,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728972,
+      "lng": 12.283413,
+      "status": "ok",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ac4fcf0a-5bab-45fd-bbc2-d5f394eea877.jpg",
+      "created_at": "2026-05-12 09:48:30",
+      "updated_at": "2026-05-12 09:48:30",
+      "deleted_at": null
+    },
+    {
+      "id": 106,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728974,
+      "lng": 12.283096,
+      "status": "ok",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5775e516-9876-4dd3-a678-5f3890ce0497.jpg",
+      "created_at": "2026-05-12 09:49:01",
+      "updated_at": "2026-05-12 09:49:01",
+      "deleted_at": null
+    },
+    {
+      "id": 107,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.728906,
+      "lng": 12.28288,
+      "status": "repair",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/7d77a53a-3c03-416d-a5d6-8ef4e378564c.jpg",
+      "created_at": "2026-05-12 09:49:46",
+      "updated_at": "2026-05-12 09:49:46",
+      "deleted_at": null
+    },
+    {
+      "id": 108,
+      "title": "Sitzbank",
+      "lat": 46.728706,
+      "lng": 12.282767,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/4b8f92d7-ff78-455b-8fdb-47db72c754df.jpg",
+      "created_at": "2026-05-12 09:50:27",
+      "updated_at": "2026-05-12 09:50:27",
+      "deleted_at": null
+    },
+    {
+      "id": 109,
+      "title": "Sitzbank",
+      "lat": 46.72853,
+      "lng": 12.282806,
+      "status": "good",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/fbce28ff-9b6a-448d-a741-109e0e2244c3.jpg",
+      "created_at": "2026-05-12 09:51:04",
+      "updated_at": "2026-05-12 09:51:04",
+      "deleted_at": null
+    },
+    {
+      "id": 110,
+      "title": "Sitzbank",
+      "lat": 46.728506,
+      "lng": 12.283026,
+      "status": "ok",
+      "last_inspection": "2026-05-12",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/25c33ad8-5c17-4837-be87-f06b953c8883.jpg",
+      "created_at": "2026-05-12 09:51:31",
+      "updated_at": "2026-05-12 09:51:31",
+      "deleted_at": null
+    },
+    {
+      "id": 111,
+      "title": "Sitzbank + Tisch",
+      "lat": 46.72665,
+      "lng": 12.28675,
+      "status": "ok",
+      "last_inspection": "2026-05-13",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1bc47e8c-0cc4-4089-a09d-e4dfad5bd277.jpg",
+      "created_at": "2026-05-13 09:32:06",
+      "updated_at": "2026-05-13 09:32:06",
+      "deleted_at": null
+    },
+    {
+      "id": 112,
+      "title": "Sitzbank",
+      "lat": 46.721601,
+      "lng": 12.296478,
+      "status": "ok",
+      "last_inspection": "2026-05-13",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/0abf5a0d-f5f9-45a7-9615-1e6c14d5bec1.jpg",
+      "created_at": "2026-05-13 09:50:16",
+      "updated_at": "2026-05-13 09:50:16",
+      "deleted_at": null
+    },
+    {
+      "id": 113,
+      "title": "Sitzbank",
+      "lat": 46.717002,
+      "lng": 12.329809,
+      "status": "ok",
+      "last_inspection": "2026-05-14",
+      "notes": "Etwas schief aber noch ok",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/36554b3b-dea1-4a66-ae5e-769bfabb5f33.jpg",
+      "created_at": "2026-05-14 06:26:52",
+      "updated_at": "2026-05-14 06:26:52",
+      "deleted_at": null
+    },
+    {
+      "id": 114,
+      "title": "Sitzbank",
+      "lat": 46.717002,
+      "lng": 12.329809,
+      "status": "removed",
+      "last_inspection": "2026-05-14",
+      "notes": "Etwas schief aber noch ok",
+      "active": false,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/4e482070-12a6-47ad-811e-33c1262e2fd0.jpg",
+      "created_at": "2026-05-14 06:26:52",
+      "updated_at": "2026-05-14 06:28:08",
+      "deleted_at": "2026-05-14 06:28:08"
+    },
+    {
+      "id": 115,
+      "title": "Sitzbank",
+      "lat": 46.717002,
+      "lng": 12.329809,
+      "status": "removed",
+      "last_inspection": "2026-05-14",
+      "notes": "Etwas schief aber noch ok",
+      "active": false,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ee794a58-352b-4339-bbc1-2142be72e266.jpg",
+      "created_at": "2026-05-14 06:26:52",
+      "updated_at": "2026-05-14 06:28:00",
+      "deleted_at": "2026-05-14 06:28:00"
+    },
+    {
+      "id": 116,
+      "title": "Sitzbank",
+      "lat": 46.710826,
+      "lng": 12.329965,
+      "status": "removed",
+      "last_inspection": "2026-05-14",
+      "notes": "",
+      "active": false,
+      "image_url": null,
+      "created_at": "2026-05-14 06:26:56",
+      "updated_at": "2026-05-14 06:27:33",
+      "deleted_at": "2026-05-14 06:27:33"
     }
   ],
   "history": [
@@ -3154,6 +4078,3263 @@
         ]
       },
       "created_at": "2026-04-24 05:30:07"
+    },
+    {
+      "id": 69,
+      "bench_id": 51,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717289
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294534
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1ce7d9a3-f051-4ea3-97db-3c232b29868b.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:50:14"
+    },
+    {
+      "id": 70,
+      "bench_id": 52,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717257
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294481
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/af99e17f-1c6b-4ac1-99b1-576d31f1e998.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:50:53"
+    },
+    {
+      "id": 71,
+      "bench_id": 53,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717307
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294394
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c8e70002-6450-4a42-a961-851252389640.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:51:25"
+    },
+    {
+      "id": 72,
+      "bench_id": 54,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717362
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294399
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5e99ecb7-988e-4ff8-a0b2-226853f257d9.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:51:28"
+    },
+    {
+      "id": 73,
+      "bench_id": 55,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717259
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294219
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/b7169d97-b839-488c-8d3a-ea8202911c17.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:52:09"
+    },
+    {
+      "id": 74,
+      "bench_id": 56,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717096
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294348
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/64301f4d-587f-49d1-90a3-2c9f6755a5d7.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:52:43"
+    },
+    {
+      "id": 75,
+      "bench_id": 57,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717108
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294203
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/2815b6de-7974-47c9-805c-27e77d0097ec.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:53:13"
+    },
+    {
+      "id": 76,
+      "bench_id": 58,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717082
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.294148
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e540c0fc-22a5-4289-b09a-6f20a52cec5f.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:53:51"
+    },
+    {
+      "id": 77,
+      "bench_id": 59,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717044
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.293953
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/2211472f-df91-45e3-906d-c1906fd1fdc7.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:54:41"
+    },
+    {
+      "id": 78,
+      "bench_id": 60,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717536
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.293485
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/d2fefb9d-e5fa-4928-8e79-3f753a647144.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 09:57:43"
+    },
+    {
+      "id": 79,
+      "bench_id": 61,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-24"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.733544
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.342138
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1d97001e-d625-41d9-9698-c8f1d00ba639.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-24 15:24:17"
+    },
+    {
+      "id": 80,
+      "bench_id": 62,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-25"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.727336
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.28687
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f15e8e59-0e68-4809-8029-02268c1859f7.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-25 07:00:34"
+    },
+    {
+      "id": 81,
+      "bench_id": 63,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-25"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.725395
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.271566
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/31b308be-f0ba-4a3d-9cd3-197bad104180.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-25 11:34:22"
+    },
+    {
+      "id": 82,
+      "bench_id": 64,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-25"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.716679
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.286842
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/54c0e925-55b5-45da-92b0-94a911570044.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-25 11:56:41"
+    },
+    {
+      "id": 83,
+      "bench_id": 65,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-25"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.719388
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.289846
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/83f4ef68-dff4-48dc-82ab-734ab1424047.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-25 12:00:42"
+    },
+    {
+      "id": 84,
+      "bench_id": 66,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-25"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.722036
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.287716
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/97c6a5fa-3638-4d01-9cae-799791ced715.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-25 12:02:31"
+    },
+    {
+      "id": 85,
+      "bench_id": 67,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-25"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.727735
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.282299
+          }
+        ]
+      },
+      "created_at": "2026-04-25 12:10:21"
+    },
+    {
+      "id": 86,
+      "bench_id": 68,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-30"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.736894
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.302897
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f414bfaa-beb9-48cf-b70c-d568bdf5e6c4.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-30 17:04:08"
+    },
+    {
+      "id": 87,
+      "bench_id": 69,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-04-30"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.736673
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.299178
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/49ebe7d7-22d0-42ac-9b36-c11250e5380a.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-04-30 17:06:19"
+    },
+    {
+      "id": 88,
+      "bench_id": 70,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.73261
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.282318
+          }
+        ]
+      },
+      "created_at": "2026-05-05 06:55:00"
+    },
+    {
+      "id": 89,
+      "bench_id": 71,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.740958
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.35448
+          }
+        ]
+      },
+      "created_at": "2026-05-05 06:55:18"
+    },
+    {
+      "id": 90,
+      "bench_id": 71,
+      "action": "deleted",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "removed"
+          },
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          },
+          {
+            "field": "deleted_at",
+            "label": "Gelöscht",
+            "from": null,
+            "to": "2026-05-05 11:45:28"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 11:45:28"
+    },
+    {
+      "id": 91,
+      "bench_id": 72,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.741089
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.354429
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/27ab2733-75bf-48c6-b835-21692010daf6.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 11:46:33"
+    },
+    {
+      "id": 92,
+      "bench_id": 73,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.737057
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.352593
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a660202d-3d89-46a0-a58a-875cfe1bb3fc.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 11:52:52"
+    },
+    {
+      "id": 93,
+      "bench_id": 74,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.735769
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.349295
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/876f124f-77b6-4e66-9519-92bbb1f91997.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 11:54:14"
+    },
+    {
+      "id": 94,
+      "bench_id": 75,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.734906
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.345621
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/0ccd9b72-70f4-4aad-afcc-440e324b8c20.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 11:55:17"
+    },
+    {
+      "id": 95,
+      "bench_id": 61,
+      "action": "position_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": 46.733544,
+            "to": 46.734204
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": 12.342138,
+            "to": 12.341279
+          }
+        ]
+      },
+      "created_at": "2026-05-05 11:58:07"
+    },
+    {
+      "id": 96,
+      "bench_id": 76,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728428
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.313348
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e0b0d6cf-86ba-42ce-81be-7e7c55ff1a69.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:05:12"
+    },
+    {
+      "id": 97,
+      "bench_id": 77,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.72862
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.309429
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/f9ec85c9-a7ce-4e83-b916-df46010568e6.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:08:29"
+    },
+    {
+      "id": 98,
+      "bench_id": 78,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728574
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.305018
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/3293932d-8184-4d3b-9c22-f4143d18b654.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:10:48"
+    },
+    {
+      "id": 99,
+      "bench_id": 79,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.729045
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.301788
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/58734189-920f-4b70-81ee-a6691dd14131.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:11:54"
+    },
+    {
+      "id": 100,
+      "bench_id": 80,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.730176
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.297948
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/42ae083c-7b76-41fc-b501-43d0cbd9fc74.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:13:23"
+    },
+    {
+      "id": 101,
+      "bench_id": 81,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.731076
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.295677
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/9ab1124b-5cfd-4975-8f42-054dd94dd39f.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:14:59"
+    },
+    {
+      "id": 102,
+      "bench_id": 82,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.732801
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.289585
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/62cdfbfc-25fb-4b05-8e59-d24e4541a168.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:16:48"
+    },
+    {
+      "id": 103,
+      "bench_id": 83,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.733027
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.28884
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a1c8172e-e57b-40d4-b645-7a663c5ccf7d.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:18:19"
+    },
+    {
+      "id": 104,
+      "bench_id": 84,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.731015
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.290791
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/399b6a64-e154-4766-8616-c391159bab88.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:20:12"
+    },
+    {
+      "id": 105,
+      "bench_id": 85,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.729124
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.263923
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/b09ad647-f8ae-4eb4-ad77-1daad6aa0403.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:28:06"
+    },
+    {
+      "id": 106,
+      "bench_id": 86,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-05"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.726769
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.256209
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/06be00a5-35a4-4352-97a9-8127d7910207.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-05 12:31:20"
+    },
+    {
+      "id": 107,
+      "bench_id": 87,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-07"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.732492
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.282279
+          }
+        ]
+      },
+      "created_at": "2026-05-07 13:39:54"
+    },
+    {
+      "id": 108,
+      "bench_id": 87,
+      "action": "deleted",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "good",
+            "to": "removed"
+          },
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          },
+          {
+            "field": "deleted_at",
+            "label": "Gelöscht",
+            "from": null,
+            "to": "2026-05-07 13:40:01"
+          }
+        ]
+      },
+      "created_at": "2026-05-07 13:40:01"
+    },
+    {
+      "id": 109,
+      "bench_id": 70,
+      "action": "deleted",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "removed"
+          },
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          },
+          {
+            "field": "deleted_at",
+            "label": "Gelöscht",
+            "from": null,
+            "to": "2026-05-07 14:12:22"
+          }
+        ]
+      },
+      "created_at": "2026-05-07 14:12:22"
+    },
+    {
+      "id": 110,
+      "bench_id": 88,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.733129
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.298765
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1abdaa41-6bf4-4787-b058-e6c469779873.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-09 12:39:28"
+    },
+    {
+      "id": 111,
+      "bench_id": 89,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.733717
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.293502
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/46850f7f-7b04-48da-b3a0-6c71c106c3fa.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-09 12:43:25"
+    },
+    {
+      "id": 112,
+      "bench_id": 90,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.735563
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.287961
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c7818a33-1d79-45e6-8da4-3aa25d38050f.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-09 12:46:00"
+    },
+    {
+      "id": 113,
+      "bench_id": 91,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.72724
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.267136
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/84737146-017d-4be9-be4b-c2fc0f11edad.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-09 16:16:15"
+    },
+    {
+      "id": 114,
+      "bench_id": 92,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.727257
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.267155
+          }
+        ]
+      },
+      "created_at": "2026-05-09 16:16:21"
+    },
+    {
+      "id": 115,
+      "bench_id": 93,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.72775
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.267237
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c6904e61-4566-41c9-bfec-a80522d70715.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-09 16:19:00"
+    },
+    {
+      "id": 116,
+      "bench_id": 94,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.726437
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.265913
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/adc07f32-a086-4c1c-9003-d6c3b1ff2d15.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-09 16:22:15"
+    },
+    {
+      "id": 117,
+      "bench_id": 95,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-10"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.714058
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.311732
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/d7d2ac91-f079-491d-bf9a-ca13c220f0e8.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-10 09:45:50"
+    },
+    {
+      "id": 118,
+      "bench_id": 96,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-10"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.714181
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.311634
+          }
+        ]
+      },
+      "created_at": "2026-05-10 09:46:35"
+    },
+    {
+      "id": 119,
+      "bench_id": 97,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728181
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.287297
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/43adfe18-bb45-418a-9caf-c08691bc3e70.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:37:40"
+    },
+    {
+      "id": 120,
+      "bench_id": 98,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.727933
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.284953
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/3efd80d3-782b-4517-a189-5eeec26f4e41.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:41:19"
+    },
+    {
+      "id": 121,
+      "bench_id": 99,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728645
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.284148
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/19387f0f-5d2a-42b7-b6f2-19a4061fb2af.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:43:37"
+    },
+    {
+      "id": 122,
+      "bench_id": 100,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728467
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283908
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/66266835-43ac-4df5-9347-a623d4ad9b34.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:44:39"
+    },
+    {
+      "id": 123,
+      "bench_id": 101,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728492
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283835
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/2e87c15f-779b-4dac-a7cb-627e27d22f76.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:45:06"
+    },
+    {
+      "id": 124,
+      "bench_id": 102,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728314
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283615
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a399cf7c-c3f9-47e7-be89-3ba26362783a.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:46:08"
+    },
+    {
+      "id": 125,
+      "bench_id": 103,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728815
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283706
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ca0d65a1-006c-4857-b85e-3639d25a5fc8.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:47:01"
+    },
+    {
+      "id": 126,
+      "bench_id": 104,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728972
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283734
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e81e7313-020b-47bf-b869-2b3d28d9c192.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:47:41"
+    },
+    {
+      "id": 127,
+      "bench_id": 105,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728972
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283413
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ac4fcf0a-5bab-45fd-bbc2-d5f394eea877.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:48:30"
+    },
+    {
+      "id": 128,
+      "bench_id": 106,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728974
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283096
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5775e516-9876-4dd3-a678-5f3890ce0497.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:49:02"
+    },
+    {
+      "id": 129,
+      "bench_id": 107,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728906
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.28288
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/7d77a53a-3c03-416d-a5d6-8ef4e378564c.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:49:46"
+    },
+    {
+      "id": 130,
+      "bench_id": 108,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728706
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.282767
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/4b8f92d7-ff78-455b-8fdb-47db72c754df.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:50:27"
+    },
+    {
+      "id": 131,
+      "bench_id": 109,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.72853
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.282806
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/fbce28ff-9b6a-448d-a741-109e0e2244c3.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:51:04"
+    },
+    {
+      "id": 132,
+      "bench_id": 110,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-12"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.728506
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283026
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/25c33ad8-5c17-4837-be87-f06b953c8883.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-12 09:51:31"
+    },
+    {
+      "id": 133,
+      "bench_id": 111,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank + Tisch"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-13"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.72665
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.28675
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/1bc47e8c-0cc4-4089-a09d-e4dfad5bd277.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-13 09:32:06"
+    },
+    {
+      "id": 134,
+      "bench_id": 112,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-13"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.721601
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.296478
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/0abf5a0d-f5f9-45a7-9615-1e6c14d5bec1.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-13 09:50:16"
+    },
+    {
+      "id": 135,
+      "bench_id": 113,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-14"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717002
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.329809
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/36554b3b-dea1-4a66-ae5e-769bfabb5f33.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:26:52"
+    },
+    {
+      "id": 136,
+      "bench_id": 114,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-14"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717002
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.329809
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/4e482070-12a6-47ad-811e-33c1262e2fd0.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:26:52"
+    },
+    {
+      "id": 137,
+      "bench_id": 115,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "ok"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-14"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.717002
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.329809
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ee794a58-352b-4339-bbc1-2142be72e266.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:26:52"
+    },
+    {
+      "id": 138,
+      "bench_id": 116,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-14"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.710826
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.329965
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:26:56"
+    },
+    {
+      "id": 139,
+      "bench_id": 116,
+      "action": "deleted",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "good",
+            "to": "removed"
+          },
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          },
+          {
+            "field": "deleted_at",
+            "label": "Gelöscht",
+            "from": null,
+            "to": "2026-05-14 06:27:33"
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:27:33"
+    },
+    {
+      "id": 140,
+      "bench_id": 115,
+      "action": "deleted",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "ok",
+            "to": "removed"
+          },
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          },
+          {
+            "field": "deleted_at",
+            "label": "Gelöscht",
+            "from": null,
+            "to": "2026-05-14 06:28:00"
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:28:00"
+    },
+    {
+      "id": 141,
+      "bench_id": 114,
+      "action": "deleted",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "ok",
+            "to": "removed"
+          },
+          {
+            "field": "active",
+            "label": "Aktiv",
+            "from": true,
+            "to": false
+          },
+          {
+            "field": "deleted_at",
+            "label": "Gelöscht",
+            "from": null,
+            "to": "2026-05-14 06:28:08"
+          }
+        ]
+      },
+      "created_at": "2026-05-14 06:28:08"
     }
   ]
 }
