@@ -728,6 +728,18 @@ main {
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
 }
 
+.trail-marker-photo-missing {
+  position: absolute;
+  right: 20%;
+  bottom: 12%;
+  width: 10px;
+  height: 10px;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  background: #94a3b8;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.22);
+}
+
 .leaflet-municipalityMask-pane,
 .leaflet-municipalityBoundary-pane {
   pointer-events: none;

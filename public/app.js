@@ -131,6 +131,10 @@ const cancelTrailBtn = document.getElementById('cancelTrailBtn');
 const fieldTrailSiteNumber = document.getElementById('fieldTrailSiteNumber');
 const fieldTrailActive = document.getElementById('fieldTrailActive');
 const fieldTrailNotes = document.getElementById('fieldTrailNotes');
+const fieldTrailImage = document.getElementById('fieldTrailImage');
+const trailImagePreview = document.getElementById('trailImagePreview');
+const removeTrailImageBtn = document.getElementById('removeTrailImageBtn');
+const removeTrailImageNote = document.getElementById('removeTrailImageNote');
 const trailFormError = document.getElementById('trailFormError');
 const trailSignboards = document.getElementById('trailSignboards');
 const addTrailSignboardBtn = document.getElementById('addTrailSignboardBtn');
@@ -166,6 +170,10 @@ let selectedImageFile = null;
 let selectedImagePreviewUrl = null;
 let currentImageUrl = null;
 let shouldRemoveCurrentImage = false;
+let selectedTrailImageFile = null;
+let selectedTrailImagePreviewUrl = null;
+let currentTrailImageUrl = null;
+let shouldRemoveCurrentTrailImage = false;
 let currentEditBench = null;
 let currentEditMarker = null;
 let currentEditTrailPole = null;
@@ -279,6 +287,25 @@ removeImageBtn?.addEventListener('click', () => {
   removeImageNote.hidden = false;
 });
 
+fieldTrailImage?.addEventListener('change', () => {
+  const file = fieldTrailImage.files?.[0] ?? null;
+  setSelectedTrailImage(file);
+});
+
+removeTrailImageBtn?.addEventListener('click', () => {
+  shouldRemoveCurrentTrailImage = true;
+  selectedTrailImageFile = null;
+  cleanupSelectedTrailImagePreview();
+
+  if (fieldTrailImage) {
+    fieldTrailImage.value = '';
+  }
+
+  showImagePreview(trailImagePreview, null);
+  removeTrailImageBtn.hidden = true;
+  removeTrailImageNote.hidden = false;
+});
+
 movePositionBtn?.addEventListener('click', () => {
   if (!currentEditBench || !currentEditMarker) return;
   startPositionEdit('bench', currentEditBench, currentEditMarker);
@@ -369,6 +396,19 @@ trailPoleForm?.addEventListener('submit', async (event) => {
   if (editMode === 'trail-add' && !selectedPoint) {
     alert('Bitte zuerst einen Standort f\u00FCr den neuen Pfeiler ausw\u00E4hlen.');
     return;
+  }
+
+  const imageUrl = await uploadSelectedImageIfNeeded(selectedTrailImageFile, 'wanderbeschilderungen');
+  if (imageUrl === false) {
+    return;
+  }
+
+  if (imageUrl) {
+    payload.image_url = imageUrl;
+  } else if (shouldRemoveCurrentTrailImage) {
+    payload.image_url = null;
+  } else if (currentTrailImageUrl) {
+    payload.image_url = currentTrailImageUrl;
   }
 
   if (editMode === 'trail-add') {
@@ -781,12 +821,16 @@ function trailMarkerIcon(pole) {
   const label = escapeHtml(rawLabel);
   const dimensions = trailMarkerPresentation(rawLabel);
   const state = trailMarkerStates.get(pole.id);
+  const noPhotoBadge = pole.image_url
+    ? ''
+    : '<span class="trail-marker-photo-missing" aria-hidden="true"></span>';
 
   return leaflet.divIcon({
-    className: `trail-marker-icon${pole.active ? '' : ' is-inactive'}${state?.isMoving ? ' is-moving' : ''}`,
+    className: `trail-marker-icon${pole.image_url ? '' : ' is-missing-photo'}${pole.active ? '' : ' is-inactive'}${state?.isMoving ? ' is-moving' : ''}`,
     html: `
       <span class="trail-marker-pin" style="--trail-marker-scale:${trailMarkerScale()}; --trail-marker-font-size:${dimensions.fontSize}px">
         <span class="trail-marker-number">${label}</span>
+        ${noPhotoBadge}
       </span>
     `,
     iconSize: [dimensions.width, dimensions.height],
@@ -890,6 +934,7 @@ function openTrailAddPanel() {
   currentEditTrailPole = null;
   currentEditTrailMarker = null;
   trailPanelTitle.textContent = 'Wandertafel-Pfeiler hinzuf\u00FCgen';
+  resetTrailImageField();
   fieldTrailSiteNumber.value = '';
   if (fieldTrailActive) fieldTrailActive.value = '1';
   fieldTrailNotes.value = '';
@@ -915,6 +960,7 @@ function openTrailEditPanel(pole, marker) {
   currentEditTrailPole = pole;
   currentEditTrailMarker = marker;
   trailPanelTitle.textContent = 'Wandertafel-Pfeiler bearbeiten';
+  resetTrailImageField(pole.image_url || null);
   fieldTrailSiteNumber.value = pole.site_number || '';
   if (fieldTrailActive) fieldTrailActive.value = pole.active ? '1' : '0';
   fieldTrailNotes.value = pole.notes || '';
@@ -932,6 +978,7 @@ function closeTrailPanel({ keepTempMarker = false } = {}) {
   currentEditTrailMarker = null;
   trailPanel.hidden = true;
   trailPoleForm?.reset();
+  resetTrailImageField();
   showTrailFormError(null);
   if (trailSignboards) trailSignboards.innerHTML = '';
   if (!keepTempMarker) clearTempMarker();
@@ -1011,6 +1058,9 @@ function popupHtml(bench) {
 }
 
 function trailPopupHtml(pole) {
+  const imageHtml = pole.image_url
+    ? `<img class="popup-photo" src="${escapeHtml(pole.image_url)}" alt="Foto von Standort ${escapeHtml(pole.site_number)}" />`
+    : '';
   const signboardsHtml = pole.signboards?.length
     ? pole.signboards.map((signboard) => {
       const entries = signboard.entries?.length
@@ -1036,6 +1086,7 @@ function trailPopupHtml(pole) {
 
   return `
     <div class="popup-card">
+      ${imageHtml}
       <div class="popup-header">
         <strong>Standort ${escapeHtml(pole.site_number)}</strong>
         <small>#${pole.id}</small>
@@ -1259,7 +1310,7 @@ function closeGlobalHistoryPanel() {
   if (globalHistoryPanel) globalHistoryPanel.hidden = true;
 }
 
-async function uploadSelectedImageIfNeeded(file) {
+async function uploadSelectedImageIfNeeded(file, type = 'bench') {
   if (!file) return null;
 
   if (!file.type || !file.type.startsWith('image/')) {
@@ -1270,6 +1321,7 @@ async function uploadSelectedImageIfNeeded(file) {
   const uploadFile = await compressImageFile(file);
   const formData = new FormData();
   formData.append('file', uploadFile);
+  formData.append('type', type);
 
   let response;
   try {
@@ -1727,10 +1779,51 @@ function resetImageField(imageUrl = null) {
   showImagePreview(imagePreview, imageUrl);
 }
 
+function setSelectedTrailImage(file) {
+  selectedTrailImageFile = file;
+  cleanupSelectedTrailImagePreview();
+
+  if (file) {
+    shouldRemoveCurrentTrailImage = false;
+    removeTrailImageNote.hidden = true;
+    removeTrailImageBtn.hidden = false;
+    selectedTrailImagePreviewUrl = URL.createObjectURL(file);
+    showImagePreview(trailImagePreview, selectedTrailImagePreviewUrl);
+    return;
+  }
+
+  shouldRemoveCurrentTrailImage = false;
+  removeTrailImageNote.hidden = true;
+  removeTrailImageBtn.hidden = !currentTrailImageUrl;
+  showImagePreview(trailImagePreview, currentTrailImageUrl);
+}
+
+function resetTrailImageField(imageUrl = null) {
+  cleanupSelectedTrailImagePreview();
+
+  selectedTrailImageFile = null;
+  shouldRemoveCurrentTrailImage = false;
+  currentTrailImageUrl = imageUrl;
+
+  if (fieldTrailImage) {
+    fieldTrailImage.value = '';
+  }
+
+  removeTrailImageBtn.hidden = !imageUrl;
+  removeTrailImageNote.hidden = true;
+  showImagePreview(trailImagePreview, imageUrl);
+}
+
 function cleanupSelectedImagePreview() {
   if (!selectedImagePreviewUrl) return;
   URL.revokeObjectURL(selectedImagePreviewUrl);
   selectedImagePreviewUrl = null;
+}
+
+function cleanupSelectedTrailImagePreview() {
+  if (!selectedTrailImagePreviewUrl) return;
+  URL.revokeObjectURL(selectedTrailImagePreviewUrl);
+  selectedTrailImagePreviewUrl = null;
 }
 
 function showImagePreview(element, url) {
@@ -2043,6 +2136,7 @@ function renderTrailList() {
     const signboardCount = pole.signboards?.length || 0;
     const entryCount = countTrailEntries(pole);
     const firstEntry = firstTrailEntrySummary(pole);
+    const hasPhoto = Boolean(pole.image_url);
     return `
       <button class="bench-list-item" type="button" data-trail-pole-id="${pole.id}">
         <span class="bench-list-main">
@@ -2052,6 +2146,7 @@ function renderTrailList() {
           <span class="bench-list-details">
             <span class="trail-list-summary">${signboardCount} ${signboardCount === 1 ? 'Tafel' : 'Tafeln'}</span>
             <span class="trail-list-summary">${entryCount} ${entryCount === 1 ? 'Anschrift' : 'Anschriften'}</span>
+            ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : '<span class="bench-list-photo is-missing">Ohne Foto</span>'}
             <span class="trail-list-entry">${escapeHtml(firstEntry)}</span>
           </span>
         </span>
@@ -2264,10 +2359,6 @@ function renumberTrailEditors() {
 function readTrailPoleFormPayload() {
   clearTrailValidationHighlights();
   const siteNumber = fieldTrailSiteNumber.value.trim();
-  if (!siteNumber) {
-    showTrailValidationError('Bitte eine Standortnummer eingeben.', fieldTrailSiteNumber);
-    return null;
-  }
 
   const signboards = Array.from(trailSignboards.querySelectorAll('[data-role="trail-signboard"]')).map((signboardElement, signboardIndex) => {
     const direction = signboardElement.querySelector('[name="direction"]').value.trim();
@@ -2276,7 +2367,7 @@ function readTrailPoleFormPayload() {
       label: entryElement.querySelector('input[name="label"]').value.trim(),
       duration: entryElement.querySelector('input[name="duration"]').value.trim() || null,
       sort_order: entryIndex
-    }));
+    })).filter((entry) => entry.label || entry.duration);
 
     return {
       direction,
@@ -2284,12 +2375,11 @@ function readTrailPoleFormPayload() {
       sort_order: signboardIndex,
       entries
     };
-  });
-
-  if (signboards.length < 1) {
-    showTrailValidationError('Bitte mindestens eine Tafel anlegen.', addTrailSignboardBtn);
-    return null;
-  }
+  }).filter((signboard) =>
+    signboard.direction
+    || signboard.trail_number
+    || signboard.entries.length
+  );
 
   for (let signboardIndex = 0; signboardIndex < signboards.length; signboardIndex += 1) {
     const signboard = signboards[signboardIndex];
@@ -2336,7 +2426,7 @@ function readTrailPoleFormPayload() {
   }
 
   return {
-    site_number: siteNumber,
+    site_number: siteNumber || undefined,
     active: fieldTrailActive ? fieldTrailActive.value === '1' : (currentEditTrailPole?.active ?? true),
     notes: fieldTrailNotes.value.trim() || null,
     signboards
@@ -2588,11 +2678,17 @@ async function saveActivePositionEdit() {
 
   clearActivePositionEdit(false);
   if (type === 'trail') {
-    await upsertTrailPole(`/api/trail-poles/${item.id}`, 'PUT', nextPosition);
+    const saved = await upsertTrailPole(`/api/trail-poles/${item.id}`, 'PUT', nextPosition);
+    if (saved) {
+      map.removeLayer(marker);
+    }
     return;
   }
 
-  await upsertBench(`/api/benches/${item.id}`, 'PUT', nextPosition);
+  const saved = await upsertBench(`/api/benches/${item.id}`, 'PUT', nextPosition);
+  if (saved) {
+    map.removeLayer(marker);
+  }
 }
 
 function cancelActivePositionEdit({ reopenPanel = false } = {}) {

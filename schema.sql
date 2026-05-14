@@ -41,6 +41,7 @@ CREATE TABLE trail_poles (
   lng REAL NOT NULL,
   active INTEGER NOT NULL DEFAULT 1 CHECK (active IN (0, 1)),
   notes TEXT,
+  image_url TEXT,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

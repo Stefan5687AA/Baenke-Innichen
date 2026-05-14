@@ -214,11 +214,16 @@ Trail pole validation:
 ## GitHub backups
 
 The Worker cron runs once per night and writes the latest JSON snapshots to the configured backup branch.
+The Worker also queues a backup whenever a new bench or trail pole is created.
 
 Backup files:
 
 - `backups/benches-latest.json` contains all benches and bench history.
 - `backups/trail-poles-latest.json` contains all trail poles with nested signboards and entries.
+- `backups/images/bench-images/*` contains uploaded photos up to 750 KB each.
+- `backups/images/wanderbeschilderungen/*` contains uploaded trail sign photos up to 750 KB each.
+
+New uploads are copied to the backup branch immediately after the R2 upload. Each scheduled or manual JSON backup also backfills up to 20 missing referenced images, so older photos are copied over gradually without making one backup run too large.
 
 Manual backup endpoint:
 
@@ -235,6 +240,12 @@ Required Worker settings:
 - `GITHUB_BACKUP_BRANCH` (`data-backups` in `worker/wrangler.toml`)
 - `GITHUB_BACKUP_DIRECTORY`
 - secret `GITHUB_BACKUP_TOKEN`
+
+Set the token with:
+
+```bash
+npx wrangler secret put GITHUB_BACKUP_TOKEN --config worker/wrangler.toml
+```
 
 ## Notes
 

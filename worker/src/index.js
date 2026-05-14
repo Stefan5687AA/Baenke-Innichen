@@ -6,6 +6,9 @@ const MAX_TRAIL_DIRECTION_LENGTH = 120;
 const MAX_TRAIL_NUMBER_LENGTH = 80;
 const MAX_TRAIL_LABEL_LENGTH = 200;
 const MAX_TRAIL_DURATION_LENGTH = 80;
+const MAX_GITHUB_IMAGE_BACKUP_BYTES = 750_000;
+const MAX_REFERENCED_IMAGE_BACKUPS_PER_RUN = 20;
+const DEFAULT_TRAIL_SITE_NUMBER = 'Ohne Nummer';
 
 class HttpError extends Error {
   constructor(status, message, detail = null) {
@@ -36,7 +39,7 @@ export default {
       }
 
       if (url.pathname === '/api/benches' && request.method === 'POST') {
-        return await createBench(request, env);
+        return await createBench(request, env, ctx);
       }
 
       if (url.pathname === '/api/trail-poles' && request.method === 'GET') {
@@ -44,15 +47,19 @@ export default {
       }
 
       if (url.pathname === '/api/trail-poles' && request.method === 'POST') {
-        return await createTrailPole(request, env);
+        return await createTrailPole(request, env, ctx);
       }
 
       if (url.pathname === '/api/upload' && request.method === 'POST') {
-        return await uploadImage(request, env);
+        return await uploadImage(request, env, ctx);
       }
 
       if (url.pathname === '/api/backups/github' && request.method === 'POST') {
-        return await createManualGithubBackup(request, env);
+        return await createManualGithubBackup(request, env, ctx);
+      }
+
+      if (url.pathname === '/api/backups/github/images' && request.method === 'POST') {
+        return await createManualGithubImageBackup(request, env);
       }
 
       if (url.pathname === '/api/history' && request.method === 'GET') {
@@ -110,7 +117,9 @@ export default {
   },
 
   async scheduled(controller, env, ctx) {
-    queueGithubBackup(ctx, env, `scheduled:${controller.cron}`);
+    queueGithubBackup(ctx, env, `scheduled:${controller.cron}`, {
+      backupReferencedImages: true
+    });
   }
 };
 
@@ -134,7 +143,7 @@ async function listBenches(url, env) {
   return json(results.map(normalizeBench));
 }
 
-async function createBench(request, env) {
+async function createBench(request, env, ctx) {
   const body = await readJsonBody(request);
   const payload = validateBenchPayload(body, true);
   const preparedPayload = applyBenchBusinessRules(payload, true);
@@ -180,6 +189,8 @@ async function createBench(request, env) {
     changeDetail('lng', null, created.lng),
     changeDetail('image_url', null, created.image_url)
   ].filter(Boolean));
+
+  queueGithubBackup(ctx, env, `bench-created:${created.id}`);
 
   return json(normalizeBench(created), 201);
 }
@@ -347,12 +358,12 @@ async function listTrailPoles(url, env) {
 
   const query = includeInactive
     ? `
-      SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+      SELECT id, site_number, lat, lng, active, notes, image_url, created_at, updated_at
       FROM trail_poles
       ORDER BY id DESC
     `
     : `
-      SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+      SELECT id, site_number, lat, lng, active, notes, image_url, created_at, updated_at
       FROM trail_poles
       WHERE active = 1
       ORDER BY id DESC
@@ -372,7 +383,7 @@ async function getTrailPole(id, env) {
   return json(pole);
 }
 
-async function createTrailPole(request, env) {
+async function createTrailPole(request, env, ctx) {
   const body = await readJsonBody(request);
   const payload = validateTrailPolePayload(body, true);
 
@@ -383,15 +394,17 @@ async function createTrailPole(request, env) {
         lat,
         lng,
         active,
-        notes
+        notes,
+        image_url
       )
-      VALUES (?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?)
     `).bind(
       payload.site_number,
       payload.lat,
       payload.lng,
       payload.active ? 1 : 0,
-      payload.notes ?? null
+      payload.notes ?? null,
+      payload.image_url ?? null
     )
   );
 
@@ -408,6 +421,8 @@ async function createTrailPole(request, env) {
   }
 
   const created = await fetchTrailPoleAggregate(env, poleId);
+  queueGithubBackup(ctx, env, `trail-pole-created:${created.id}`);
+
   return json(created, 201);
 }
 
@@ -425,7 +440,8 @@ async function updateTrailPole(id, request, env) {
     || Number.isFinite(payload.lat)
     || Number.isFinite(payload.lng)
     || typeof payload.active === 'boolean'
-    || hasOwn(payload, 'notes');
+    || hasOwn(payload, 'notes')
+    || hasOwn(payload, 'image_url');
   const shouldReplaceSignboards = hasOwn(payload, 'signboards');
 
   if (hasScalarUpdates) {
@@ -438,17 +454,20 @@ async function updateTrailPole(id, request, env) {
           lng = COALESCE(?, lng),
           active = COALESCE(?, active),
           notes = CASE WHEN ? THEN ? ELSE notes END,
+          image_url = CASE WHEN ? THEN ? ELSE image_url END,
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ?
       `).bind(
-        payload.site_number ?? null,
+        dbValue(payload.site_number),
         Number.isFinite(payload.lat) ? payload.lat : null,
         Number.isFinite(payload.lng) ? payload.lng : null,
         typeof payload.active === 'boolean'
           ? (payload.active ? 1 : 0)
           : null,
         hasOwn(payload, 'notes') ? 1 : 0,
-        hasOwn(payload, 'notes') ? payload.notes : null,
+        hasOwn(payload, 'notes') ? dbValue(payload.notes) : null,
+        hasOwn(payload, 'image_url') ? 1 : 0,
+        hasOwn(payload, 'image_url') ? dbValue(payload.image_url) : null,
         id
       )
     );
@@ -495,7 +514,7 @@ async function deleteTrailPole(id, env) {
 
 async function fetchTrailPoleRow(env, id) {
   return env.DB.prepare(`
-    SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+    SELECT id, site_number, lat, lng, active, notes, image_url, created_at, updated_at
     FROM trail_poles
     WHERE id = ?
   `)
@@ -624,9 +643,10 @@ async function touchTrailPole(env, poleId) {
     .run();
 }
 
-async function uploadImage(request, env) {
+async function uploadImage(request, env, ctx) {
   const formData = await request.formData();
   const file = formData.get('file');
+  const uploadType = String(formData.get('type') || 'bench');
 
   if (!(file instanceof File)) {
     throw new HttpError(400, 'Invalid upload', 'No file received');
@@ -640,29 +660,49 @@ async function uploadImage(request, env) {
     ? file.name.split('.').pop().toLowerCase()
     : 'jpg';
 
-  const key = `bench-images/${crypto.randomUUID()}.${extension}`;
+  const folder = uploadType === 'wanderbeschilderungen'
+    ? 'wanderbeschilderungen'
+    : 'bench-images';
+  const key = `${folder}/${crypto.randomUUID()}.${extension}`;
+  const bytes = await file.arrayBuffer();
 
-  await env.BUCKET.put(key, await file.arrayBuffer(), {
+  await env.BUCKET.put(key, bytes, {
     httpMetadata: {
       contentType: file.type
     }
   });
 
-const publicUrl = `https://pub-483266975888471db0d51fff35148e9d.r2.dev/${key}`;
+  queueGithubImageBackup(ctx, env, {
+    key,
+    bytes,
+    contentType: file.type
+  });
+
+  const publicUrl = `https://pub-483266975888471db0d51fff35148e9d.r2.dev/${key}`;
   return json({ url: publicUrl, key }, 201);
 }
 
-function queueGithubBackup(ctx, env, reason) {
+function queueGithubBackup(ctx, env, reason, options = {}) {
   if (!ctx?.waitUntil) return;
 
   ctx.waitUntil(
-    createGithubBackup(env, reason).catch((error) => {
+    createGithubBackup(env, reason, options).catch((error) => {
       console.error('GitHub backup failed:', error);
     })
   );
 }
 
-async function createGithubBackup(env, reason) {
+function queueGithubImageBackup(ctx, env, image) {
+  if (!ctx?.waitUntil) return;
+
+  ctx.waitUntil(
+    backupUploadedImage(env, image).catch((error) => {
+      console.error('GitHub image backup failed:', error);
+    })
+  );
+}
+
+async function createGithubBackup(env, reason, options = {}) {
   if (!env.GITHUB_BACKUP_TOKEN) {
     throw new Error('GitHub backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
   }
@@ -683,6 +723,17 @@ async function createGithubBackup(env, reason) {
     JSON.stringify(trailPolesBackup, null, 2),
     `Update trail poles backup (${reason})`
   );
+  const imageBackup = options.backupReferencedImages
+    ? await backupReferencedImages(
+      env,
+      directory,
+      [
+        ...benchesBackup.benches.map((bench) => bench.image_url),
+        ...trailPolesBackup.trail_poles.map((pole) => pole.image_url)
+      ],
+      reason
+    )
+    : { queued: false };
 
   return {
     benches: {
@@ -696,11 +747,160 @@ async function createGithubBackup(env, reason) {
       signboard_count: trailPolesBackup.signboard_count,
       entry_count: trailPolesBackup.entry_count
     },
+    images: imageBackup,
     written: [benchesLatest, trailPolesLatest]
   };
 }
 
-async function createManualGithubBackup(request, env) {
+async function backupUploadedImage(env, image) {
+  if (!env.GITHUB_BACKUP_TOKEN) {
+    throw new Error('GitHub image backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
+  }
+
+  if (image.bytes.byteLength > MAX_GITHUB_IMAGE_BACKUP_BYTES) {
+    console.warn(
+      `GitHub image backup skipped: ${image.key} is ${image.bytes.byteLength} bytes.`
+    );
+    return null;
+  }
+
+  const directory = String(env.GITHUB_BACKUP_DIRECTORY || 'backups').replace(/^\/+|\/+$/g, '');
+  return putGithubBinaryFile(
+    env,
+    `${directory}/images/${image.key}`,
+    image.bytes,
+    `Backup uploaded image ${image.key}`
+  );
+}
+
+async function backupReferencedImages(env, directory, imageUrls, reason) {
+  const refs = uniqueImageBackupRefs(imageUrls, directory);
+  const existingPaths = await getGithubTreePaths(env, `${directory}/images/`);
+  const treeElements = [];
+  const result = {
+    checked: refs.length,
+    backed_up: 0,
+    skipped_existing: 0,
+    skipped_large: 0,
+    skipped_failed: 0,
+    remaining: 0
+  };
+
+  for (const ref of refs) {
+    if (result.backed_up >= MAX_REFERENCED_IMAGE_BACKUPS_PER_RUN) {
+      result.remaining += 1;
+      continue;
+    }
+
+    if (existingPaths.has(ref.path)) {
+      result.skipped_existing += 1;
+      continue;
+    }
+
+    try {
+      const image = await fetchBackupImage(ref.url);
+      if (!image) {
+        result.skipped_failed += 1;
+        continue;
+      }
+
+      if (image.tooLarge || image.bytes.byteLength > MAX_GITHUB_IMAGE_BACKUP_BYTES) {
+        result.skipped_large += 1;
+        continue;
+      }
+
+      const blobSha = await createGithubBlob(env, arrayBufferToBase64(image.bytes));
+      treeElements.push({
+        path: ref.path,
+        mode: '100644',
+        type: 'blob',
+        sha: blobSha
+      });
+      result.backed_up += 1;
+    } catch (error) {
+      console.error('Referenced image backup failed:', ref.url, error);
+      result.skipped_failed += 1;
+    }
+  }
+
+  if (treeElements.length) {
+    const branch = env.GITHUB_BACKUP_BRANCH || 'main';
+    const headSha = await getGithubBranchHeadSha(env, branch);
+    const headCommit = await getGithubCommit(env, headSha);
+    const treeSha = await createGithubTree(env, headCommit.tree.sha, treeElements);
+    const commitSha = await createGithubCommit(
+      env,
+      `Backup ${treeElements.length} referenced image(s) (${reason})`,
+      treeSha,
+      headSha
+    );
+    await updateGithubBranchHead(env, branch, commitSha);
+    result.commit = commitSha;
+  }
+
+  return result;
+}
+
+function uniqueImageBackupRefs(imageUrls, directory) {
+  const refsByPath = new Map();
+
+  for (const imageUrl of imageUrls) {
+    const ref = imageBackupRefFromUrl(imageUrl, directory);
+    if (ref && !refsByPath.has(ref.path)) {
+      refsByPath.set(ref.path, ref);
+    }
+  }
+
+  return Array.from(refsByPath.values());
+}
+
+function imageBackupRefFromUrl(imageUrl, directory) {
+  if (!imageUrl || typeof imageUrl !== 'string') return null;
+
+  let url;
+  try {
+    url = new URL(imageUrl);
+  } catch {
+    return null;
+  }
+
+  const path = url.pathname.replace(/^\/+/, '');
+  const imageIndex = path.indexOf('bench-images/') >= 0
+    ? path.indexOf('bench-images/')
+    : path.indexOf('wanderbeschilderungen/');
+  if (imageIndex === -1) return null;
+
+  const key = path.slice(imageIndex);
+  if (!/^[a-z0-9/_\-.]+$/i.test(key)) return null;
+
+  return {
+    url: imageUrl,
+    key,
+    path: `${directory}/images/${key}`
+  };
+}
+
+async function fetchBackupImage(url) {
+  const response = await fetch(url);
+  if (!response.ok) return null;
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.startsWith('image/')) return null;
+
+  const contentLength = Number.parseInt(response.headers.get('content-length') || '', 10);
+  if (Number.isFinite(contentLength) && contentLength > MAX_GITHUB_IMAGE_BACKUP_BYTES) {
+    return {
+      bytes: new ArrayBuffer(0),
+      tooLarge: true
+    };
+  }
+
+  return {
+    bytes: await response.arrayBuffer()
+  };
+}
+
+async function createManualGithubBackup(request, env, ctx) {
   const body = await readJsonBody(request);
 
   if (body?.confirm !== 'backup') {
@@ -708,10 +908,56 @@ async function createManualGithubBackup(request, env) {
   }
 
   const result = await createGithubBackup(env, 'manual');
+  queueReferencedImageBackup(ctx, env, 'manual');
   return json({
     ok: true,
+    image_backfill_queued: true,
     ...result
   });
+}
+
+async function createManualGithubImageBackup(request, env) {
+  const body = await readJsonBody(request);
+
+  if (body?.confirm !== 'backup') {
+    throw new HttpError(400, 'Backup confirmation is required');
+  }
+
+  const result = await backupAllReferencedImages(env, 'manual-images');
+  return json({
+    ok: true,
+    images: result
+  });
+}
+
+function queueReferencedImageBackup(ctx, env, reason) {
+  if (!ctx?.waitUntil) return;
+
+  ctx.waitUntil(
+    backupAllReferencedImages(env, reason).catch((error) => {
+      console.error('GitHub referenced image backup failed:', error);
+    })
+  );
+}
+
+async function backupAllReferencedImages(env, reason) {
+  if (!env.GITHUB_BACKUP_TOKEN) {
+    throw new Error('GitHub image backup skipped: GITHUB_BACKUP_TOKEN is not configured.');
+  }
+
+  const benchesBackup = await buildBenchBackupPayload(env, reason);
+  const trailPolesBackup = await buildTrailPolesBackupPayload(env, reason);
+  const directory = String(env.GITHUB_BACKUP_DIRECTORY || 'backups').replace(/^\/+|\/+$/g, '');
+
+  return backupReferencedImages(
+    env,
+    directory,
+    [
+      ...benchesBackup.benches.map((bench) => bench.image_url),
+      ...trailPolesBackup.trail_poles.map((pole) => pole.image_url)
+    ],
+    reason
+  );
 }
 
 async function buildBenchBackupPayload(env, reason) {
@@ -743,7 +989,7 @@ async function buildBenchBackupPayload(env, reason) {
 
 async function buildTrailPolesBackupPayload(env, reason) {
   const { results } = await env.DB.prepare(`
-    SELECT id, site_number, lat, lng, active, notes, created_at, updated_at
+    SELECT id, site_number, lat, lng, active, notes, image_url, created_at, updated_at
     FROM trail_poles
     ORDER BY id ASC
   `).all();
@@ -775,6 +1021,24 @@ async function buildTrailPolesBackupPayload(env, reason) {
 }
 
 async function putGithubFile(env, path, content, message) {
+  return putGithubContent(
+    env,
+    path,
+    base64Encode(content),
+    message
+  );
+}
+
+async function putGithubBinaryFile(env, path, arrayBuffer, message) {
+  return putGithubContent(
+    env,
+    path,
+    arrayBufferToBase64(arrayBuffer),
+    message
+  );
+}
+
+async function putGithubContent(env, path, encodedContent, message) {
   const owner = env.GITHUB_BACKUP_OWNER;
   const repo = env.GITHUB_BACKUP_REPO;
   const branch = env.GITHUB_BACKUP_BRANCH || 'main';
@@ -791,7 +1055,7 @@ async function putGithubFile(env, path, content, message) {
     const body = {
       message,
       branch,
-      content: base64Encode(content)
+      content: encodedContent
     };
 
     if (currentSha) {
@@ -822,6 +1086,156 @@ async function putGithubFile(env, path, content, message) {
   }
 
   throw new Error('GitHub backup write failed after retries.');
+}
+
+async function githubFileExists(env, path) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const branch = env.GITHUB_BACKUP_BRANCH || 'main';
+
+  if (!owner || !repo) {
+    throw new Error('GitHub backup repository is not configured.');
+  }
+
+  const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${encodedPath}`;
+  return Boolean(await getGithubFileSha(env, url, branch));
+}
+
+async function getGithubTreePaths(env, prefix) {
+  const branch = env.GITHUB_BACKUP_BRANCH || 'main';
+  const headSha = await getGithubBranchHeadSha(env, branch);
+  const commit = await getGithubCommit(env, headSha);
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/trees/${commit.tree.sha}?recursive=1`;
+  const response = await fetch(url, {
+    headers: githubHeaders(env)
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub tree lookup failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return new Set(
+    (data.tree || [])
+      .filter((entry) => entry.type === 'blob' && entry.path?.startsWith(prefix))
+      .map((entry) => entry.path)
+  );
+}
+
+async function getGithubBranchHeadSha(env, branch) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/ref/heads/${encodeURIComponent(branch)}`;
+  const response = await fetch(url, {
+    headers: githubHeaders(env)
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub ref lookup failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.object?.sha;
+}
+
+async function getGithubCommit(env, commitSha) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/commits/${commitSha}`;
+  const response = await fetch(url, {
+    headers: githubHeaders(env)
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub commit lookup failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  return response.json();
+}
+
+async function createGithubBlob(env, encodedContent) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/blobs`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: githubHeaders(env),
+    body: JSON.stringify({
+      content: encodedContent,
+      encoding: 'base64'
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub blob create failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.sha;
+}
+
+async function createGithubTree(env, baseTreeSha, treeElements) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/trees`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: githubHeaders(env),
+    body: JSON.stringify({
+      base_tree: baseTreeSha,
+      tree: treeElements
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub tree create failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.sha;
+}
+
+async function createGithubCommit(env, message, treeSha, parentSha) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/commits`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: githubHeaders(env),
+    body: JSON.stringify({
+      message,
+      tree: treeSha,
+      parents: [parentSha]
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub commit create failed: HTTP ${response.status} ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.sha;
+}
+
+async function updateGithubBranchHead(env, branch, commitSha) {
+  const owner = env.GITHUB_BACKUP_OWNER;
+  const repo = env.GITHUB_BACKUP_REPO;
+  const url = `https://api.github.com/repos/${owner}/${repo}/git/refs/heads/${encodeURIComponent(branch)}`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: githubHeaders(env),
+    body: JSON.stringify({
+      sha: commitSha,
+      force: false
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`GitHub ref update failed: HTTP ${response.status} ${await response.text()}`);
+  }
 }
 
 async function getGithubFileSha(env, url, branch) {
@@ -857,6 +1271,17 @@ function base64Encode(value) {
 
   for (const byte of bytes) {
     binary += String.fromCharCode(byte);
+  }
+
+  return btoa(binary);
+}
+
+function arrayBufferToBase64(arrayBuffer) {
+  const bytes = new Uint8Array(arrayBuffer);
+  let binary = '';
+
+  for (let index = 0; index < bytes.length; index += 1) {
+    binary += String.fromCharCode(bytes[index]);
   }
 
   return btoa(binary);
@@ -995,13 +1420,16 @@ function validateTrailPolePayload(payload, isCreate) {
 
   const normalized = {
     site_number: normalizeStringField(payload.site_number, 'site_number', {
-      required: isCreate,
       allowNumber: true,
       maxLength: MAX_TRAIL_SITE_NUMBER_LENGTH
     }),
     lat: payload.lat,
     lng: payload.lng,
-    active: payload.active
+    active: payload.active,
+    image_url:
+      typeof payload.image_url === 'string'
+        ? payload.image_url.trim()
+        : payload.image_url
   };
 
   if (isCreate) {
@@ -1020,6 +1448,22 @@ function validateTrailPolePayload(payload, isCreate) {
 
   if (typeof normalized.active !== 'undefined' && typeof normalized.active !== 'boolean') {
     throw new HttpError(400, 'active must be a boolean');
+  }
+
+  if (isCreate && !normalized.site_number) {
+    normalized.site_number = DEFAULT_TRAIL_SITE_NUMBER;
+  }
+
+  if (typeof normalized.image_url !== 'undefined' && normalized.image_url !== null) {
+    if (typeof normalized.image_url !== 'string') {
+      throw new HttpError(400, 'image_url must be a string');
+    }
+
+    if (normalized.image_url.length > MAX_IMAGE_URL_LENGTH) {
+      throw new HttpError(400, 'image_url too long');
+    }
+  } else if (isCreate) {
+    normalized.image_url = null;
   }
 
   if (hasOwn(payload, 'notes')) {
@@ -1181,6 +1625,10 @@ function hasOwn(value, key) {
   return Object.prototype.hasOwnProperty.call(value, key);
 }
 
+function dbValue(value) {
+  return typeof value === 'undefined' ? null : value;
+}
+
 function normalizeBench(row) {
   if (!row) return null;
 
@@ -1202,7 +1650,8 @@ function normalizeTrailPole(row) {
     lat: Number(row.lat),
     lng: Number(row.lng),
     active: Boolean(row.active),
-    notes: row.notes ?? null
+    notes: row.notes ?? null,
+    image_url: row.image_url ?? null
   };
 }
 

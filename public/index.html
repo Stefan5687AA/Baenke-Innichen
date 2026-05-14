@@ -174,9 +174,19 @@
             <form id="trailPoleForm" class="trail-form" novalidate>
               <div id="trailFormError" class="form-error full-width" role="alert" hidden></div>
 
+              <div class="photo-field full-width">
+                <img id="trailImagePreview" class="photo-preview" alt="Ausgew&auml;hltes Wandertafel-Foto" hidden />
+                <label>
+                  Foto
+                  <input id="fieldTrailImage" name="image" type="file" accept="image/*" />
+                </label>
+                <button id="removeTrailImageBtn" class="danger compact" type="button" hidden>Foto l&ouml;schen</button>
+                <small id="removeTrailImageNote" class="photo-remove-note" hidden>Foto wird beim Speichern gel&ouml;scht.</small>
+              </div>
+
               <label>
                 Standortnummer
-                <input id="fieldTrailSiteNumber" name="site_number" type="text" required maxlength="80" placeholder="1-IN-1" />
+                <input id="fieldTrailSiteNumber" name="site_number" type="text" maxlength="80" placeholder="1-IN-1" />
               </label>
 
               <label class="full-width">
