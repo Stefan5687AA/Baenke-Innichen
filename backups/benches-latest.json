@@ -1,7 +1,7 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-05-14T08:01:29.940Z",
-  "reason": "trail-pole-created:11",
+  "generated_at": "2026-05-14T08:02:10.060Z",
+  "reason": "manual",
   "source": "cloudflare-d1:innichen-benches",
   "count": 116,
   "active_count": 110,
