@@ -2135,11 +2135,10 @@ function renderTrailList() {
   trailList.innerHTML = poles.map((pole) => {
     const signboardCount = pole.signboards?.length || 0;
     const entryCount = countTrailEntries(pole);
-    const firstEntry = firstTrailEntrySummary(pole);
     const hasPhoto = Boolean(pole.image_url);
     return `
-      <button class="bench-list-item" type="button" data-trail-pole-id="${pole.id}">
-        <span class="bench-list-main">
+      <article class="bench-list-item trail-list-item" data-trail-pole-id="${pole.id}">
+        <button class="trail-list-open" type="button" data-action="open-trail-pole">
           <span class="bench-list-topline">
             <strong>Standort ${escapeHtml(pole.site_number || pole.id)}</strong>
           </span>
@@ -2147,15 +2146,25 @@ function renderTrailList() {
             <span class="trail-list-summary">${signboardCount} ${signboardCount === 1 ? 'Tafel' : 'Tafeln'}</span>
             <span class="trail-list-summary">${entryCount} ${entryCount === 1 ? 'Anschrift' : 'Anschriften'}</span>
             ${hasPhoto ? '<span class="bench-list-photo">Foto</span>' : '<span class="bench-list-photo is-missing">Ohne Foto</span>'}
-            <span class="trail-list-entry">${escapeHtml(firstEntry)}</span>
           </span>
-        </span>
-      </button>
+        </button>
+        <button class="trail-list-toggle" type="button" data-action="toggle-trail-details" aria-expanded="false">
+          <span>Alle Anschriften</span>
+          <span aria-hidden="true">▾</span>
+        </button>
+        <div class="trail-list-details-panel" hidden>
+          ${trailListDetailsHtml(pole)}
+        </div>
+      </article>
     `;
   }).join('');
 
   trailList.querySelectorAll('[data-trail-pole-id]').forEach((item) => {
-    item.addEventListener('click', () => {
+    const openButton = item.querySelector('[data-action="open-trail-pole"]');
+    const toggleButton = item.querySelector('[data-action="toggle-trail-details"]');
+    const detailsPanel = item.querySelector('.trail-list-details-panel');
+
+    openButton?.addEventListener('click', () => {
       const poleId = Number(item.dataset.trailPoleId);
       const pole = currentTrailPoles.find((candidate) => candidate.id === poleId);
       const marker = trailMarkers.get(poleId);
@@ -2171,7 +2180,37 @@ function renderTrailList() {
 
       marker?.openPopup();
     });
+
+    toggleButton?.addEventListener('click', () => {
+      const isOpen = toggleButton.getAttribute('aria-expanded') === 'true';
+      toggleButton.setAttribute('aria-expanded', String(!isOpen));
+      if (detailsPanel) detailsPanel.hidden = isOpen;
+    });
   });
+}
+
+function trailListDetailsHtml(pole) {
+  if (!pole.signboards?.length) {
+    return '<p class="trail-list-empty-detail">Keine Tafeln gepflegt.</p>';
+  }
+
+  return pole.signboards.map((signboard, signboardIndex) => {
+    const entries = signboard.entries?.length
+      ? signboard.entries.map((entry) => `
+        <li>
+          <span>${escapeHtml(entry.label)}</span>
+          ${formatTrailDuration(entry.duration) ? `<small>${escapeHtml(formatTrailDuration(entry.duration))}</small>` : ''}
+        </li>
+      `).join('')
+      : '<li><span>Keine Anschriften gepflegt</span></li>';
+
+    return `
+      <section class="trail-list-signboard">
+        <h3>Tafel ${signboardIndex + 1}: ${escapeHtml(signboard.direction || '-')} · Weg ${escapeHtml(signboard.trail_number || '-')}</h3>
+        <ul>${entries}</ul>
+      </section>
+    `;
+  }).join('');
 }
 
 function updateBenchListCount(count) {
