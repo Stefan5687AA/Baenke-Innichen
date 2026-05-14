@@ -1,9 +1,9 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-05-14T08:01:30.048Z",
-  "reason": "trail-pole-created:11",
+  "generated_at": "2026-05-14T08:02:10.143Z",
+  "reason": "manual",
   "source": "cloudflare-d1:innichen-benches",
-  "count": 6,
+  "count": 5,
   "active_count": 5,
   "signboard_count": 9,
   "entry_count": 12,
@@ -237,18 +237,6 @@
           ]
         }
       ]
-    },
-    {
-      "id": 11,
-      "site_number": "Ohne Nummer",
-      "lat": 46.7326,
-      "lng": 12.2817,
-      "active": false,
-      "notes": "Backup-Test automatisch angelegt",
-      "image_url": null,
-      "created_at": "2026-05-14 08:01:29",
-      "updated_at": "2026-05-14 08:01:29",
-      "signboards": []
     }
   ]
 }
