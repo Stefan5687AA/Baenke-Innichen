@@ -1,10 +1,10 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-05-20T17:48:15.384Z",
-  "reason": "bench-created:126",
+  "generated_at": "2026-05-20T17:57:22.739Z",
+  "reason": "bench-created:128",
   "source": "cloudflare-d1:innichen-benches",
-  "count": 126,
-  "active_count": 120,
+  "count": 128,
+  "active_count": 122,
   "deleted_count": 6,
   "benches": [
     {
@@ -1769,6 +1769,34 @@
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e8640ca9-de50-46d1-acae-1a412bce69ee.jpg",
       "created_at": "2026-05-20 17:48:15",
       "updated_at": "2026-05-20 17:48:15",
+      "deleted_at": null
+    },
+    {
+      "id": 127,
+      "title": "Sitzbank",
+      "lat": 46.727732,
+      "lng": 12.283097,
+      "status": "repair",
+      "last_inspection": "2026-05-20",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5e4fa990-d454-4517-bbcd-9c2bd561afc7.jpg",
+      "created_at": "2026-05-20 17:57:06",
+      "updated_at": "2026-05-20 17:57:06",
+      "deleted_at": null
+    },
+    {
+      "id": 128,
+      "title": "Sitzbank",
+      "lat": 46.726132,
+      "lng": 12.283643,
+      "status": "good",
+      "last_inspection": "2026-05-20",
+      "notes": "Ist locker im Boden",
+      "active": true,
+      "image_url": null,
+      "created_at": "2026-05-20 17:57:22",
+      "updated_at": "2026-05-20 17:57:22",
       "deleted_at": null
     }
   ],
@@ -7956,6 +7984,94 @@
         ]
       },
       "created_at": "2026-05-20 17:48:15"
+    },
+    {
+      "id": 153,
+      "bench_id": 127,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "repair"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-20"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.727732
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283097
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5e4fa990-d454-4517-bbcd-9c2bd561afc7.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-05-20 17:57:06"
+    },
+    {
+      "id": 154,
+      "bench_id": 128,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-05-20"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.726132
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.283643
+          }
+        ]
+      },
+      "created_at": "2026-05-20 17:57:22"
     }
   ]
 }
