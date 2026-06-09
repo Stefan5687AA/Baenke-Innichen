@@ -1,10 +1,10 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-06-09T08:21:47.036Z",
-  "reason": "bench-created:136",
+  "generated_at": "2026-06-09T08:30:19.484Z",
+  "reason": "bench-created:137",
   "source": "cloudflare-d1:innichen-benches",
-  "count": 136,
-  "active_count": 130,
+  "count": 137,
+  "active_count": 131,
   "deleted_count": 6,
   "benches": [
     {
@@ -1909,6 +1909,20 @@
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/891d512e-be5a-4346-8f67-a4730ca3aba7.jpg",
       "created_at": "2026-06-09 08:21:46",
       "updated_at": "2026-06-09 08:21:46",
+      "deleted_at": null
+    },
+    {
+      "id": 137,
+      "title": "Sitzbank",
+      "lat": 46.72886,
+      "lng": 12.285445,
+      "status": "good",
+      "last_inspection": "2026-06-09",
+      "notes": "",
+      "active": true,
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/66582878-9e7b-474a-b64f-04dda76e27bc.jpg",
+      "created_at": "2026-06-09 08:30:19",
+      "updated_at": "2026-06-09 08:30:19",
       "deleted_at": null
     }
   ],
@@ -8560,6 +8574,53 @@
         ]
       },
       "created_at": "2026-06-09 08:21:46"
+    },
+    {
+      "id": 163,
+      "bench_id": 137,
+      "action": "created",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "title",
+            "label": "Name",
+            "from": null,
+            "to": "Sitzbank"
+          },
+          {
+            "field": "status",
+            "label": "Status",
+            "from": null,
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": null,
+            "to": "2026-06-09"
+          },
+          {
+            "field": "lat",
+            "label": "Breite",
+            "from": null,
+            "to": 46.72886
+          },
+          {
+            "field": "lng",
+            "label": "Länge",
+            "from": null,
+            "to": 12.285445
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": null,
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/66582878-9e7b-474a-b64f-04dda76e27bc.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-06-09 08:30:19"
     }
   ]
 }
