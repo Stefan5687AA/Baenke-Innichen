@@ -1,6 +1,6 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-07-21T02:00:47.773Z",
+  "generated_at": "2026-07-22T02:00:47.833Z",
   "reason": "scheduled:0 2 * * *",
   "source": "cloudflare-d1:innichen-benches",
   "count": 137,
@@ -1006,13 +1006,13 @@
       "title": "Sitzbank + Tisch",
       "lat": 46.741089,
       "lng": 12.354429,
-      "status": "repair",
+      "status": "ok",
       "last_inspection": "2026-05-05",
       "notes": "Repariert aber auszutauschen",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/27ab2733-75bf-48c6-b835-21692010daf6.jpg",
       "created_at": "2026-05-05 11:46:33",
-      "updated_at": "2026-05-05 11:46:33",
+      "updated_at": "2026-07-21 07:39:45",
       "deleted_at": null
     },
     {
@@ -1062,13 +1062,13 @@
       "title": "Sitzbank + Tisch",
       "lat": 46.728428,
       "lng": 12.313348,
-      "status": "repair",
+      "status": "ok",
       "last_inspection": "2026-05-05",
       "notes": "Tisch kaputt",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e0b0d6cf-86ba-42ce-81be-7e7c55ff1a69.jpg",
       "created_at": "2026-05-05 12:05:12",
-      "updated_at": "2026-05-05 12:05:12",
+      "updated_at": "2026-07-21 09:07:00",
       "deleted_at": null
     },
     {
@@ -1426,13 +1426,13 @@
       "title": "Sitzbank + Tisch",
       "lat": 46.728314,
       "lng": 12.283615,
-      "status": "repair",
+      "status": "ok",
       "last_inspection": "2026-05-12",
       "notes": "",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/a399cf7c-c3f9-47e7-be89-3ba26362783a.jpg",
       "created_at": "2026-05-12 09:46:08",
-      "updated_at": "2026-05-12 09:46:08",
+      "updated_at": "2026-07-21 07:40:22",
       "deleted_at": null
     },
     {
@@ -1454,13 +1454,13 @@
       "title": "Sitzbank + Tisch",
       "lat": 46.728972,
       "lng": 12.283734,
-      "status": "repair",
+      "status": "ok",
       "last_inspection": "2026-05-12",
       "notes": "",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/e81e7313-020b-47bf-b869-2b3d28d9c192.jpg",
       "created_at": "2026-05-12 09:47:41",
-      "updated_at": "2026-05-12 09:47:41",
+      "updated_at": "2026-07-21 08:34:00",
       "deleted_at": null
     },
     {
@@ -1474,7 +1474,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/ac4fcf0a-5bab-45fd-bbc2-d5f394eea877.jpg",
       "created_at": "2026-05-12 09:48:30",
-      "updated_at": "2026-05-12 09:48:30",
+      "updated_at": "2026-07-21 08:34:11",
       "deleted_at": null
     },
     {
@@ -1496,13 +1496,13 @@
       "title": "Sitzbank + Tisch",
       "lat": 46.728906,
       "lng": 12.28288,
-      "status": "repair",
+      "status": "ok",
       "last_inspection": "2026-05-12",
       "notes": "",
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/7d77a53a-3c03-416d-a5d6-8ef4e378564c.jpg",
       "created_at": "2026-05-12 09:49:46",
-      "updated_at": "2026-05-12 09:49:46",
+      "updated_at": "2026-07-21 08:36:55",
       "deleted_at": null
     },
     {
@@ -1782,7 +1782,7 @@
       "active": true,
       "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/5e4fa990-d454-4517-bbcd-9c2bd561afc7.jpg",
       "created_at": "2026-05-20 17:57:06",
-      "updated_at": "2026-05-20 17:57:06",
+      "updated_at": "2026-07-21 08:41:39",
       "deleted_at": null
     },
     {
@@ -8621,6 +8621,125 @@
         ]
       },
       "created_at": "2026-06-09 08:30:19"
+    },
+    {
+      "id": 164,
+      "bench_id": 72,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 07:38:55"
+    },
+    {
+      "id": 165,
+      "bench_id": 102,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 07:40:22"
+    },
+    {
+      "id": 166,
+      "bench_id": 104,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 08:34:00"
+    },
+    {
+      "id": 167,
+      "bench_id": 107,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 08:36:55"
+    },
+    {
+      "id": 168,
+      "bench_id": 127,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 08:41:11"
+    },
+    {
+      "id": 169,
+      "bench_id": 127,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "ok",
+            "to": "repair"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 08:41:39"
+    },
+    {
+      "id": 170,
+      "bench_id": 76,
+      "action": "status_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "repair",
+            "to": "ok"
+          }
+        ]
+      },
+      "created_at": "2026-07-21 09:07:00"
     }
   ]
 }
