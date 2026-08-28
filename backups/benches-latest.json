@@ -1,6 +1,6 @@
 {
   "app": "Baenke-Innichen",
-  "generated_at": "2026-08-27T02:00:43.646Z",
+  "generated_at": "2026-08-28T02:00:43.815Z",
   "reason": "scheduled:0 2 * * *",
   "source": "cloudflare-d1:innichen-benches",
   "count": 138,
@@ -1258,13 +1258,13 @@
       "title": "Sitzbank",
       "lat": 46.735563,
       "lng": 12.287961,
-      "status": "ok",
-      "last_inspection": "2026-05-09",
+      "status": "good",
+      "last_inspection": "2026-08-27",
       "notes": "",
       "active": true,
-      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c7818a33-1d79-45e6-8da4-3aa25d38050f.jpg",
+      "image_url": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c93b38da-3d43-4dcc-8712-81e1339e0529.jpg",
       "created_at": "2026-05-09 12:46:00",
-      "updated_at": "2026-05-09 12:46:00",
+      "updated_at": "2026-08-27 11:51:06",
       "deleted_at": null
     },
     {
@@ -8824,6 +8824,35 @@
         ]
       },
       "created_at": "2026-08-17 08:17:06"
+    },
+    {
+      "id": 173,
+      "bench_id": 90,
+      "action": "photo_updated",
+      "actor": "Admin",
+      "details": {
+        "changes": [
+          {
+            "field": "status",
+            "label": "Status",
+            "from": "ok",
+            "to": "good"
+          },
+          {
+            "field": "last_inspection",
+            "label": "Letzte Kontrolle",
+            "from": "2026-05-09",
+            "to": "2026-08-27"
+          },
+          {
+            "field": "image_url",
+            "label": "Foto",
+            "from": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c7818a33-1d79-45e6-8da4-3aa25d38050f.jpg",
+            "to": "https://pub-483266975888471db0d51fff35148e9d.r2.dev/bench-images/c93b38da-3d43-4dcc-8712-81e1339e0529.jpg"
+          }
+        ]
+      },
+      "created_at": "2026-08-27 11:51:06"
     }
   ]
 }
