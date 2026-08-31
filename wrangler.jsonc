@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "baenke-innichen-frontend",
+  "name": "baenke-innichen",
   "compatibility_date": "2026-04-17",
   "observability": {
     "enabled": true
